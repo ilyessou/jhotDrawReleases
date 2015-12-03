@@ -12,7 +12,6 @@
 package CH.ifa.draw.applet;
 
 import javax.swing.*;
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
@@ -54,9 +53,8 @@ public class DrawApplet
 	private transient JComboBox          fFontChoice;
 
 	private transient Thread          fSleeper;
-	private Iconkit                   fIconkit;
 	private transient 			UndoManager myUndoManager;
-	
+
 	static String                     fgUntitled = "untitled";
 
 	private static final String       fgDrawPath = "/CH/ifa/draw/";
@@ -66,15 +64,14 @@ public class DrawApplet
 	 * Initializes the applet and creates its contents.
 	 */
 	public void init() {
+		createIconkit();
 		getVersionControlStrategy().assertCompatibleVersion();
 		setUndoManager(new UndoManager());
-		
-		fIconkit = new Iconkit(this);
 
 		getContentPane().setLayout(new BorderLayout());
 
 		fView = createDrawingView();
-		
+
 		JPanel attributes = createAttributesPanel();
 		createAttributeChoices(attributes);
 		getContentPane().add("North", attributes);
@@ -98,6 +95,10 @@ public class DrawApplet
 	}
 
 	public void removeViewChangeListener(ViewChangeListener vsl) {
+	}
+
+	protected Iconkit createIconkit() {
+		return new Iconkit(this);
 	}
 
 	/*
@@ -130,24 +131,25 @@ public class DrawApplet
 	 */
 	protected void createAttributeChoices(JPanel panel) {
 		panel.add(new JLabel("Fill"));
-		fFillColor = createColorChoice("FillColor");
+		fFillColor = createColorChoice(FigureAttributeConstant.FILL_COLOR);
 		panel.add(fFillColor);
 
 		panel.add(new JLabel("Text"));
-		fTextColor = createColorChoice("TextColor");
+		fTextColor = createColorChoice(FigureAttributeConstant.TEXT_COLOR);
 		panel.add(fTextColor);
 
 		panel.add(new JLabel("Pen"));
-		fFrameColor = createColorChoice("FrameColor");
+		fFrameColor = createColorChoice(FigureAttributeConstant.FRAME_COLOR);
 		panel.add(fFrameColor);
 
 		panel.add(new JLabel("Arrow"));
 		CommandChoice choice = new CommandChoice();
 		fArrowChoice = choice;
-		choice.addItem(new ChangeAttributeCommand("none",     "ArrowMode", new Integer(PolyLineFigure.ARROW_TIP_NONE),  this));
-		choice.addItem(new ChangeAttributeCommand("at Start", "ArrowMode", new Integer(PolyLineFigure.ARROW_TIP_START), this));
-		choice.addItem(new ChangeAttributeCommand("at End",   "ArrowMode", new Integer(PolyLineFigure.ARROW_TIP_END),   this));
-		choice.addItem(new ChangeAttributeCommand("at Both",  "ArrowMode", new Integer(PolyLineFigure.ARROW_TIP_BOTH),  this));
+		FigureAttributeConstant arrowMode = FigureAttributeConstant.ARROW_MODE;
+		choice.addItem(new ChangeAttributeCommand("none",     arrowMode, new Integer(PolyLineFigure.ARROW_TIP_NONE),  this));
+		choice.addItem(new ChangeAttributeCommand("at Start", arrowMode, new Integer(PolyLineFigure.ARROW_TIP_START), this));
+		choice.addItem(new ChangeAttributeCommand("at End",   arrowMode, new Integer(PolyLineFigure.ARROW_TIP_END),   this));
+		choice.addItem(new ChangeAttributeCommand("at Both",  arrowMode, new Integer(PolyLineFigure.ARROW_TIP_BOTH),  this));
 		panel.add(fArrowChoice);
 
 		panel.add(new JLabel("Font"));
@@ -158,7 +160,7 @@ public class DrawApplet
 	/**
 	 * Creates the color choice for the given attribute.
 	 */
-	protected JComboBox createColorChoice(String attribute) {
+	protected JComboBox createColorChoice(FigureAttributeConstant attribute) {
 		CommandChoice choice = new CommandChoice();
 		for (int i = 0; i < ColorMap.size(); i++)
 			choice.addItem(
@@ -180,7 +182,7 @@ public class DrawApplet
 		CommandChoice choice = new CommandChoice();
 		String fonts[] = Toolkit.getDefaultToolkit().getFontList();
 		for (int i = 0; i < fonts.length; i++) {
-			choice.addItem(new ChangeAttributeCommand(fonts[i], "FontName", fonts[i],  this));
+			choice.addItem(new ChangeAttributeCommand(fonts[i], FigureAttributeConstant.FONT_NAME, fonts[i],  this));
 		}
 		return choice;
 	}
@@ -346,9 +348,9 @@ public class DrawApplet
 	 */
 	public void paletteUserOver(PaletteButton button, boolean inside) {
 		if (inside) {
-			showStatus(((ToolButton) button).name());
+			showStatus(button.name());
 		}
-		else {
+		else if (fSelectedToolButton != null) {
 			showStatus(fSelectedToolButton.name());
 		}
 	}
@@ -502,20 +504,20 @@ public class DrawApplet
 	}
 
 	private void setupAttributes() {
-		Color   frameColor = (Color)   AttributeFigure.getDefaultAttribute("FrameColor");
-		Color   fillColor  = (Color)   AttributeFigure.getDefaultAttribute("FillColor");
-		Color   textColor  = (Color)   AttributeFigure.getDefaultAttribute("TextColor");
-		Integer arrowMode  = (Integer) AttributeFigure.getDefaultAttribute("ArrowMode");
-		String  fontName   = (String)  AttributeFigure.getDefaultAttribute("FontName");
+		Color   frameColor = (Color)   AttributeFigure.getDefaultAttribute(FigureAttributeConstant.FRAME_COLOR);
+		Color   fillColor  = (Color)   AttributeFigure.getDefaultAttribute(FigureAttributeConstant.FILL_COLOR);
+		Color   textColor  = (Color)   AttributeFigure.getDefaultAttribute(FigureAttributeConstant.TEXT_COLOR);
+		Integer arrowMode  = (Integer) AttributeFigure.getDefaultAttribute(FigureAttributeConstant.ARROW_MODE);
+		String  fontName   = (String)  AttributeFigure.getDefaultAttribute(FigureAttributeConstant.FONT_NAME);
 
-		FigureEnumeration k = view().selectionElements();
-		while (k.hasMoreElements()) {
-			Figure f = k.nextFigure();
-			frameColor = (Color) f.getAttribute("FrameColor");
-			fillColor  = (Color) f.getAttribute("FillColor");
-			textColor  = (Color) f.getAttribute("TextColor");
-			arrowMode  = (Integer) f.getAttribute("ArrowMode");
-			fontName   = (String) f.getAttribute("FontName");
+		FigureEnumeration fe = view().selection();
+		while (fe.hasNextFigure()) {
+			Figure f = fe.nextFigure();
+			frameColor = (Color) f.getAttribute(FigureAttributeConstant.FRAME_COLOR);
+			fillColor  = (Color) f.getAttribute(FigureAttributeConstant.FILL_COLOR);
+			textColor  = (Color) f.getAttribute(FigureAttributeConstant.TEXT_COLOR);
+			arrowMode  = (Integer) f.getAttribute(FigureAttributeConstant.ARROW_MODE);
+			fontName   = (String) f.getAttribute(FigureAttributeConstant.FONT_NAME);
 		}
 
 		fFrameColor.setSelectedIndex(ColorMap.colorIndex(frameColor));
@@ -560,7 +562,7 @@ public class DrawApplet
 	protected void setUndoManager(UndoManager newUndoManager) {
 		myUndoManager = newUndoManager;
 	}
-	
+
 	public UndoManager getUndoManager() {
 		return myUndoManager;
 	}

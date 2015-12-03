@@ -12,55 +12,62 @@
 package CH.ifa.draw.standard;
 
 import CH.ifa.draw.framework.*;
-import java.util.*;
+import CH.ifa.draw.util.CollectionsFactory;
+
+import java.util.Iterator;
+import java.util.Collection;
+
 
 /**
- * An Enumeration for a Vector of Figures.
+ * An Enumeration for a Collection of Figures.
  *
  * @version <$CURRENT_VERSION$>
  */
 public final class FigureEnumerator implements FigureEnumeration {
-	private Enumeration fEnumeration;
+	private Iterator myIterator;
+	private Collection myInitialCollection;
 
-	private static FigureEnumerator singletonEmptyEnumerator = 
-		new FigureEnumerator(new Vector());
+	private static FigureEnumerator singletonEmptyEnumerator =
+		new FigureEnumerator(CollectionsFactory.current().createList());
 
-	public FigureEnumerator(Vector v) {
-		fEnumeration = v.elements();
+	public FigureEnumerator(Collection c) {
+		myInitialCollection = c;
+		reset();
 	}
 
 	/**
 	 * Returns true if the enumeration contains more elements; false
 	 * if its empty.
 	 */
-	public boolean hasMoreElements() {
-		return fEnumeration.hasMoreElements();
+	public boolean hasNextFigure() {
+		return myIterator.hasNext();
 	}
 
 	/**
 	 * Returns the next element of the enumeration. Calls to this
 	 * method will enumerate successive elements.
-	 * @exception NoSuchElementException If no more elements exist.
-	 */
-	public Object nextElement() {
-		return fEnumeration.nextElement();
-	}
-
-	/**
-	 * Returns the next element of the enumeration. Calls to this
-	 * method will enumerate successive elements.
-	 * @exception NoSuchElementException If no more elements exist.
+	 * @exception java.util.NoSuchElementException If no more elements exist.
 	 */
 	public Figure nextFigure() {
-		return (Figure)fEnumeration.nextElement();
+		return (Figure)myIterator.next();
 	}
-	
+
 	public static FigureEnumeration getEmptyEnumeration() {
 		return singletonEmptyEnumerator;
 	}
-	
+
+	/**
+	 * Reset the enumeration so it can be reused again. However, the
+	 * underlying collection might have changed since the last usage
+	 * so the elements and the order may vary when using an enumeration
+	 * which has been reset.
+	 */
+	public void reset() {
+		myIterator = myInitialCollection.iterator();
+	}
+
 /*	public static FigureEnumeration getClonedFigures(FigureEnumeration toDuplicate) {
-		Vector v = new Vector();
+		List v = CollectionsFactory.current().createList();
 		while (toDuplicate.hasMoreElements()) {
 			try {
 				v.addElement(toDuplicate.nextFigure().clone());

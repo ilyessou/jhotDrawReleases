@@ -11,11 +11,11 @@
 
 package CH.ifa.draw.samples.javadraw;
 
-import java.awt.*;
-import java.awt.event.*;
 import CH.ifa.draw.framework.*;
 import CH.ifa.draw.standard.*;
 import CH.ifa.draw.util.FloatingTextField;
+import java.awt.*;
+import java.awt.event.*;
 
 /**
  * A tool to attach URLs to figures.
@@ -37,9 +37,8 @@ public  class URLTool extends AbstractTool {
 
 	public void mouseDown(MouseEvent e, int x, int y)
 	{
-		Figure pressedFigure;
-
-		pressedFigure =  drawing().findFigureInside(x, y);
+		super.mouseDown(e,x,y);
+		Figure pressedFigure = drawing().findFigureInside(x, y);
 		if (pressedFigure != null) {
 			beginEdit(pressedFigure);
 			return;
@@ -68,7 +67,7 @@ public  class URLTool extends AbstractTool {
 			);
 		}
 
-		if (figure != fURLTarget && fURLTarget != null) {
+		if ((figure != fURLTarget) && (fURLTarget != null)) {
 			endEdit();
 		}
 		if (figure != fURLTarget) {
@@ -96,7 +95,7 @@ public  class URLTool extends AbstractTool {
 	}
 
 	private String getURL(Figure figure) {
-		String url = (String) figure.getAttribute("URL");
+		String url = (String) figure.getAttribute(FigureAttributeConstant.URL);
 		if (url == null) {
 			url = "";
 		}
@@ -104,6 +103,6 @@ public  class URLTool extends AbstractTool {
 	}
 
 	private void setURL(Figure figure, String url) {
-		figure.setAttribute("URL", url);
+		figure.setAttribute(FigureAttributeConstant.URL, url);
 	}
 }

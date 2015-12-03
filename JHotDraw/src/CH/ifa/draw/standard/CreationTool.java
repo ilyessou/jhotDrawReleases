@@ -12,11 +12,9 @@
 package CH.ifa.draw.standard;
 
 import CH.ifa.draw.framework.*;
-import CH.ifa.draw.util.UndoableAdapter;
 import CH.ifa.draw.util.Undoable;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.util.Vector;
 
 /**
  * A tool to create new figures. The figure to be
@@ -39,11 +37,6 @@ import java.util.Vector;
 public class CreationTool extends AbstractTool {
 
 	/**
-	 * the anchor point of the interaction
-	 */
-	private Point   fAnchorPoint;
-
-	/**
 	 * the currently created figure
 	 */
 	private Figure  fCreatedFigure;
@@ -55,9 +48,9 @@ public class CreationTool extends AbstractTool {
 	private Figure myAddedFigure;
 
 	/**
-	 * the prototypical figure that is used to create new figures.
+	 * the prototypical figure that is used to create new figuresthe prototypical figure that is used to create new figures.
 	 */
-	private Figure  fPrototype;
+	private Figure  myPrototypeFigure;
 
 
 	/**
@@ -65,7 +58,7 @@ public class CreationTool extends AbstractTool {
 	 */
 	public CreationTool(DrawingEditor newDrawingEditor, Figure prototype) {
 		super(newDrawingEditor);
-		fPrototype = prototype;
+		setPrototypeFigure(prototype);
 	}
 
 	/**
@@ -73,8 +66,7 @@ public class CreationTool extends AbstractTool {
 	 * This is for subclassers overriding createFigure.
 	 */
 	protected CreationTool(DrawingEditor newDrawingEditor) {
-		super(newDrawingEditor);
-		fPrototype = null;
+		this(newDrawingEditor, null);
 	}
 
 	/**
@@ -83,7 +75,7 @@ public class CreationTool extends AbstractTool {
 	public void activate() {
 		super.activate();
 		if (isUsable()) {
-			view().setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+			getActiveView().setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 		}
 	}
 
@@ -91,27 +83,29 @@ public class CreationTool extends AbstractTool {
 	 * Creates a new figure by cloning the prototype.
 	 */
 	public void mouseDown(MouseEvent e, int x, int y) {
-		fAnchorPoint = new Point(x,y);
-		fCreatedFigure = createFigure();
-		setAddedFigure((view().add(getCreatedFigure())));
-		getAddedFigure().displayBox(fAnchorPoint, fAnchorPoint);
+		super.mouseDown(e, x, y);
+		setCreatedFigure(createFigure());
+		setAddedFigure(view().add(getCreatedFigure()));
+		getAddedFigure().displayBox(new Point(getAnchorX(), getAnchorY()), new Point(getAnchorX(), getAnchorY()));
 	}
 
 	/**
 	 * Creates a new figure by cloning the prototype.
 	 */
 	protected Figure createFigure() {
-		if (fPrototype == null) {
+		if (getPrototypeFigure() == null) {
 			throw new JHotDrawRuntimeException("No protoype defined");
 		}
-		return (Figure) fPrototype.clone();
+		return (Figure)getPrototypeFigure().clone();
 	}
 
 	/**
 	 * Adjusts the extent of the created figure
 	 */
 	public void mouseDrag(MouseEvent e, int x, int y) {
-		getAddedFigure().displayBox(fAnchorPoint, new Point(x,y));
+		if (getAddedFigure() != null) {
+			getAddedFigure().displayBox(new Point(getAnchorX(), getAnchorY()), new Point(x, y));
+		}
 	}
 
 	/**
@@ -120,21 +114,43 @@ public class CreationTool extends AbstractTool {
 	 * @see Figure#isEmpty
 	 */
 	public void mouseUp(MouseEvent e, int x, int y) {
-		if (getCreatedFigure().isEmpty()) {
-			drawing().remove(getAddedFigure());
-			// nothing to undo
-			setUndoActivity(null);
-		}
-		else {
-			// use undo activity from paste command...
-			setUndoActivity(createUndoActivity());
+		if (getAddedFigure() != null) {
+			if (getCreatedFigure().isEmpty()) {
+				drawing().remove(getAddedFigure());
+				// nothing to undo
+				setUndoActivity(null);
+			}
+			else {
+				// use undo activity from paste command...
+				setUndoActivity(createUndoActivity());
 
-			// put created figure into a figure enumeration
-			getUndoActivity().setAffectedFigures(new SingleFigureEnumerator(getAddedFigure()));
+				// put created figure into a figure enumeration
+				getUndoActivity().setAffectedFigures(new SingleFigureEnumerator(getAddedFigure()));
+			}
+			setAddedFigure(null);
 		}
-		fCreatedFigure = null;
-		setAddedFigure(null);
+		setCreatedFigure(null);
 		editor().toolDone();
+	}
+
+	/**
+	 * As the name suggests this CreationTool uses the Prototype design pattern.
+	 * Thus, the prototype figure which is used to create new figures of the same
+	 * type by cloning the original prototype figure.
+	 * @param newPrototypeFigure figure to be cloned to create new figures
+	 */
+	protected void setPrototypeFigure(Figure newPrototypeFigure) {
+		myPrototypeFigure = newPrototypeFigure;
+	}
+
+	/**
+	 * As the name suggests this CreationTool uses the Prototype design pattern.
+	 * Thus, the prototype figure which is used to create new figures of the same
+	 * type by cloning the original prototype figure.
+	 * @return figure to be cloned to create new figures
+	 */
+	protected Figure getPrototypeFigure() {
+		return myPrototypeFigure;
 	}
 
 	/**
@@ -144,7 +160,10 @@ public class CreationTool extends AbstractTool {
 		return fCreatedFigure;
 	}
 
-	private void setCreatedFigure(Figure newCreatedFigure) {
+	/**
+	 * Sets the createdFigure attribute of the CreationTool object
+	 */
+	protected void setCreatedFigure(Figure newCreatedFigure) {
 		fCreatedFigure = newCreatedFigure;
 	}
 
@@ -156,7 +175,10 @@ public class CreationTool extends AbstractTool {
 		return myAddedFigure;
 	}
 
-	private void setAddedFigure(Figure newAddedFigure) {
+	/**
+	 * Sets the addedFigure attribute of the CreationTool object
+	 */
+	protected void setAddedFigure(Figure newAddedFigure) {
 		myAddedFigure = newAddedFigure;
 	}
 
@@ -165,16 +187,5 @@ public class CreationTool extends AbstractTool {
 	 */
 	protected Undoable createUndoActivity() {
 		return new PasteCommand.UndoActivity(view());
-	}
-
-	/**
-	 * The anchor point is usually the first mouse click performed with this tool.
-	 *
-	 * @return the anchor point for the interaction
-	 * @see #mouseDown
-	 */
-	protected Point getAnchorPoint() {
-		// SF bug-report id: #490752
-		return fAnchorPoint;
 	}
 }

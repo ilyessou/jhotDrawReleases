@@ -15,11 +15,12 @@ import CH.ifa.draw.framework.*;
 import CH.ifa.draw.standard.*;
 import CH.ifa.draw.figures.*;
 import CH.ifa.draw.util.*;
+import CH.ifa.draw.contrib.*;
+
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 import java.io.*;
 
 /**
@@ -53,6 +54,12 @@ public	class DrawApplication
 	private UndoManager				myUndoManager;
 	protected static String			fgUntitled = "untitled";
 	private final EventListenerList listenerList = new EventListenerList();
+	private DesktopListener     fDesktopListener;
+
+	/**
+	 * This component acts as a desktop for the content.
+	 */
+	private Desktop              fDesktop;
 
 	// the image resource path
 	private static final String		fgDrawPath = "/CH/ifa/draw/";
@@ -130,10 +137,13 @@ public	class DrawApplication
 			window.open();
 		}
 		else {
-			window.open(createDrawingView(initialDrawing));
+			window.open(window.createDrawingView(initialDrawing));
 		}
 	}
 
+	public final void newWindow() {
+        newWindow(createDrawing());
+	}
 	/**
 	 * Opens a new window
 	 */
@@ -144,21 +154,19 @@ public	class DrawApplication
 	/**
 	 * Opens a new window with a drawing view.
 	 */
-	protected void open(DrawingView newDrawingView) {
+	protected void open(final DrawingView newDrawingView) {
 		getVersionControlStrategy().assertCompatibleVersion();
 		setUndoManager(new UndoManager());
-		fIconkit = new Iconkit(this);
+		setIconkit(createIconkit());
 		getContentPane().setLayout(new BorderLayout());
 
 		// status line must be created before a tool is set
-		fStatusLine = createStatusLine();
-		getContentPane().add(fStatusLine, BorderLayout.SOUTH);
+		setStatusLine(createStatusLine());
+		getContentPane().add(getStatusLine(), BorderLayout.SOUTH);
 
 		// create dummy tool until the default tool is activated during toolDone()
 		setTool(new NullTool(this), "");
 		setView(newDrawingView);
-		JComponent contents = createContents(view());
-		contents.setAlignmentX(LEFT_ALIGNMENT);
 
 		JToolBar tools = createToolPalette();
 		createTools(tools);
@@ -168,8 +176,9 @@ public	class DrawApplication
 		activePanel.setAlignmentY(TOP_ALIGNMENT);
 		activePanel.setLayout(new BorderLayout());
 		activePanel.add(tools, BorderLayout.NORTH);
-		activePanel.add(contents, BorderLayout.CENTER);
-
+		setDesktopListener(createDesktopListener());
+		setDesktop(createDesktop());
+		activePanel.add((Component)getDesktop(), BorderLayout.CENTER);
 		getContentPane().add(activePanel, BorderLayout.CENTER);
 
 		JMenuBar mb = new JMenuBar();
@@ -184,9 +193,37 @@ public	class DrawApplication
 			setSize(mb.getPreferredSize().width, d.height);
 		}
 		addListeners();
-		setVisible(true);
-		fStorageFormatManager = createStorageFormatManager();
+		setStorageFormatManager(createStorageFormatManager());
 
+		//no work allowed to be done on GUI outside of AWT thread once
+		//setVisible(true) called.
+		Runnable r = new Runnable() {
+			public void run() {
+				if (newDrawingView.isInteractive()) {
+					getDesktop().addToDesktop(newDrawingView , Desktop.PRIMARY);
+				}
+				toolDone();
+			}
+		};
+
+		if (java.awt.EventQueue.isDispatchThread() == false) {
+			try {
+				java.awt.EventQueue.invokeAndWait(r);
+			}
+			catch(java.lang.InterruptedException ie) {
+				System.err.println(ie.getMessage());
+				exit();
+			}
+			catch(java.lang.reflect.InvocationTargetException ite) {
+				System.err.println(ite.getMessage());
+				exit();
+			}
+		}
+		else {
+			r.run();
+		}
+
+		setVisible(true);
 		toolDone();
 	}
 
@@ -328,14 +365,14 @@ public	class DrawApplication
 		CommandMenu menu = new CommandMenu("Debug");
 
 		Command cmd = new AbstractCommand("Simple Update", this) {
-			public void executable() {
+			public void execute() {
 				this.view().setDisplayUpdate(new SimpleUpdateStrategy());
 			}
 		};
 		menu.add(cmd);
 
 		cmd = new AbstractCommand("Buffered Update", this) {
-			public void executable() {
+			public void execute() {
 				this.view().setDisplayUpdate(new BufferedUpdateStrategy());
 			}
 		};
@@ -349,21 +386,21 @@ public	class DrawApplication
 	 */
 	protected JMenu createAttributesMenu() {
 		JMenu menu = new JMenu("Attributes");
-		menu.add(createColorMenu("Fill Color", "FillColor"));
-		menu.add(createColorMenu("Pen Color", "FrameColor"));
+		menu.add(createColorMenu("Fill Color", FigureAttributeConstant.FILL_COLOR));
+		menu.add(createColorMenu("Pen Color", FigureAttributeConstant.FRAME_COLOR));
 		menu.add(createArrowMenu());
 		menu.addSeparator();
 		menu.add(createFontMenu());
 		menu.add(createFontSizeMenu());
 		menu.add(createFontStyleMenu());
-		menu.add(createColorMenu("Text Color", "TextColor"));
+		menu.add(createColorMenu("Text Color", FigureAttributeConstant.TEXT_COLOR));
 		return menu;
 	}
 
 	/**
 	 * Creates the color menu.
 	 */
-	protected JMenu createColorMenu(String title, String attribute) {
+	protected JMenu createColorMenu(String title, FigureAttributeConstant attribute) {
 		CommandMenu menu = new CommandMenu(title);
 		for (int i=0; i<ColorMap.size(); i++)
 			menu.add(
@@ -383,15 +420,16 @@ public	class DrawApplication
 	 * Creates the arrows menu.
 	 */
 	protected JMenu createArrowMenu() {
+		FigureAttributeConstant arrowMode = FigureAttributeConstant.ARROW_MODE;
 		CommandMenu menu = new CommandMenu("Arrow");
 		menu.add(new UndoableCommand(
-			new ChangeAttributeCommand("none", "ArrowMode", new Integer(PolyLineFigure.ARROW_TIP_NONE), this)));
+			new ChangeAttributeCommand("none", arrowMode, new Integer(PolyLineFigure.ARROW_TIP_NONE), this)));
 		menu.add(new UndoableCommand(
-			new ChangeAttributeCommand("at Start", "ArrowMode", new Integer(PolyLineFigure.ARROW_TIP_START), this)));
+			new ChangeAttributeCommand("at Start", arrowMode, new Integer(PolyLineFigure.ARROW_TIP_START), this)));
 		menu.add(new UndoableCommand(
-			new ChangeAttributeCommand("at End", "ArrowMode", new Integer(PolyLineFigure.ARROW_TIP_END), this)));
+			new ChangeAttributeCommand("at End", arrowMode, new Integer(PolyLineFigure.ARROW_TIP_END), this)));
 		menu.add(new UndoableCommand(
-			new ChangeAttributeCommand("at Both", "ArrowMode", new Integer(PolyLineFigure.ARROW_TIP_BOTH), this)));
+			new ChangeAttributeCommand("at Both", arrowMode, new Integer(PolyLineFigure.ARROW_TIP_BOTH), this)));
 		return menu;
 	}
 
@@ -404,7 +442,7 @@ public	class DrawApplication
 		String fonts[] = Toolkit.getDefaultToolkit().getFontList();
 		for (int i = 0; i < fonts.length; i++) {
 			menu.add(new UndoableCommand(
-				new ChangeAttributeCommand(fonts[i], "FontName", fonts[i],  this)));
+				new ChangeAttributeCommand(fonts[i], FigureAttributeConstant.FONT_NAME, fonts[i],  this)));
 		}
 		return menu;
 	}
@@ -413,13 +451,14 @@ public	class DrawApplication
 	 * Creates the font style menu with entries (Plain, Italic, Bold).
 	 */
 	protected JMenu createFontStyleMenu() {
+		FigureAttributeConstant fontStyle = FigureAttributeConstant.FONT_STYLE;
 		CommandMenu menu = new CommandMenu("Font Style");
 		menu.add(new UndoableCommand(
-			new ChangeAttributeCommand("Plain", "FontStyle", new Integer(Font.PLAIN), this)));
+			new ChangeAttributeCommand("Plain", fontStyle, new Integer(Font.PLAIN), this)));
 		menu.add(new UndoableCommand(
-			new ChangeAttributeCommand("Italic","FontStyle", new Integer(Font.ITALIC), this)));
+			new ChangeAttributeCommand("Italic", fontStyle, new Integer(Font.ITALIC), this)));
 		menu.add(new UndoableCommand(
-			new ChangeAttributeCommand("Bold",  "FontStyle", new Integer(Font.BOLD), this)));
+			new ChangeAttributeCommand("Bold", fontStyle, new Integer(Font.BOLD), this)));
 		return menu;
 	}
 
@@ -434,7 +473,7 @@ public	class DrawApplication
 				new UndoableCommand(
 					new ChangeAttributeCommand(
 						Integer.toString(sizes[i]),
-						"FontSize",
+						FigureAttributeConstant.FONT_SIZE,
 						new Integer(sizes[i]),
 						this
 					)
@@ -482,8 +521,7 @@ public	class DrawApplication
 	 * @param palette the palette where the tools are added.
 	 */
 	protected void createTools(JToolBar palette) {
-		Tool tool = createSelectionTool();
-		fDefaultToolButton = createToolButton(IMAGES+"SEL", "Selection Tool", tool);
+		setDefaultTool(createDefaultTool());
 		palette.add(fDefaultToolButton);
 	}
 
@@ -493,6 +531,28 @@ public	class DrawApplication
 	 */
 	protected Tool createSelectionTool() {
 		return new SelectionTool(this);
+	}
+
+	protected Tool createDefaultTool() {
+		return createSelectionTool();
+	}
+
+	protected void setDefaultTool(Tool newDefaultTool) {
+		if (newDefaultTool != null) {
+			fDefaultToolButton = createToolButton(IMAGES+"SEL", "Selection Tool", newDefaultTool);
+		}
+		else {
+			fDefaultToolButton = null;
+		}
+	}
+
+	public Tool getDefaultTool() {
+		if (fDefaultToolButton != null) {
+			return fDefaultToolButton.tool();
+		}
+		else {
+			return null;
+		}
 	}
 
 	/**
@@ -518,7 +578,8 @@ public	class DrawApplication
 		Dimension d = getDrawingViewSize();
 		DrawingView newDrawingView = new StandardDrawingView(this, d.width, d.height);
 		newDrawingView.setDrawing(newDrawing);
-		fireViewCreatedEvent(newDrawingView);
+		// notify listeners about created view when the view is added to the desktop
+		//fireViewCreatedEvent(newDrawingView);
 		return newDrawingView;
 	}
 
@@ -553,22 +614,22 @@ public	class DrawApplication
 		return new StandardDrawing();
 	}
 
-	/**
-	 * Creates the contents component of the application
-	 * frame. By default the DrawingView is returned in
-	 * a JScrollPane.
-	 */
-	protected JComponent createContents(DrawingView view) {
-		if (view instanceof Component) {
-			JScrollPane sp = new JScrollPane((Component)view);
-			sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-			sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+	protected Desktop createDesktop() {
+		return new JPanelDesktop(this);
+//		return new JScrollPaneDesktop();
+	}
 
-			return sp;
-		}
-		else {
-			return new JPanel();
-		}
+	protected void setDesktop(Desktop newDesktop) {
+		newDesktop.addDesktopListener(getDesktopListener());
+		fDesktop = newDesktop;
+	}
+
+	/**
+	* Get the component, in which the content is embedded. This component
+	* acts as a desktop for the content.
+	*/
+	public Desktop getDesktop() {
+		return fDesktop;
 	}
 
 	/**
@@ -581,16 +642,16 @@ public	class DrawApplication
 		storageFormatManager.setDefaultStorageFormat(new StandardStorageFormat());
 		storageFormatManager.addStorageFormat(storageFormatManager.getDefaultStorageFormat());
 		storageFormatManager.addStorageFormat(new SerializationStorageFormat());
+//		storageFormatManager.addStorageFormat(new JDOStorageFormat());
 		return storageFormatManager;
 	}
 
 	/**
 	 * Set the StorageFormatManager. The StorageFormatManager is used when storing and
 	 * restoring Drawing from the file system.
-	 * Should we through IllegalArguementException if it is?
 	 */
-	protected final void setStorageFormatManager(StorageFormatManager storageFormatManager) {
-		fStorageFormatManager = storageFormatManager;
+	protected final void setStorageFormatManager(StorageFormatManager newStorageFormatManager) {
+		fStorageFormatManager = newStorageFormatManager;
 	}
 
 	/**
@@ -618,12 +679,20 @@ public	class DrawApplication
 		return field;
 	}
 
+	private void setStatusLine(JTextField newStatusLine) {
+		fStatusLine = newStatusLine;
+	}
+
+	protected JTextField getStatusLine() {
+		return fStatusLine;
+	}
+
 	/**
 	 * Handles a user selection in the palette.
 	 * @see PaletteListener
 	 */
-	public void paletteUserSelected(PaletteButton button) {
-		ToolButton toolButton = (ToolButton) button;
+	public void paletteUserSelected(PaletteButton paletteButton) {
+		ToolButton toolButton = (ToolButton)paletteButton;
 		setTool(toolButton.tool(), toolButton.name());
 		setSelected(toolButton);
 	}
@@ -632,12 +701,12 @@ public	class DrawApplication
 	 * Handles when the mouse enters or leaves a palette button.
 	 * @see PaletteListener
 	 */
-	public void paletteUserOver(PaletteButton button, boolean inside) {
-		ToolButton toolButton = (ToolButton) button;
+	public void paletteUserOver(PaletteButton paletteButton, boolean inside) {
+		ToolButton toolButton = (ToolButton)paletteButton;
 		if (inside) {
 			showStatus(toolButton.name());
 		}
-		else {
+		else if (fSelectedToolButton != null) {
 			showStatus(fSelectedToolButton.name());
 		}
 	}
@@ -674,6 +743,7 @@ public	class DrawApplication
 	 * @see DrawingEditor
 	 */
 	public void toolDone() {
+		System.out.println("ToolDone");
 		if (fDefaultToolButton != null) {
 			setTool(fDefaultToolButton.tool(), fDefaultToolButton.name());
 			setSelected(fDefaultToolButton);
@@ -681,33 +751,35 @@ public	class DrawApplication
 	}
 
 	/**
-	 * Fired by a view when the figure seleciton changes.  Since Commands and
-	 * Tools are Actions and they are registered to hear these events, they will
-	 * handle themselves.  So selection sensitive menuitems will update their
-	 * own states.
+	 * Fired by a view when the figure selection changes.  Since Commands and
+	 * Tools may depend on the figure selection they are registered to be notified
+	 * about these events.
+	 * Any selection sensitive GUI component should update its
+	 * own state if the selection has changed, e.g. selection sensitive menuitems
+	 * will update their own states.
 	 * @see DrawingEditor
 	 */
 	public void figureSelectionChanged(DrawingView view) {
-		JMenuBar mb = getJMenuBar();
-		CommandMenu editMenu = (CommandMenu)mb.getMenu(EDIT_MENU);
-		// make sure it does exist
-		if (editMenu != null) {
-			editMenu.checkEnabled();
-		}
-		CommandMenu alignmentMenu = (CommandMenu)mb.getMenu(ALIGNMENT_MENU);
-		// make sure it does exist
-		if (alignmentMenu != null) {
-			alignmentMenu.checkEnabled();
-		}
+		checkCommandMenus();
+	}
 
-		JMenu attributeMenu = mb.getMenu(ATTRIBUTES_MENU);
-		// make sure it does exist
-		if (attributeMenu != null) {
-			for (int i = 0; i < attributeMenu.getItemCount(); i++) {
-				JMenuItem currentMenu = attributeMenu.getItem(i);
-				if (currentMenu instanceof CommandMenu) {
-					((CommandMenu)currentMenu).checkEnabled();
-				}
+	protected void checkCommandMenus() {
+		JMenuBar mb = getJMenuBar();
+
+		for (int x = 0; x < mb.getMenuCount(); x++) {
+		    JMenu jm = mb.getMenu(x);
+			if (CommandMenu.class.isInstance(jm)) {
+				checkCommandMenu((CommandMenu)jm);
+			}
+		}
+	}
+
+	protected void checkCommandMenu(CommandMenu cm) {
+		cm.checkEnabled();
+		for (int y = 0; y < cm.getItemCount();y++) {
+			JMenuItem jmi = cm.getItem(y);
+			if (CommandMenu.class.isInstance(jmi)) {
+				checkCommandMenu((CommandMenu)jmi);
 			}
 		}
 	}
@@ -771,9 +843,17 @@ public	class DrawApplication
 	 * @see DrawingEditor
 	 */
 	public void showStatus(String string) {
-		fStatusLine.setText(string);
+		getStatusLine().setText(string);
 	}
 
+	/**
+	 * Note: it is inconsistent to directly assign a variable but when using it
+	 * use it from a method.  (assignment:  fTool = t, usage: tool()) dnoyeB-4/8/02
+	 * Note:  should we check that the tool is inactive before we activate it?
+	 * this would be consistent with how we do deactivate.  I think we should do
+	 * this now and not wait till a bug pops up. even if their is no bug, its
+	 * consistent and adds understandability to the code.  dnoyeB-4/8/02
+	 */
 	public void setTool(Tool t, String name) {
 		// SF bug-tracker id: #490665
 
@@ -822,9 +902,9 @@ public	class DrawApplication
 	 * Resets the drawing to a new empty drawing.
 	 */
 	public void promptNew() {
-		toolDone();
-		view().setDrawing(createDrawing());
-		view().drawing().setTitle(getDefaultDrawingTitle());
+		newWindow(createDrawing());
+		//toolDone();
+		//view().setDrawing(createDrawing());
 	}
 
 	/**
@@ -849,17 +929,19 @@ public	class DrawApplication
 	 * Shows a file dialog and saves drawing.
 	 */
 	public void promptSaveAs() {
-		toolDone();
-		JFileChooser saveDialog = createSaveFileChooser();
-		getStorageFormatManager().registerFileFilters(saveDialog);
+		if (view() != null) {
+			toolDone();
+			JFileChooser saveDialog = createSaveFileChooser();
+			getStorageFormatManager().registerFileFilters(saveDialog);
 
-		if (saveDialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-			StorageFormat foundFormat = getStorageFormatManager().findStorageFormat(saveDialog.getFileFilter());
-			if (foundFormat != null) {
-				saveDrawing(foundFormat, saveDialog.getSelectedFile().getAbsolutePath());
-			}
-			else {
-				showStatus("Not a valid file format: " + saveDialog.getFileFilter().getDescription());
+			if (saveDialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+				StorageFormat foundFormat = getStorageFormatManager().findStorageFormat(saveDialog.getFileFilter());
+				if (foundFormat != null) {
+					saveDrawing(foundFormat, saveDialog.getSelectedFile().getAbsolutePath());
+				}
+				else {
+					showStatus("Not a valid file format: " + saveDialog.getFileFilter().getDescription());
+				}
 			}
 		}
 	}
@@ -908,7 +990,7 @@ public	class DrawApplication
 	 */
 	protected void saveDrawing(StorageFormat storeFormat, String file) {
 		// Need a better alert than this.
-		if(view() == null) {
+		if (view() == null) {
 			return;
 		}
 		try {
@@ -934,7 +1016,8 @@ public	class DrawApplication
 			else {
 			   showStatus("Unknown file type: could not open file '" + file + "'");
 			}
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			showStatus("Error: " + e);
 		}
 	}
@@ -1012,7 +1095,53 @@ public	class DrawApplication
 		return requiredVersions;
 	}
 
-	protected String getDefaultDrawingTitle() {
+	public String getDefaultDrawingTitle() {
 		return fgUntitled;
+	}
+
+	protected DesktopListener getDesktopListener() {
+		return fDesktopListener;
+	}
+
+	protected void setDesktopListener(DesktopListener desktopPaneListener) {
+		fDesktopListener = desktopPaneListener;
+	}
+
+	protected DesktopListener createDesktopListener() {
+	    return new DesktopListener() {
+			public void drawingViewAdded(DesktopEvent dpe) {
+				DrawingView dv = dpe.getDrawingView();
+				fireViewCreatedEvent(dv);
+			}
+			public void drawingViewRemoved(DesktopEvent dpe) {
+				DrawingView dv = dpe.getDrawingView();
+				// remove undo/redo activities which operate on this DrawingView
+				getUndoManager().clearUndos(dv);
+				getUndoManager().clearRedos(dv);
+				fireViewDestroyingEvent(dv);
+				checkCommandMenus();
+			}
+			public void drawingViewSelected(DesktopEvent dpe) {
+				DrawingView dv = dpe.getDrawingView();
+				//get the current selection and freeze it.
+				if (dv != null) {
+					if (dv.drawing() != null)
+						dv.unfreezeView();
+				}
+				setView(dv);
+			}
+	    };
+	}
+
+	protected Iconkit createIconkit() {
+		return new Iconkit(this);
+	}
+
+	protected void setIconkit(Iconkit newIconkit) {
+		fIconkit = newIconkit;
+	}
+
+	protected Iconkit getIconkit() {
+		return fIconkit;
 	}
 }

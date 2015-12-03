@@ -12,7 +12,6 @@
 package CH.ifa.draw.figures;
 
 import java.awt.*;
-import java.util.*;
 
 import CH.ifa.draw.framework.*;
 import CH.ifa.draw.standard.*;
@@ -92,7 +91,7 @@ public  class BorderDecorator extends DecoratorFigure {
 	public void figureInvalidated(FigureChangeEvent e) {
 		Rectangle rect = e.getInvalidatedRectangle();
 		rect.grow(getBorderOffset().x, getBorderOffset().y);
-		super.figureInvalidated(new FigureChangeEvent(e.getFigure(), rect));
+		super.figureInvalidated(new FigureChangeEvent(this, rect, e));
 	}
 
 	public Insets connectionInsets() {

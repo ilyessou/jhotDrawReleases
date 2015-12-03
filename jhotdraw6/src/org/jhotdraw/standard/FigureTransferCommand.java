@@ -11,7 +11,6 @@
 
 package CH.ifa.draw.standard;
 
-import java.util.*;
 import CH.ifa.draw.util.*;
 import CH.ifa.draw.framework.*;
 
@@ -36,8 +35,9 @@ public abstract class FigureTransferCommand extends AbstractCommand {
 	* Deletes the selection from the drawing.
 	*/
 	protected void deleteFigures(FigureEnumeration fe) {
-		while (fe.hasMoreElements()) {
-			view().drawing().orphan(fe.nextFigure());
+	   DeleteFromDrawingVisitor deleteVisitor = new DeleteFromDrawingVisitor(view().drawing());
+		while (fe.hasNextFigure()) {
+			fe.nextFigure().visit(deleteVisitor);
 		}
 
 		view().clearSelection();
@@ -51,10 +51,15 @@ public abstract class FigureTransferCommand extends AbstractCommand {
 	}
 
    /**
-	* Inserts a vector of figures and translates them by the
+	* Inserts an enumeration of figures and translates them by the
 	* given offset.
+	* @todo mrfloppy to investigate making this protected.  Looks like it would
+	*       be no problem to me.  It was package scope.  I thought it safer to
+	*       make it less restrictive just incase their was a reason for the
+	*       package scope I didn't know about. dnoyeb.
+	*       Bug - [ 673096 ] FigureTransferCommand has a wrong method
 	*/
-	FigureEnumeration insertFigures(FigureEnumeration fe, int dx, int dy) {
+	public FigureEnumeration insertFigures(FigureEnumeration fe, int dx, int dy) {
 		return view().insertFigures(fe, dx, dy, false);
 	}
 }

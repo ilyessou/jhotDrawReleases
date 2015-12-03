@@ -11,9 +11,9 @@
 
 package CH.ifa.draw.util;
 
-import java.util.*;
 import java.io.*;
 import java.awt.Color;
+import java.util.List;
 
 /**
  * An input stream that can be used to resurrect Storable objects.
@@ -24,10 +24,10 @@ import java.awt.Color;
  *
  * @version <$CURRENT_VERSION$>s
  */
-public class StorableInput extends Object {
+public class StorableInput {
 
 	private StreamTokenizer fTokenizer;
-	private Vector          fMap;
+	private List            fMap;
 
 	/**
 	 * Initializes a Storable input with the given input stream.
@@ -37,7 +37,7 @@ public class StorableInput extends Object {
 		fTokenizer = new StreamTokenizer(r);
 		// include inner class separate in class names
 		fTokenizer.wordChars('$', '$');
-		fMap = new Vector();
+		fMap = CollectionsFactory.current().createList();
 	}
 
 	/**
@@ -88,6 +88,20 @@ public class StorableInput extends Object {
 		IOException exception =  new IOException(msg);
 		exception.printStackTrace();
 		throw new IOException(msg);
+	}
+
+	/**
+	 * Reads an int from the input stream.
+	 */
+	public long readLong() throws IOException {
+		long token = fTokenizer.nextToken();
+		if (token == StreamTokenizer.TT_NUMBER) {
+			return (long)fTokenizer.nval;
+		}
+		String msg = "Long expected in line: " + fTokenizer.lineno();
+		IOException exception =  new IOException(msg);
+		//exception.printStackTrace();
+		throw exception;
 	}
 
 	/**
@@ -145,11 +159,11 @@ public class StorableInput extends Object {
 
 	private void map(Storable storable) {
 		if (!fMap.contains(storable)) {
-			fMap.addElement(storable);
+			fMap.add(storable);
 		}
 	}
 
 	private Storable retrieve(int ref) {
-		return (Storable) fMap.elementAt(ref);
+		return (Storable)fMap.get(ref);
 	}
 }

@@ -12,6 +12,7 @@
 package CH.ifa.draw.figures;
 
 import java.util.*;
+import java.util.List;
 import java.awt.*;
 import java.io.*;
 import CH.ifa.draw.framework.*;
@@ -58,7 +59,7 @@ public  class TextFigure
 		fOriginX = 0;
 		fOriginY = 0;
 		fFont = createCurrentFont();
-		setAttribute("FillColor", ColorMap.color("None"));
+		setAttribute(FigureAttributeConstant.FILL_COLOR, ColorMap.color("None"));
 		fText = new String("");
 		fSizeIsDirty = true;
 	}
@@ -66,8 +67,8 @@ public  class TextFigure
 	public void moveBy(int x, int y) {
 		willChange();
 		basicMoveBy(x, y);
-		if (fLocator != null) {
-			fLocator.moveBy(x, y);
+		if (getLocator() != null) {
+			getLocator().moveBy(x, y);
 		}
 		changed();
 	}
@@ -113,6 +114,18 @@ public  class TextFigure
 	}
 
 	/**
+	 * Usually, a TextHolders is implemented by a Figure subclass. To avoid casting
+	 * a TextHolder to a Figure this method can be used for polymorphism (in this
+	 * case, let the (same) object appear to be of another type).
+	 * Note, that the figure returned is not the figure to which the TextHolder is
+	 * (and its representing figure) connected.
+	 * @return figure responsible for representing the content of this TextHolder
+	 */
+	public Figure getRepresentingFigure() {
+		return this;
+	}
+
+	/**
 	 * Sets the font.
 	 */
 	public void setFont(Font newFont) {
@@ -133,32 +146,52 @@ public  class TextFigure
 	/**
 	 * A text figure understands the "FontSize", "FontStyle", and "FontName"
 	 * attributes.
+	 *
+	 * @deprecated use getAttribute(FigureAttributeConstant) instead
 	 */
 	public Object getAttribute(String name) {
-		Font font = getFont();
-		if (name.equals("FontSize")) {
-			return new Integer(font.getSize());
-		}
-		if (name.equals("FontStyle")) {
-			return new Integer(font.getStyle());
-		}
-		if (name.equals("FontName")) {
-			return font.getName();
-		}
-		return super.getAttribute(name);
+		return getAttribute(FigureAttributeConstant.getConstant(name));
 	}
 
 	/**
 	 * A text figure understands the "FontSize", "FontStyle", and "FontName"
 	 * attributes.
 	 */
-	public void setAttribute(String name, Object value) {
+	public Object getAttribute(FigureAttributeConstant attributeConstant) {
 		Font font = getFont();
-		if (name.equals("FontSize")) {
+		if (attributeConstant.equals(FigureAttributeConstant.FONT_SIZE)) {
+			return new Integer(font.getSize());
+		}
+		if (attributeConstant.equals(FigureAttributeConstant.FONT_STYLE)) {
+			return new Integer(font.getStyle());
+		}
+		if (attributeConstant.equals(FigureAttributeConstant.FONT_NAME)) {
+			return font.getName();
+		}
+		return super.getAttribute(attributeConstant);
+	}
+
+	/**
+	 * A text figure understands the "FontSize", "FontStyle", and "FontName"
+	 * attributes.
+	 *
+	 * @deprecated use setAttribute(FigureAttributeConstant, Object) instead
+	 */
+	public void setAttribute(String name, Object value) {
+		setAttribute(FigureAttributeConstant.getConstant(name), value);
+	}
+
+	/**
+	 * A text figure understands the "FontSize", "FontStyle", and "FontName"
+	 * attributes.
+	 */
+	public void setAttribute(FigureAttributeConstant attributeConstant, Object value) {
+		Font font = getFont();
+		if (attributeConstant.equals(FigureAttributeConstant.FONT_SIZE)) {
 			Integer s = (Integer)value;
 			setFont(new Font(font.getName(), font.getStyle(), s.intValue()) );
 		}
-		else if (name.equals("FontStyle")) {
+		else if (attributeConstant.equals(FigureAttributeConstant.FONT_STYLE)) {
 			Integer s = (Integer)value;
 			int style = font.getStyle();
 			if (s.intValue() == Font.PLAIN) {
@@ -169,12 +202,12 @@ public  class TextFigure
 			}
 			setFont(new Font(font.getName(), style, font.getSize()) );
 		}
-		else if (name.equals("FontName")) {
+		else if (attributeConstant.equals(FigureAttributeConstant.FONT_NAME)) {
 			String n = (String)value;
 			setFont(new Font(n, font.getStyle(), font.getSize()) );
 		}
 		else {
-			super.setAttribute(name, value);
+			super.setAttribute(attributeConstant, value);
 		}
 	}
 
@@ -211,12 +244,12 @@ public  class TextFigure
 
 	public void drawFrame(Graphics g) {
 		g.setFont(fFont);
-		g.setColor((Color) getAttribute("TextColor"));
+		g.setColor((Color) getAttribute(FigureAttributeConstant.TEXT_COLOR));
 		FontMetrics metrics = g.getFontMetrics(fFont);
 		g.drawString(fText, fOriginX, fOriginY + metrics.getAscent());
 	}
 
-	private Dimension textExtent() {
+	protected Dimension textExtent() {
 		if (!fSizeIsDirty) {
 			return new Dimension(fWidth, fHeight);
 		}
@@ -227,7 +260,7 @@ public  class TextFigure
 		return new Dimension(metrics.stringWidth(fText), metrics.getHeight());
 	}
 
-	private void markDirty() {
+	protected void markDirty() {
 		fSizeIsDirty = true;
 	}
 
@@ -243,13 +276,13 @@ public  class TextFigure
 		return columns;
 	}
 
-	public Vector handles() {
-		Vector handles = new Vector();
-		handles.addElement(new NullHandle(this, RelativeLocator.northWest()));
-		handles.addElement(new NullHandle(this, RelativeLocator.northEast()));
-		handles.addElement(new NullHandle(this, RelativeLocator.southEast()));
-		handles.addElement(new FontSizeHandle(this, RelativeLocator.southWest()));
-		return handles;
+	public HandleEnumeration handles() {
+		List handles = CollectionsFactory.current().createList();
+		handles.add(new NullHandle(this, RelativeLocator.northWest()));
+		handles.add(new NullHandle(this, RelativeLocator.northEast()));
+		handles.add(new NullHandle(this, RelativeLocator.southEast()));
+		handles.add(new FontSizeHandle(this, RelativeLocator.southWest()));
+		return new HandleEnumerator(handles);
 	}
 
 	public void write(StorableOutput dw) {
@@ -261,8 +294,8 @@ public  class TextFigure
 		dw.writeInt(fFont.getStyle());
 		dw.writeInt(fFont.getSize());
 		dw.writeBoolean(fIsReadOnly);
-		dw.writeStorable(fObservedFigure);
-		dw.writeStorable(fLocator);
+		dw.writeStorable(getObservedFigure());
+		dw.writeStorable(getLocator());
 	}
 
 	public void read(StorableInput dr) throws IOException {
@@ -274,31 +307,30 @@ public  class TextFigure
 		fFont = new Font(dr.readString(), dr.readInt(), dr.readInt());
 		fIsReadOnly = dr.readBoolean();
 
-		fObservedFigure = (Figure)dr.readStorable();
-		if (fObservedFigure != null) {
-			fObservedFigure.addFigureChangeListener(this);
+		setObservedFigure((Figure)dr.readStorable());
+		if (getObservedFigure() != null) {
+			getObservedFigure().addFigureChangeListener(this);
 		}
-		fLocator = (OffsetLocator)dr.readStorable();
+		setLocator((OffsetLocator)dr.readStorable());
 	}
 
 	private void readObject(ObjectInputStream s) throws ClassNotFoundException, IOException {
-
 		s.defaultReadObject();
 
-		if (fObservedFigure != null) {
-			fObservedFigure.addFigureChangeListener(this);
+		if (getObservedFigure() != null) {
+			getObservedFigure().addFigureChangeListener(this);
 		}
 		markDirty();
 	}
 
 	public void connect(Figure figure) {
-		if (fObservedFigure != null) {
-			fObservedFigure.removeFigureChangeListener(this);
+		if (getObservedFigure() != null) {
+			getObservedFigure().removeFigureChangeListener(this);
 		}
 
-		fObservedFigure = figure;
-		fLocator = new OffsetLocator(figure.connectedTextLocator(this));
-		fObservedFigure.addFigureChangeListener(this);
+		setObservedFigure(figure);
+		setLocator(new OffsetLocator(getObservedFigure().connectedTextLocator(this)));
+		getObservedFigure().addFigureChangeListener(this);
 		updateLocation();
 	}
 
@@ -308,7 +340,8 @@ public  class TextFigure
 
 	public void figureRemoved(FigureChangeEvent e) {
 		if (listener() != null) {
-			listener().figureRequestRemove(new FigureChangeEvent(this));
+			Rectangle rect = invalidateRectangle(displayBox());
+			listener().figureRemoved(new FigureChangeEvent(this, rect, e));
 		}
 	}
 
@@ -321,8 +354,8 @@ public  class TextFigure
 	 * The TextFigure is centered around the located point.
 	 */
 	protected void updateLocation() {
-		if (fLocator != null) {
-			Point p = fLocator.locate(fObservedFigure);
+		if (getLocator() != null) {
+			Point p = getLocator().locate(getObservedFigure());
 
 			p.x -= size().width/2 + fOriginX;
 			p.y -= size().height/2 + fOriginY;
@@ -336,8 +369,7 @@ public  class TextFigure
 
 	public void release() {
 		super.release();
-		disconnect(fObservedFigure);
-		fObservedFigure = null;
+		disconnect(getObservedFigure());
 	}
 
 	/**
@@ -347,9 +379,29 @@ public  class TextFigure
 		if (disconnectFigure != null) {
 			disconnectFigure.removeFigureChangeListener(this);
 		}
-		fLocator = null;
+		setLocator(null);
+		setObservedFigure(null);
 	}
 
+	protected void setObservedFigure(Figure newObservedFigure) {
+		fObservedFigure = newObservedFigure;
+	}
+
+	public Figure getObservedFigure() {
+		return fObservedFigure;
+	}
+
+	protected void setLocator(OffsetLocator newLocator) {
+		fLocator = newLocator;
+	}
+
+	protected OffsetLocator getLocator() {
+		return fLocator;
+	}
+
+	public TextHolder getTextHolder() {
+		return this;
+	}
 
 	/**
 	 * Creates the current font to be used for new text figures.

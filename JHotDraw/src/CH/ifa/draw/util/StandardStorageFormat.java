@@ -24,7 +24,7 @@ import CH.ifa.draw.framework.Drawing;
  * as plain text in a text file. The StandardStorageFormat has the file extension
  * "draw" (e.g. my_picasso.draw).
  *
- * @author Wolfram Kaiser
+ * @author Wolfram Kaiser <mrfloppy@users.sourceforge.net>
  * @version <$CURRENT_VERSION$>
  */
 public class StandardStorageFormat implements StorageFormat {
@@ -68,7 +68,7 @@ public class StandardStorageFormat implements StorageFormat {
 	/**
 	 * Set the file extension for the storage format
 	 *
-	 * @param file extension
+	 * @param newFileExtension extension
 	 */
 	public void setFileExtension(String newFileExtension) {
 		myFileExtension = newFileExtension;
@@ -175,7 +175,7 @@ public class StandardStorageFormat implements StorageFormat {
 	/**
 	 * Restore a Drawing from a file with a given name.
 	 *
-	 * @param name of the file in which the Drawing has been saved
+	 * @param fileName of the file in which the Drawing has been saved
 	 * @return restored Drawing
 	 */
 	public Drawing restore(String fileName) throws IOException {

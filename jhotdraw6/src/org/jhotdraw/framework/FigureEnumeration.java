@@ -11,8 +11,6 @@
 
 package CH.ifa.draw.framework;
 
-import java.util.*;
-
 /**
  * Interface for Enumerations that access Figures.
  * It provides a method nextFigure, that hides the down casting
@@ -20,11 +18,20 @@ import java.util.*;
  *
  * @version <$CURRENT_VERSION$>
  */
-public interface FigureEnumeration extends Enumeration {
+public interface FigureEnumeration {
 	/**
 	 * Returns the next element of the enumeration. Calls to this
 	 * method will enumerate successive elements.
-	 * @exception NoSuchElementException If no more elements exist.
+	 * @exception java.util.NoSuchElementException If no more elements exist.
 	 */
 	public Figure nextFigure();
+	public boolean hasNextFigure();
+
+	/**
+	 * Reset the enumeration so it can be reused again. However, the
+	 * underlying collection might have changed since the last usage
+	 * so the elements and the order may vary when using an enumeration
+	 * which has been reset.
+	 */
+	public void reset();
 }

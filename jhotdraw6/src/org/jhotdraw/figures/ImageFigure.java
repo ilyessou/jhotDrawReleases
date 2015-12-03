@@ -13,7 +13,7 @@ package CH.ifa.draw.figures;
 
 import java.awt.*;
 import java.io.*;
-import java.util.Vector;
+import java.util.List;
 import java.awt.image.ImageObserver;
 import CH.ifa.draw.framework.*;
 import CH.ifa.draw.standard.*;
@@ -48,9 +48,8 @@ public  class ImageFigure
 	public ImageFigure(Image image, String fileName, Point origin) {
 		fFileName = fileName;
 		fImage = image;
-		fDisplayBox = new Rectangle(origin.x, origin.y, 0, 0);
-		fDisplayBox.width = fImage.getWidth(this);
-		fDisplayBox.height = fImage.getHeight(this);
+		// fix for bug-id: 593080 (ImageFigure calculates the image rectangle wrongly)
+		basicDisplayBox(origin, new Point(origin.x + fImage.getWidth(this), origin.y + fImage.getHeight(this)));
 	}
 
 	public void basicDisplayBox(Point origin, Point corner) {
@@ -58,10 +57,10 @@ public  class ImageFigure
 		fDisplayBox.add(corner);
 	}
 
-	public Vector handles() {
-		Vector handles = new Vector();
+	public HandleEnumeration handles() {
+		List handles = CollectionsFactory.current().createList();
 		BoxHandleKit.addHandles(this, handles);
-		return handles;
+		return new HandleEnumerator(handles);
 	}
 
 	public Rectangle displayBox() {

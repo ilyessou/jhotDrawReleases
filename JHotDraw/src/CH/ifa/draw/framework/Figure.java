@@ -12,8 +12,9 @@
 package CH.ifa.draw.framework;
 
 import CH.ifa.draw.util.*;
+import CH.ifa.draw.standard.TextHolder;
+
 import java.awt.*;
-import java.util.*;
 import java.io.Serializable;
 
 /**
@@ -27,7 +28,16 @@ import java.io.Serializable;
  * Figures can have an open ended set of attributes.
  * An attribute is identified by a string.<p>
  * Default implementations for the Figure interface are provided
- * by AbstractFigure.
+ * by AbstractFigure.<p>
+ *
+ * Figures can have <a name="dependent_figure">dependent figure</a>s. The existence od dependent
+ * figures depend on another figure. This is the case for figures
+ * such as ConnectedTextFigures and LineDecoration. Thus, they are
+ * "externally" dependent on a figure in contrast to (internally)
+ * contained figures. This means, "normal" figures (figures that
+ * are not containers) can still have dependent figures. Dependent
+ * figures are especially important if the figure which the depend
+ * on is deleted because they should be removed as well (cascading delete).
  *
  * @see Handle
  * @see Connector
@@ -39,22 +49,21 @@ public interface Figure
 				extends Storable, Cloneable, Serializable {
 
 	/**
-	 * Constant that allows to identify a popup menu assigned 
+	 * Constant that allows to identify a popup menu assigned
 	 * as an attribute.
 	 */
 	public static String POPUP_MENU = "POPUP_MENU";
-	
+
 	/**
 	 * Moves the Figure to a new location.
-	 * @param x the x delta
-	 * @param y the y delta
+	 * @param dx the x delta
+	 * @param dy the y delta
 	 */
 	public void moveBy(int dx, int dy);
 
 	/**
 	 * Changes the display box of a figure. This method is
-	 * always implemented in figure subclasses.
-	 * It only changes
+	 * always implemented in figure subclasses. It only changes
 	 * the displaybox and does not announce any changes. It
 	 * is usually not called by the client. Clients typically call
 	 * displayBox to change the display box.
@@ -91,10 +100,10 @@ public interface Figure
 	 * the figure. Handles is a Factory Method for
 	 * creating handle objects.
 	 *
-	 * @return a Vector of handles
+	 * @return an type-safe iterator of handles
 	 * @see Handle
 	 */
-	public Vector handles();
+	public HandleEnumeration handles();
 
 	/**
 	 * Gets the size of the figure
@@ -163,6 +172,21 @@ public interface Figure
 	 * it as a change listener.
 	 */
 	public void removeFromContainer(FigureChangeListener c);
+
+	/**
+	 * Add a <a href="#dependent_figure">dependent figure</a>.
+	 */
+	public void addDependendFigure(Figure newDependendFigure);
+
+	/**
+	 * Remove a <a href="#dependent_figure">dependent figure</a>.
+	 */
+	public void removeDependendFigure(Figure oldDependendFigure);
+
+	/**
+	 * Get an enumeration of all <a href="#dependent_figure">dependent figures</a>.
+	 */
+	public FigureEnumeration getDependendFigures();
 
 	/**
 	 * Gets the Figure's listeners.
@@ -236,7 +260,7 @@ public interface Figure
 	 * this method and react on isVisible to turn the
 	 * connectors on or off.
 	 */
-	public void connectorVisibility(boolean isVisible);
+	public void connectorVisibility(boolean isVisible, ConnectionFigure connection);
 
 	/**
 	 * Returns the connection inset. This is only a hint that
@@ -257,13 +281,30 @@ public interface Figure
 	 * a figure doesn't have an attribute.
 	 * All figures support the attribute names
 	 * FillColor and FrameColor
+	 *
+	 * @deprecated use getAttribute(FigureAttributeConstant) instead
 	 */
 	public Object getAttribute(String name);
 
 	/**
+	 * Returns the named attribute or null if a
+	 * a figure doesn't have an attribute.
+	 * All figures support the attribute names
+	 * FillColor and FrameColor
+	 */
+	public Object getAttribute(FigureAttributeConstant attributeConstant);
+
+	/**
 	 * Sets the named attribute to the new value
+	 *
+	 * @deprecated use setAttribute(FigureAttributeConstant, Object) instead
 	 */
 	public void setAttribute(String name, Object value);
+
+	/**
+	 * Sets the named attribute to the new value
+	 */
+	public void setAttribute(FigureAttributeConstant attributeConstant, Object value);
 
 	/**
 	 * Gets the z value (back-to-front ordering) of this figure.
@@ -276,4 +317,24 @@ public interface Figure
 	 * Z values are not guaranteed to not skip numbers.
 	 */
 	public void setZValue(int z);
+
+	public void visit(FigureVisitor visitor);
+
+	/**
+	 * Some figures have the ability to hold text. This method returns
+	 * the adjunctant TextHolder.
+	 * @return
+	 */
+	public TextHolder getTextHolder();
+
+	/**
+	 * Get the underlying figure in case the figure has been decorated.
+	 * If the figure has not been decorated the figure itself is returned.
+	 * The DecoratorFigure does not release the the decorated figure but
+	 * just returns it (in contrast to {@link CH.ifa.draw.standard.DecoratorFigure.peelDecoration}).
+	 *
+	 * @return underlying, "real" without DecoratorFigure
+	 * @see CH.ifa.draw.standard.DecoratorFigure
+	 */
+	public Figure getDecoratedFigure();
 }

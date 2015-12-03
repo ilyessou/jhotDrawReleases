@@ -11,13 +11,14 @@
 
 package CH.ifa.draw.figures;
 
-import java.util.*;
+import CH.ifa.draw.util.*;
+import CH.ifa.draw.framework.*;
+
 import java.awt.Color;
 import java.io.IOException;
 import java.io.Serializable;
-
-import CH.ifa.draw.util.*;
-import CH.ifa.draw.framework.*;
+import java.util.Map;
+import java.util.Iterator;
 
 /**
  * A container for a figure's attributes. The attributes are stored
@@ -31,7 +32,7 @@ public  class   FigureAttributes
 		extends Object
 		implements Cloneable, Serializable {
 
-	private Hashtable fMap;
+	private Map fMap;
 
 	/*
 	 * Serialization support.
@@ -43,35 +44,35 @@ public  class   FigureAttributes
 	 * Constructs the FigureAttributes.
 	 */
 	public FigureAttributes() {
-		fMap = new Hashtable();
+		fMap = CollectionsFactory.current().createMap();
 	}
 
 	/**
 	 * Gets the attribute with the given name.
-	 * @returns attribute or null if the key is not defined
+	 * @return attribute or null if the key is not defined
 	 */
-	public Object get(String name) {
-		return fMap.get(name);
+	public Object get(FigureAttributeConstant attributeConstant) {
+		return fMap.get(attributeConstant);
 	}
 
 	/**
 	 * Sets the attribute with the given name and
 	 * overwrites its previous value.
 	 */
-	public void set(String name, Object value) {
+	public void set(FigureAttributeConstant attributeConstant, Object value) {
 		if (value != null) {
-			fMap.put(name, value);
+			fMap.put(attributeConstant, value);
 		}
 		else {
-			fMap.remove(name);
+			fMap.remove(attributeConstant);
 		}
 	}
 
 	/**
 	 * Tests if an attribute is defined.
 	 */
-	public boolean hasDefined(String name) {
-		return fMap.containsKey(name);
+	public boolean hasDefined(FigureAttributeConstant attributeConstant) {
+		return fMap.containsKey(attributeConstant);
 	}
 
 	/**
@@ -80,7 +81,7 @@ public  class   FigureAttributes
    public Object clone() {
 		try {
 			FigureAttributes a = (FigureAttributes) super.clone();
-			a.fMap = (Hashtable) fMap.clone();
+			a.fMap = CollectionsFactory.current().createMap(fMap);
 			return a;
 		}
 		catch (CloneNotSupportedException e) {
@@ -103,7 +104,7 @@ public  class   FigureAttributes
 			throw new IOException("Attributes expected");
 		}
 
-		fMap = new Hashtable();
+		fMap = CollectionsFactory.current().createMap();
 		int size = dr.readInt();
 		for (int i=0; i<size; i++) {
 			String key = dr.readString();
@@ -131,7 +132,9 @@ public  class   FigureAttributes
 			else if (valtype.equals("UNKNOWN")) {
 				continue;
 			}
-			fMap.put(key,val);
+			// try to get defined constant
+			FigureAttributeConstant attributeConstant = FigureAttributeConstant.getConstant(key);
+			set(attributeConstant, val);
 		}
 	}
 
@@ -148,42 +151,43 @@ public  class   FigureAttributes
 		dw.writeString("attributes");
 
 		dw.writeInt(fMap.size());   // number of attributes
-		Enumeration k = fMap.keys();
-		while (k.hasMoreElements()) {
-			String s = (String) k.nextElement();
-			Object v = fMap.get(s);
+		Iterator iter = fMap.keySet().iterator();
+		while (iter.hasNext()) {
+			FigureAttributeConstant fac = (FigureAttributeConstant)iter.next();
+			String attributeName = fac.getName();
+			Object attributeValue = fMap.get(fac);
 
-			dw.writeString(s);
-			
-			if (v instanceof String) {
+			dw.writeString(attributeName);
+
+			if (attributeValue instanceof String) {
 				dw.writeString("String");
-				dw.writeString((String) v);
+				dw.writeString((String)attributeValue);
 			}
-			else if (v instanceof Color) {
-				writeColor(dw, "Color", (Color)v);
+			else if (attributeValue instanceof Color) {
+				writeColor(dw, "Color", (Color)attributeValue);
 			}
-			else if (v instanceof Boolean) {
+			else if (attributeValue instanceof Boolean) {
 				dw.writeString("Boolean");
-				if (((Boolean)v).booleanValue()) {
+				if (((Boolean)attributeValue).booleanValue()) {
 					dw.writeString("TRUE");
 				}
 				else {
 					dw.writeString("FALSE");
 				}
 			}
-			else if (v instanceof Integer) {
+			else if (attributeValue instanceof Integer) {
 				dw.writeString("Int");
-				dw.writeInt(((Integer)v).intValue());
+				dw.writeInt(((Integer)attributeValue).intValue());
 			}
-			else if (v instanceof Storable) {
+			else if (attributeValue instanceof Storable) {
 				dw.writeString("Storable");
-				dw.writeStorable((Storable)v);
+				dw.writeStorable((Storable)attributeValue);
 			}
-			else if (v instanceof javax.swing.JPopupMenu) {
+			else if (attributeValue instanceof javax.swing.JPopupMenu) {
 				dw.writeString(Figure.POPUP_MENU);
 			}
 			else {
-				System.err.println("Unknown attribute: " + v);
+				System.err.println("Unknown attribute: " + attributeValue);
 				dw.writeString("UNKNOWN");
 			}
 		}

@@ -12,7 +12,8 @@
 package CH.ifa.draw.standard;
 
 import CH.ifa.draw.framework.*;
-import CH.ifa.draw.util.*;
+import CH.ifa.draw.util.Undoable;
+import CH.ifa.draw.util.UndoableAdapter;
 
 /**
  * Command to delete the selection.
@@ -33,7 +34,7 @@ public class DeleteCommand extends FigureTransferCommand {
 	public void execute() {
 		super.execute();
 		setUndoActivity(createUndoActivity());
-		getUndoActivity().setAffectedFigures(view().selectionElements());
+		getUndoActivity().setAffectedFigures(view().selection());
 		deleteFigures(getUndoActivity().getAffectedFigures());
 		view().checkDamage();
 	}
@@ -51,25 +52,25 @@ public class DeleteCommand extends FigureTransferCommand {
 
 	public static class UndoActivity extends UndoableAdapter {
 		private FigureTransferCommand myCommand;
-		
+
 		public UndoActivity(FigureTransferCommand newCommand) {
 			super(newCommand.view());
 			myCommand = newCommand;
 			setUndoable(true);
 			setRedoable(true);
 		}
-		
+
 		public boolean undo() {
-			if (super.undo() && getAffectedFigures().hasMoreElements()) {
+			if (super.undo() && getAffectedFigures().hasNextFigure()) {
 				getDrawingView().clearSelection();
 				setAffectedFigures(myCommand.insertFigures(getAffectedFigures(), 0, 0));
-	
+
 				return true;
 			}
-			
+
 			return false;
 		}
-	
+
 		public boolean redo() {
 			// do not call execute directly as the selection might has changed
 			if (isRedoable()) {
@@ -78,7 +79,7 @@ public class DeleteCommand extends FigureTransferCommand {
 
 				return true;
 			}
-			
+
 			return false;
 		}
 	}

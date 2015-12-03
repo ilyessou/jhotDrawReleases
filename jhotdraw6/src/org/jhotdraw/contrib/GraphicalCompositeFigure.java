@@ -8,7 +8,7 @@
  * License:		Lesser GNU Public License (LGPL)
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
- 
+
 package CH.ifa.draw.contrib;
 
 import CH.ifa.draw.framework.*;
@@ -16,8 +16,8 @@ import CH.ifa.draw.standard.*;
 import CH.ifa.draw.util.*;
 import CH.ifa.draw.figures.*;
 import java.awt.*;
-import java.util.*;
 import java.io.*;
+import java.util.List;
 
 /**
  * The GraphicalCompositeFigure fills in the gap between a CompositeFigure
@@ -28,6 +28,16 @@ import java.io.*;
  * contained figures like the CompositeFigure does, but delegates
  * its graphical presentation to another (graphical) figure which
  * purpose it is to draw the container for all contained figures.
+ *
+ * The GraphicalCompositeFigure adds to the {@link CompositeFigure CompositeFigure}
+ * by containing a presentation figure by default which can not be removed.  Normally,
+ * the {@link CompositeFigure CompositeFigure} can not be seen without containing a figure
+ * because it has no mechanism to draw itself.  It instead relies on its contained
+ * figures to draw themselves thereby giving the {@link CompositeFigure CompositeFigure} its
+ * appearance.  However, the <b>GraphicalCompositeFigure</b>'s presentation figure
+ * can draw itself even when the <b>GraphicalCompositeFigure</b> contains no other figures.
+ * The <b>GraphicalCompositeFigure</b> also uses a {@link Layouter Layouter} or layout
+ * its contained figures.
  *
  * @author	Wolfram Kaiser
  * @version <$CURRENT_VERSION$>
@@ -41,7 +51,7 @@ public class GraphicalCompositeFigure extends CompositeFigure implements Layouta
 	 * children.
 	 */
 	private Figure	myPresentationFigure;
-	
+
 	/**
 	 * A Layouter determines how the CompositeFigure should
 	 * be laid out graphically.
@@ -49,7 +59,7 @@ public class GraphicalCompositeFigure extends CompositeFigure implements Layouta
 	private Layouter myLayouter;
 
 	private static final long serialVersionUID = 1265742491024232713L;
-	
+
 	/**
 	 * Default constructor which uses a RectangleFigure as presentation
 	 * figure. This constructor is needed by the Storable mechanism.
@@ -57,7 +67,7 @@ public class GraphicalCompositeFigure extends CompositeFigure implements Layouta
 	public GraphicalCompositeFigure() {
 		this(new RectangleFigure());
 	}
-	
+
 	/**
 	 * Constructor which creates a GraphicalCompositeFigure with
 	 * a given graphical figure for presenting it.
@@ -77,7 +87,13 @@ public class GraphicalCompositeFigure extends CompositeFigure implements Layouta
 	 * A StandardLayouter is set.
 	 */
 	protected void initialize() {
-		setLayouter(new StandardLayouter(this));
+		if (getLayouter() != null) {
+			// use prototype to create new instance
+			setLayouter(getLayouter().create(this));
+		}
+		else {
+			setLayouter(new StandardLayouter(this));
+		}
 	}
 
 	/**
@@ -103,7 +119,14 @@ public class GraphicalCompositeFigure extends CompositeFigure implements Layouta
 	 */
 	public void basicDisplayBox(Point origin, Point corner) {
 		Rectangle r = getLayouter().layout(origin, corner);
-		getPresentationFigure().basicDisplayBox(r.getLocation(), new Point(r.width, r.height));
+		 // Fix for bug request IDs 548000 and 548032
+		 // Previously was
+		 //     getPresentationFigure().basicDisplayBox(r.getLocation(), new Point(r.width, r.height));
+		 // The corner transferred to the presentation figure is wrong as it transfers
+		 // the dimension of the resulting rectangle from the layouter instead of the
+		 // lower right corner
+		getPresentationFigure().basicDisplayBox(r.getLocation(),
+			new Point((int)r.getMaxX(), (int)r.getMaxY()));
 	}
 
 	/**
@@ -116,7 +139,7 @@ public class GraphicalCompositeFigure extends CompositeFigure implements Layouta
 	}
 
 	/**
-	 * Expicit update: an updated involves a layout for all contained figures.
+	 * Explicit update: an updated involves a layout for all contained figures.
 	 */
 	public void update() {
 		willChange();
@@ -136,8 +159,11 @@ public class GraphicalCompositeFigure extends CompositeFigure implements Layouta
 	/**
 	 * Return default handles from the presentation figure.
 	 */
-	public Vector handles() {
-		return getPresentationFigure().handles();
+	public HandleEnumeration handles() {
+		List handles = CollectionsFactory.current().createList();
+		BoxHandleKit.addHandles(this, handles);
+		return new HandleEnumerator(handles);
+		//return getPresentationFigure().handles();
 	}
 
 	/**
@@ -148,13 +174,33 @@ public class GraphicalCompositeFigure extends CompositeFigure implements Layouta
 	 *
 	 * @param	name	name of the attribute whose value should be returned
 	 * @return	value of the attribute with the given name
+	 *
+	 * @deprecated use getAttribute(FigureAttributeConstant) instead
 	 */
 	public Object getAttribute(String name) {
-		if (getPresentationFigure() != null) {	
+		if (getPresentationFigure() != null) {
 			return getPresentationFigure().getAttribute(name);
 		}
 		else {
 			return super.getAttribute(name);
+		}
+	}
+
+	/**
+	 * Delegate capabilities for storing and retrieving attributes to a
+	 * CompositeFigure if the encapsulated presentation figure. If no
+	 * presentation figure is found then the superclass' getAttribute()
+	 * will be invoked (which currently returns always "null").
+	 *
+	 * @param	attributeConstant	attribute constant whose value should be returned
+	 * @return	value of the attribute with the given name
+	 */
+	public Object getAttribute(FigureAttributeConstant attributeConstant) {
+		if (getPresentationFigure() != null) {
+			return getPresentationFigure().getAttribute(attributeConstant);
+		}
+		else {
+			return super.getAttribute(attributeConstant);
 		}
 	}
 
@@ -166,6 +212,8 @@ public class GraphicalCompositeFigure extends CompositeFigure implements Layouta
 	 *
 	 * @param	name	name of the attribute
 	 * @param	value	value associated with this attribute
+	 *
+	 * @deprecated use setAttribute(FigureAttributeConstant, Object) instead
 	 */
 	public void setAttribute(String name, Object value) {
 		if (getPresentationFigure() != null) {
@@ -173,6 +221,24 @@ public class GraphicalCompositeFigure extends CompositeFigure implements Layouta
 		}
 		else {
 			super.setAttribute(name, value);
+		}
+	}
+
+	/**
+	 * Delegate capabilities for storing and retrieving attributes to a
+	 * CompositeFigure if the encapsulated presentation figure. If no
+	 * presentation figure is found then the superclass' setAttribute()
+	 * will be invoked (which currently does not set an attribute).
+	 *
+	 * @param	attributeConstant	attribute constant
+	 * @param	value	value associated with this attribute
+	 */
+	public void setAttribute(FigureAttributeConstant attributeConstant, Object value) {
+		if (getPresentationFigure() != null) {
+			getPresentationFigure().setAttribute(attributeConstant, value);
+		}
+		else {
+			super.setAttribute(attributeConstant, value);
 		}
 	}
 
@@ -237,7 +303,7 @@ public class GraphicalCompositeFigure extends CompositeFigure implements Layouta
 	public Layouter getLayouter() {
 		return myLayouter;
 	}
-	
+
 	/**
 	 * Notify the registered change listener if an exlicit change
 	 * to the component (or one of its child components has occurred).
@@ -254,7 +320,8 @@ public class GraphicalCompositeFigure extends CompositeFigure implements Layouta
 	public void figureRequestRemove(FigureChangeEvent e) {
 		if (listener() != null) {
 			if (includes(e.getFigure())) {
-				listener().figureRequestRemove(new FigureChangeEvent(e.getFigure(), e.getInvalidatedRectangle()));
+				Rectangle r = invalidateRectangle(displayBox());
+				listener().figureRequestRemove(new FigureChangeEvent(this, r, e));
 			}
 			else {
 				super.figureRequestRemove(e);
@@ -271,6 +338,7 @@ public class GraphicalCompositeFigure extends CompositeFigure implements Layouta
 	public void read(StorableInput dr) throws IOException {
 		super.read(dr);
 		setPresentationFigure((Figure)dr.readStorable());
+		setLayouter((Layouter)dr.readStorable());
 	}
 
 	/**
@@ -282,5 +350,6 @@ public class GraphicalCompositeFigure extends CompositeFigure implements Layouta
 	public void write(StorableOutput dw) {
 		super.write(dw);
 		dw.writeStorable(getPresentationFigure());
+		dw.writeStorable(getLayouter());
 	}
 }

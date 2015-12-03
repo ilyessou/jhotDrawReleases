@@ -12,9 +12,7 @@
 package CH.ifa.draw.standard;
 
 import CH.ifa.draw.framework.*;
-import CH.ifa.draw.util.UndoableAdapter;
 import CH.ifa.draw.util.Undoable;
-import java.util.*;
 
 /**
  * BringToFrontCommand brings the selected figures in the front of
@@ -37,9 +35,9 @@ public class BringToFrontCommand extends AbstractCommand {
 	public void execute() {
 		super.execute();
 		setUndoActivity(createUndoActivity());
-		getUndoActivity().setAffectedFigures(view().selectionElements());
+		getUndoActivity().setAffectedFigures(view().selection());
 		FigureEnumeration fe = getUndoActivity().getAffectedFigures();
-		while (fe.hasMoreElements()) {
+		while (fe.hasNextFigure()) {
 			view().drawing().bringToFront(fe.nextFigure());
 		}
 		view().checkDamage();

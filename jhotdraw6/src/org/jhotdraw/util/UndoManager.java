@@ -11,13 +11,16 @@
 
 package CH.ifa.draw.util;
 
-import CH.ifa.draw.framework.*;
-import java.util.*;
+import CH.ifa.draw.framework.DrawingView;
+
+import java.util.List;
+import java.util.Iterator;
 
 /**
- * This class manages all the undoable commands. It keeps track of all 
+ * This class manages all the undoable commands. It keeps track of all
  * the modifications done through user interactions.
  *
+ * @author  Wolfram Kaiser <mrfloppy@users.sourceforge.net>
  * @version <$CURRENT_VERSION$>
  */
 public class UndoManager {
@@ -29,74 +32,86 @@ public class UndoManager {
 	/**
 	 * Collection of undo activities
 	 */
-	private Vector redoStack;
-		
+	private List redoStack;
+
 	/**
 	 * Collection of undo activities
 	 */
-	private Vector undoStack;
+	private List undoStack;
 	private int maxStackCapacity;
-	
+
 	public UndoManager() {
 		this(DEFAULT_BUFFER_SIZE);
 	}
 
 	public UndoManager(int newUndoStackSize) {
 		maxStackCapacity = newUndoStackSize;
-		undoStack = new Vector(maxStackCapacity);
-		redoStack = new Vector(maxStackCapacity);
+		undoStack = CollectionsFactory.current().createList(maxStackCapacity);
+		redoStack = CollectionsFactory.current().createList(maxStackCapacity);
 	}
 
 	public void pushUndo(Undoable undoActivity) {
 		if (undoActivity.isUndoable()) {
-			// If buffersize exceeds, remove the oldest command
-			if (getUndoSize() >= maxStackCapacity) {
-				undoStack.removeElementAt(0);
-			}
-		
-			undoStack.addElement(undoActivity);
+			removeFirstElementInFullList(undoStack);
+			undoStack.add(undoActivity);
 		}
 		else {
 			// a not undoable activity clears the stack because
 			// the last activity does not correspond with the
 			// last undo activity
-			undoStack = new Vector(maxStackCapacity);
+			undoStack = CollectionsFactory.current().createList(maxStackCapacity);
 		}
 	}
 
 	public void pushRedo(Undoable redoActivity) {
 		if (redoActivity.isRedoable()) {
-			// If buffersize exceeds, remove the oldest command
-			if (getRedoSize() >= maxStackCapacity) {
-				redoStack.removeElementAt(0);
-			}
-		
+
+			removeFirstElementInFullList(redoStack);
+
 			// add redo activity only if it is not already the last
 			// one in the buffer
 			if ((getRedoSize() == 0) || (peekRedo() != redoActivity)) {
-				redoStack.addElement(redoActivity);
+				redoStack.add(redoActivity);
 			}
 		}
 		else {
 			// a not undoable activity clears the tack because
 			// the last activity does not correspond with the
 			// last undo activity
-			redoStack = new Vector(maxStackCapacity);
+			redoStack = CollectionsFactory.current().createList(maxStackCapacity);
 		}
 	}
 
+	/**
+	 * If buffersize exceeds, remove the oldest command
+	 */
+	private void removeFirstElementInFullList(List l) {
+		if (l.size() >= maxStackCapacity) {
+			Undoable removedActivity = (Undoable)l.remove(0);
+			removedActivity.release();
+		}
+	}
+
+	private Undoable getLastElement(List l) {
+		if (l.size() > 0) {
+			return (Undoable)l.get(l.size() - 1);
+		}
+		else {
+			return null;
+		}
+	}
 	public boolean isUndoable() {
 		if (getUndoSize() > 0) {
-			return ((Undoable)undoStack.lastElement()).isUndoable();
+			return getLastElement(undoStack).isUndoable();
 		}
 		else {
 			return false;
 		}
 	}
-	
+
 	public boolean isRedoable() {
 		if (getRedoSize() > 0) {
-			return ((Undoable)redoStack.lastElement()).isRedoable();
+			return getLastElement(redoStack).isRedoable();
 		}
 		else {
 			return false;
@@ -105,7 +120,7 @@ public class UndoManager {
 
 	protected Undoable peekUndo() {
 		if (getUndoSize() > 0) {
-			return (Undoable) undoStack.lastElement();
+			return getLastElement(undoStack);
 		}
 		else {
 			return null;
@@ -114,7 +129,7 @@ public class UndoManager {
 
 	protected Undoable peekRedo() {
 		if (getRedoSize() > 0) {
-			return (Undoable) redoStack.lastElement();
+			return getLastElement(redoStack);
 		}
 		else {
 			return null;
@@ -143,8 +158,8 @@ public class UndoManager {
 		Undoable lastUndoable = peekUndo();
 
 		// Remove it from undo collection
-		undoStack.removeElementAt(getUndoSize() - 1);
-		
+		undoStack.remove(getUndoSize() - 1);
+
 		return lastUndoable;
 	}
 
@@ -156,7 +171,7 @@ public class UndoManager {
 		Undoable lastUndoable = peekRedo();
 
 		// Remove it from undo collection
-		redoStack.removeElementAt(getRedoSize() - 1);
+		redoStack.remove(getRedoSize() - 1);
 
 		return lastUndoable;
 	}
@@ -168,8 +183,36 @@ public class UndoManager {
 	public void clearRedos() {
 		clearStack(redoStack);
 	}
-	
-	protected void clearStack(Vector clearStack) {
-		clearStack.removeAllElements();
+
+	protected void clearStack(List clearStack) {
+		clearStack.clear();
+	}
+
+	/**
+	 * Removes all undo activities that operate on the given DrawingView.
+	 * @param checkDV DrawingView which is compared undo's DrawingView
+	 */
+	public void clearUndos(DrawingView checkDV) {
+		Iterator iter = undoStack.iterator();
+		while (iter.hasNext()) {
+			Undoable currentUndo = (Undoable)iter.next();
+			if (currentUndo.getDrawingView() == checkDV) {
+				iter.remove();
+			}
+		}
+	}
+
+	/**
+	 * Removes all redo activities that operate on the given DrawingView.
+	 * @param checkDV DrawingView which is compared redo's DrawingView
+	 */
+	public void clearRedos(DrawingView checkDV) {
+		Iterator iter = redoStack.iterator();
+		while (iter.hasNext()) {
+			Undoable currentRedo = (Undoable)iter.next();
+			if (currentRedo.getDrawingView() == checkDV) {
+				iter.remove();
+			}
+		}
 	}
 }

@@ -11,17 +11,21 @@
 
 package CH.ifa.draw.samples.javadraw;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.io.*;
 import CH.ifa.draw.framework.*;
 import CH.ifa.draw.standard.*;
 import CH.ifa.draw.figures.*;
 import CH.ifa.draw.util.*;
 import CH.ifa.draw.application.*;
 import CH.ifa.draw.contrib.*;
+import CH.ifa.draw.contrib.html.HTMLTextAreaFigure;
+import CH.ifa.draw.contrib.html.HTMLTextAreaTool;
+import CH.ifa.draw.contrib.zoom.ZoomDrawingView;
+import CH.ifa.draw.contrib.zoom.ZoomTool;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
+import java.net.URL;
 
 /**
  * @version <$CURRENT_VERSION$>
@@ -29,11 +33,20 @@ import CH.ifa.draw.contrib.*;
 public  class JavaDrawApp extends MDI_DrawApplication {
 
 	private Animator            fAnimator;
-	private static String       fgSampleImagesPath = "CH/ifa/draw/samples/javadraw/sampleimages/";
-	private static String       fgSampleImagesResourcePath = "/"+fgSampleImagesPath;
+	private static String       fgSampleImagesPath = "/CH/ifa/draw/samples/javadraw/sampleimages";
+	private static String       fgSampleImagesResourcePath = fgSampleImagesPath + "/";
 
 	JavaDrawApp() {
 		super("JHotDraw");
+	}
+
+	/**
+	 * Expose constructor for benefit of subclasses.
+	 * 
+	 * @param title The window title for this application's frame.
+	 */
+	public JavaDrawApp(String title) {
+		super(title);
 	}
 
 	/**
@@ -45,7 +58,11 @@ public  class JavaDrawApp extends MDI_DrawApplication {
 	protected DrawApplication createApplication() {
 		return new JavaDrawApp();
 	}
-	
+
+	protected DrawingView createDrawingView() {
+		return new ZoomDrawingView(this);
+	}
+
 	//-- application life cycle --------------------------------------------
 
 	public void destroy() {
@@ -58,7 +75,10 @@ public  class JavaDrawApp extends MDI_DrawApplication {
 	protected void createTools(JToolBar palette) {
 		super.createTools(palette);
 
-		Tool tool = new UndoableTool(new TextTool(this, new TextFigure()));
+		Tool tool = new ZoomTool(this);
+		palette.add(createToolButton(IMAGES + "ZOOM", "Zoom Tool", tool));
+
+		tool = new UndoableTool(new TextTool(this, new TextFigure()));
 		palette.add(createToolButton(IMAGES + "TEXT", "Text Tool", tool));
 
 		tool = new UndoableTool(new ConnectedTextTool(this, new TextFigure()));
@@ -81,10 +101,10 @@ public  class JavaDrawApp extends MDI_DrawApplication {
 
 		tool = new UndoableTool(new CreationTool(this, new TriangleFigure()));
 		palette.add(createToolButton(IMAGES + "TRIANGLE", "Triangle Tool", tool));
-		
+
 		tool = new UndoableTool(new CreationTool(this, new DiamondFigure()));
 		palette.add(createToolButton(IMAGES + "DIAMOND", "Diamond Tool", tool));
-			
+
 		tool = new UndoableTool(new CreationTool(this, new LineFigure()));
 		palette.add(createToolButton(IMAGES + "LINE", "Line Tool", tool));
 
@@ -99,6 +119,29 @@ public  class JavaDrawApp extends MDI_DrawApplication {
 
 		tool = new UndoableTool(new BorderTool(this));
 		palette.add(createToolButton(IMAGES + "BORDDEC", "Border Tool", tool));
+
+		Component button = new JButton("Hello World");
+		tool = new CreationTool(this, new ComponentFigure(button));
+		palette.add(createToolButton(IMAGES + "RECT", "Component Tool", tool));
+
+		tool = new TextAreaTool(this, new TextAreaFigure());
+		palette.add(createToolButton(IMAGES + "TEXTAREA", "TextArea Tool", tool));
+
+		GraphicalCompositeFigure fig = new GraphicalCompositeFigure();
+		fig.setLayouter(new SimpleLayouter(fig));
+		tool = new CreationTool(this, fig);
+		palette.add(createToolButton(IMAGES + "RECT", "Container Figure Tool", tool));
+
+		tool = new CompositeFigureCreationTool(this, new RectangleFigure());
+		palette.add(createToolButton(IMAGES + "RECT", "Nested Figure Tool", tool));
+
+		tool = new HTMLTextAreaTool(this, new HTMLTextAreaFigure());
+		palette.add(createToolButton(IMAGES + "TEXTAREA", "HTML TextArea Tool", tool));
+
+		LineConnection lineConnection = new LineConnection();
+		lineConnection.setStartDecoration(null);
+		tool = new UndoableTool(new SplitConnectionTool(this, lineConnection));
+		palette.add(createToolButton(IMAGES + "OCONN", "Split Connection Tool", tool));
 	}
 
 	protected Tool createSelectionTool() {
@@ -148,13 +191,14 @@ public  class JavaDrawApp extends MDI_DrawApplication {
 
 		menu.addSeparator();
 		menu.add(new WindowMenu("Window List", (MDIDesktopPane)getDesktop(), this));
-				
 		return menu;
 	}
 
 	protected JMenu createImagesMenu() {
 		CommandMenu menu = new CommandMenu("Images");
-		File imagesDirectory = new File(fgSampleImagesPath);
+		URL url = getClass().getResource(fgSampleImagesPath);
+		File imagesDirectory = new File(url.getFile());
+
 		try {
 			String[] list = imagesDirectory.list();
 			for (int i = 0; i < list.length; i++) {
@@ -163,12 +207,17 @@ public  class JavaDrawApp extends MDI_DrawApplication {
 				menu.add(new UndoableCommand(
 					new InsertImageCommand(name, path, this)));
 			}
-		} catch (Exception e) {}
+		}
+		catch (Exception e) {
+			// do nothing
+		}
 		return menu;
 	}
 
 	protected Drawing createDrawing() {
-		return new BouncingDrawing();
+		Drawing dwg = new BouncingDrawing();
+        dwg.setTitle(getDefaultDrawingTitle());
+		return dwg;
 		//return new StandardDrawing();
 	}
 
@@ -186,6 +235,19 @@ public  class JavaDrawApp extends MDI_DrawApplication {
 			fAnimator.end();
 			fAnimator = null;
 		}
+	}
+
+	protected JMenu createDebugMenu() {
+		CommandMenu menu = (CommandMenu)super.createDebugMenu();
+
+		Command cmd = new AbstractCommand("Clipping Update", this) {
+			public void execute() {
+				this.view().setDisplayUpdate(new ClippingUpdateStrategy());
+			}
+		};
+		menu.add(cmd);
+
+		return menu;
 	}
 
 	//-- main -----------------------------------------------------------

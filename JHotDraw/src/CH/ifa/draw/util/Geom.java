@@ -13,6 +13,7 @@ package CH.ifa.draw.util;
 
 import java.awt.Rectangle;
 import java.awt.Point;
+import java.awt.geom.Line2D;
 
 /**
  * Some geometric utilities.
@@ -101,6 +102,67 @@ public class Geom {
 
 	static public Point north(Rectangle r) {
 		return new Point(r.x+r.width/2, r.y);
+	}
+
+	/**
+	 * Returns the corner (bottom right) of the rectangle
+	 *
+	 * @param r  the rectangle
+	 * @return   the corner
+	 */
+	public static Point corner(Rectangle r)
+	{
+		return new Point((int)r.getMaxX(), (int)r.getMaxY());
+	}
+
+
+	/**
+	 * Returns the top left corner of the rectangle
+	 *
+	 * @param r  the rectangle
+	 * @return   the corner
+	 */
+	public static Point topLeftCorner(Rectangle r)
+	{
+		return r.getLocation();
+	}
+
+
+	/**
+	 * Returns the top right corner of the rectangle
+	 *
+	 * @param r  the rectangle
+	 * @return   the corner
+	 */
+	public static Point topRightCorner(Rectangle r)
+	{
+		return new Point((int)r.getMaxX(), (int)r.getMinY());
+	}
+
+
+	/**
+	 * Returns the bottom left corner of the rectangle
+	 *
+	 * @param r  the rectangle
+	 * @return   the corner
+	 */
+	public static Point bottomLeftCorner(Rectangle r)
+	{
+		return new Point((int)r.getMinX(), (int)r.getMaxY());
+	}
+
+
+	/**
+	 * Returns the bottom right corner of the rectangle.
+	 * Same as corner, added for naming coherence with the other
+	 * corner extracting methods
+	 *
+	 * @param r  the rectangle
+	 * @return   the corner
+	 */
+	public static Point bottomRightCorner(Rectangle r)
+	{
+		return corner(r);
 	}
 
 	/**
@@ -317,5 +379,16 @@ public class Geom {
 			double l = Math.sqrt((double)l2);
 			return = s * l;
 			*/
+	}
+
+	/**
+	 * compute distance of point from line segment.<br>
+	 * Uses AWT Line2D utility methods
+	 */
+	public static double distanceFromLine2D(int xa, int ya,
+										int xb, int yb,
+										int xc, int yc) {
+		Line2D.Double line = new Line2D.Double(xa, xb, ya, yb);
+		return line.ptSegDist(xc, yc);
 	}
 }

@@ -13,8 +13,6 @@ package CH.ifa.draw.contrib;
 
 import CH.ifa.draw.framework.*;
 import CH.ifa.draw.standard.*;
-import CH.ifa.draw.figures.*;
-import CH.ifa.draw.util.*;
 import javax.swing.JPopupMenu;
 import java.awt.*;
 import java.awt.event.*;
@@ -27,7 +25,7 @@ import java.awt.event.*;
  * Popup menus must be registered with a Figure using the setAttribute() method.
  * The key which associates a popup menu as an attribute is Figure.POPUP_MENU.
  *
- * @author  Wolfram Kaiser
+ * @author  Wolfram Kaiser <mrfloppy@users.sourceforge.net>
  * @version <$CURRENT_VERSION$>
  */
 public class CustomSelectionTool extends SelectionTool {
@@ -50,6 +48,7 @@ public class CustomSelectionTool extends SelectionTool {
 	 * @param   y   y coordinate of the MouseEvent
 	 */
 	public void mouseDown(MouseEvent e, int x, int y) {
+		setView((DrawingView)e.getSource());
 		// isPopupTrigger() at mouseDown() is only notified at UNIX systems
 		if (e.isPopupTrigger()) {
 			handlePopupMenu(e, x, y);
@@ -87,8 +86,10 @@ public class CustomSelectionTool extends SelectionTool {
 	public void mouseUp(MouseEvent e, int x, int y) {
 		if (e.isPopupTrigger()) {
 			handlePopupMenu(e, x, y);
+			super.mouseUp(e, x, y);
 		}
 		else if (e.getClickCount() == 2) {
+			super.mouseUp(e, x, y);
 			handleMouseDoubleClick(e, x, y);
 		}
 		else {
@@ -151,7 +152,7 @@ public class CustomSelectionTool extends SelectionTool {
 	 * @param   figure      Figure for which a popup menu should be displayed
 	 * @param   x           x coordinate where the popup menu should be displayed
 	 * @param   y           y coordinate where the popup menu should be displayed
-	 * @param   component   Component which invoked the popup menu
+	 * @param   comp        Component which invoked the popup menu
 	 */
 	protected void showPopupMenu(Figure figure, int x, int y, Component comp) {
 		Object attribute = figure.getAttribute(Figure.POPUP_MENU);

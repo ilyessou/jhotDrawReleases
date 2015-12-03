@@ -14,6 +14,7 @@ package CH.ifa.draw.framework;
 import CH.ifa.draw.util.*;
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.io.Serializable;
 
 /**
@@ -116,9 +117,19 @@ public interface Drawing
 	/**
 	 * Checks if the composite figure has the argument as one of
 	 * its children.
+	 *
+	 * @param figure figure to be searched in all descendants
 	 * @return true if the figure is part of this Drawing, else otherwise
 	 */
 	public boolean includes(Figure figure);
+
+	/**
+	 * Check whether a given figure is a (direct) child figure of this CompositeFigure.
+	 *
+	 * @param figure figure to be searched in all direct descendents
+	 * @return true if the figure is a direct child of this Drawing, else otherwise
+	 */
+	public boolean containsFigure(Figure figure);
 
 	/**
 	 * Adds a listener for this drawing.
@@ -133,9 +144,9 @@ public interface Drawing
 	/**
 	 * Gets the listeners of a drawing.
 	 *
-	 * @return new enumeration of all registered change listener
+	 * @return new iterator of all registered change listener
 	 */
-	public Enumeration drawingChangeListeners();
+	public Iterator drawingChangeListeners();
 
 	/**
 	 * Adds a figure and sets its container to refer to this drawing.
@@ -146,11 +157,11 @@ public interface Drawing
 	public Figure add(Figure figure);
 
 	/**
-	 * Adds a vector of figures.
+	 * Adds a list of figures.
 	 *
 	 * @deprecated use addAll(FigureEnumeration) instead
 	 */
-	public void addAll(Vector newFigures);
+	public void addAll(List newFigures);
 
 	/**
 	 * Adds a FigureEnumeration of figures.
@@ -178,13 +189,13 @@ public interface Drawing
 	public Figure orphan(Figure figure);
 
 	/**
-	 * Removes a vector of figures from the figure's list
+	 * Removes a list of figures from the figure's list
 	 * without releasing the figures.
 	 *
 	 * @see #orphan
 	 * @deprecated use orphanAll(FigureEnumeration) instead
 	 */
-	public void orphanAll(Vector orphanFigures);
+	public void orphanAll(List orphanFigures);
 
 	/**
 	 * Removes a FigureEnumeration of figures from the figure's list
@@ -192,21 +203,21 @@ public interface Drawing
 	 * @see #orphan
 	 */
 	public void orphanAll(FigureEnumeration fe);
-	
+
 	/**
-	 * Removes a vector of figures .
+	 * Removes a list of figures .
 	 *
 	 * @see #remove
 	 * @deprecated use removeAll(FigureEnumeration) instead
 	 */
-	public void removeAll(Vector figures);
+	public void removeAll(List figures);
 
 	/**
 	 * Removes a FigureEnumeration of figures.
 	 * @see #remove
 	 */
 	public void removeAll(FigureEnumeration fe);
-	
+
 	/**
 	 * Replaces a figure in the drawing without removing it from the drawing.
 	 * The figure to be replaced must be part of the drawing.
@@ -218,7 +229,7 @@ public interface Drawing
 	public Figure replace(Figure figure, Figure replacement);
 
 	/**
-	 * Sends a figure to the back of the drawing. 
+	 * Sends a figure to the back of the drawing.
 	 *
 	 * @param figure that is part of the drawing
 	 */
@@ -238,10 +249,10 @@ public interface Drawing
 	 * layer number have usually been added later and may overlay
 	 * figures in lower layers. Layers are counted from to (the number
 	 * of figures - 1).
-	 * The figure is removed from its current layer (if it has been already 
+	 * The figure is removed from its current layer (if it has been already
 	 * part of this drawing) and is transferred to the specified layers after
 	 * all figures between the original layer and the new layer are shifted to
-	 * one layer below to fill the layer sequence. It is not possible to skip a 
+	 * one layer below to fill the layer sequence. It is not possible to skip a
 	 * layer number and if the figure is sent to a layer beyond the latest layer
 	 * it will be added as the last figure to the drawing and its layer number
 	 * will be set to the be the one beyond the latest layer so far.
@@ -252,7 +263,7 @@ public interface Drawing
 	public void sendToLayer(Figure figure, int layerNr);
 
 	/**
-	 * Gets the layer for a certain figure (first occurrence). The number 
+	 * Gets the layer for a certain figure (first occurrence). The number
 	 * returned is the number of the layer in which the figure is placed.
 	 *
 	 * @param figure figure to be queried for its layering place
@@ -281,24 +292,6 @@ public interface Drawing
 	 * Draws only the given figures.
 	 */
 	public void draw(Graphics g, FigureEnumeration fe);
-
-	/**
-	 * Invalidates a rectangle and merges it with the
-	 * existing damaged area.
-	 */
-	public void figureInvalidated(FigureChangeEvent e);
-
-	/**
-	 * Forces an update of the drawing change listeners.
-	 */
-	public void figureRequestUpdate(FigureChangeEvent e);
-
-	/**
-	 * Handles a removeFrfigureRequestRemove request that
-	 * is passed up the figure container hierarchy.
-	 * @see FigureChangeListener
-	 */
-	public void figureRequestRemove(FigureChangeEvent e);
 
 	/**
 	 * Acquires the drawing lock.

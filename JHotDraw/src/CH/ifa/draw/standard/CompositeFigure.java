@@ -15,6 +15,7 @@ import CH.ifa.draw.util.*;
 import CH.ifa.draw.framework.*;
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.io.*;
 
 /**
@@ -42,19 +43,19 @@ public abstract class CompositeFigure
 	 * @see #add
 	 * @see #remove
 	 */
-	protected Vector fFigures;
+	protected List fFigures;
 
 	/*
 	 * Serialization support.
 	 */
 	private static final long serialVersionUID = 7408153435700021866L;
 	private int compositeFigureSerializedDataVersion = 1;
-	private QuadTree  _theQuadTree;
+	private transient QuadTree  _theQuadTree;
 	protected int _nLowestZ;
 	protected int _nHighestZ;
 
 	protected CompositeFigure() {
-		fFigures = new Vector();
+		fFigures = CollectionsFactory.current().createList();
 		_nLowestZ = 0;
 		_nHighestZ = 0;
 	}
@@ -67,9 +68,9 @@ public abstract class CompositeFigure
 	 * @return the figure that was inserted (might be different from the figure specified).
 	 */
 	public Figure add(Figure figure) {
-		if (!fFigures.contains(figure)) {
+		if (!containsFigure(figure)) {
 			figure.setZValue(++_nHighestZ);
-			fFigures.addElement(figure);
+			fFigures.add(figure);
 			figure.addToContainer(this);
 			_addToQuadTree(figure);
 		}
@@ -77,12 +78,12 @@ public abstract class CompositeFigure
 	}
 
 	/**
-	 * Adds a vector of figures.
+	 * Adds a list of figures.
 	 *
 	 * @see #add
 	 * @deprecated use addAll(FigureEnumeration) instead
 	 */
-	public void addAll(Vector newFigures) {
+	public void addAll(List newFigures) {
 		addAll(new FigureEnumerator(newFigures));
 	}
 
@@ -93,7 +94,7 @@ public abstract class CompositeFigure
 	 * @param fe (unused) enumeration containing all figures to be added
 	 */
 	public void addAll(FigureEnumeration fe) {
-		while (fe.hasMoreElements()) {
+		while (fe.hasNextFigure()) {
 			add(fe.nextFigure());
 		}
 	}
@@ -106,18 +107,21 @@ public abstract class CompositeFigure
 	 * @see #removeAll
 	 */
 	public Figure remove(Figure figure) {
-		return orphan(figure);
+		Figure orphanedFigure = orphan(figure);
+		if (orphanedFigure != null) {
+			orphanedFigure.release();
+		}
+		return orphanedFigure;
 	}
 
 	/**
-	 * Removes a vector of figures.
+	 * Removes a list of figures.
 	 *
 	 * @see #remove
 	 * @deprecated use removeAll(FigureEnumeration) instead
 	 */
-	public void removeAll(Vector figures) {
+	public void removeAll(List figures) {
 		removeAll(new FigureEnumerator(figures));
-
 	}
 
 	/**
@@ -125,23 +129,23 @@ public abstract class CompositeFigure
 	 * @see #remove
 	 */
 	public void removeAll(FigureEnumeration fe) {
-		while (fe.hasMoreElements()) {
+		while (fe.hasNextFigure()) {
 			remove(fe.nextFigure());
 		}
 	}
-	
+
 	/**
 	 * Removes all children.
 	 * @see #remove
 	 */
 	public void removeAll() {
 		FigureEnumeration fe = figures();
-		while (fe.hasMoreElements()) {
+		while (fe.hasNextFigure()) {
 			Figure figure = fe.nextFigure();
 			figure.removeFromContainer(this);
 		}
-		fFigures.removeAllElements();
-		
+		fFigures.clear();
+
 		_clearQuadTree();
 		_nLowestZ = 0;
 		_nHighestZ = 0;
@@ -155,31 +159,29 @@ public abstract class CompositeFigure
 	 * @param figure that is part of the drawing and should be added
 	 */
 	public synchronized Figure orphan(Figure figure) {
-		if (fFigures.contains(figure)) {
-			figure.removeFromContainer(this);
-			fFigures.removeElement(figure);
-			_removeFromQuadTree(figure);
-		}
+		figure.removeFromContainer(this);
+		fFigures.remove(figure);
+		_removeFromQuadTree(figure);
 		return figure;
 	}
 
 	/**
-	 * Removes a vector of figures from the figure's list
+	 * Removes a list of figures from the figure's list
 	 * without releasing the figures.
 	 *
 	 * @see #orphan
 	 * @deprecated use orphanAll(FigureEnumeration) instead
 	 */
-	public void orphanAll(Vector newFigures) {
+	public void orphanAll(List newFigures) {
 		orphanAll(new FigureEnumerator(newFigures));
 	}
 
 	public void orphanAll(FigureEnumeration fe) {
-		while (fe.hasMoreElements()) {
+		while (fe.hasNextFigure()) {
 			orphan(fe.nextFigure());
 		}
 	}
-	
+
 	/**
 	 * Replaces a figure in the drawing without
 	 * removing it from the drawing.
@@ -194,7 +196,7 @@ public abstract class CompositeFigure
 			replacement.setZValue(figure.getZValue());
 			replacement.addToContainer(this);   // will invalidate figure
 			figure.removeFromContainer(this);
-			fFigures.setElementAt(replacement, index);
+			fFigures.set(index, replacement);
 			figure.changed();
 			replacement.changed();
 		}
@@ -207,9 +209,9 @@ public abstract class CompositeFigure
 	 * @param figure that is part of the drawing
 	 */
 	public synchronized void sendToBack(Figure figure) {
-		if (fFigures.contains(figure)) {
-			fFigures.removeElement(figure);
-			fFigures.insertElementAt(figure,0);
+		if (containsFigure(figure)) {
+			fFigures.remove(figure);
+			fFigures.add(0, figure);
 			_nLowestZ--;
 			figure.setZValue(_nLowestZ);
 			figure.changed();
@@ -222,9 +224,9 @@ public abstract class CompositeFigure
 	 * @param figure that is part of the drawing
 	 */
 	public synchronized void bringToFront(Figure figure) {
-		if (fFigures.contains(figure)) {
-			fFigures.removeElement(figure);
-			fFigures.addElement(figure);
+		if (containsFigure(figure)) {
+			fFigures.remove(figure);
+			fFigures.add(figure);
 			_nHighestZ++;
 			figure.setZValue(_nHighestZ);
 			figure.changed();
@@ -238,10 +240,10 @@ public abstract class CompositeFigure
 	 * layer number have usually been added later and may overlay
 	 * figures in lower layers. Layers are counted from to (the number
 	 * of figures - 1).
-	 * The figure is removed from its current layer (if it has been already 
+	 * The figure is removed from its current layer (if it has been already
 	 * part of this drawing) and is transferred to the specified layers after
 	 * all figures between the original layer and the new layer are shifted to
-	 * one layer below to fill the layer sequence. It is not possible to skip a 
+	 * one layer below to fill the layer sequence. It is not possible to skip a
 	 * layer number and if the figure is sent to a layer beyond the latest layer
 	 * it will be added as the last figure to the drawing and its layer number
 	 * will be set to the be the one beyond the latest layer so far.
@@ -250,7 +252,7 @@ public abstract class CompositeFigure
 	 * @param layerNr target layer of the figure
 	 */
 	public void sendToLayer(Figure figure, int layerNr) {
-		if (fFigures.contains(figure)) {
+		if (containsFigure(figure)) {
 			if (layerNr >= fFigures.size()) {
 				layerNr = fFigures.size() - 1;
 			}
@@ -264,9 +266,9 @@ public abstract class CompositeFigure
 			else if (figureLayer > layerNr) {
 				assignFiguresToSuccessorZValue(layerNr, figureLayer - 1);
 			}
-			
-			fFigures.removeElement(figure);
-			fFigures.insertElementAt(figure, layerNr);
+
+			fFigures.remove(figure);
+			fFigures.add(layerNr, figure);
 			figure.setZValue(layerFigureZValue);
 			figure.changed();
 		}
@@ -278,10 +280,10 @@ public abstract class CompositeFigure
 		if (upperBound >= fFigures.size()) {
 			upperBound = fFigures.size() - 1;
 		}
-		
+
 		for (int i = upperBound; i >= lowerBound; i--) {
-			Figure currentFigure = (Figure)fFigures.elementAt(i);
-			Figure predecessorFigure = (Figure)fFigures.elementAt(i - 1);
+			Figure currentFigure = (Figure)fFigures.get(i);
+			Figure predecessorFigure = (Figure)fFigures.get(i - 1);
 			currentFigure.setZValue(predecessorFigure.getZValue());
 		}
 	}
@@ -290,16 +292,16 @@ public abstract class CompositeFigure
 		if (upperBound >= fFigures.size()) {
 			upperBound = fFigures.size() - 1;
 		}
-		
+
 		for (int i = upperBound; i >= lowerBound; i--) {
-			Figure currentFigure = (Figure)fFigures.elementAt(i);
-			Figure successorFigure = (Figure)fFigures.elementAt(i + 1);
+			Figure currentFigure = (Figure)fFigures.get(i);
+			Figure successorFigure = (Figure)fFigures.get(i + 1);
 			currentFigure.setZValue(successorFigure.getZValue());
 		}
 	}
 
 	/**
-	 * Gets the layer for a certain figure (first occurrence). The number 
+	 * Gets the layer for a certain figure (first occurrence). The number
 	 * returned is the number of the layer in which the figure is placed.
 	 *
 	 * @param figure figure to be queried for its layering place
@@ -308,14 +310,14 @@ public abstract class CompositeFigure
 	 * @see #sendToLayer
 	 */
 	public int getLayer(Figure figure) {
-		if (!fFigures.contains(figure)) {
+		if (!containsFigure(figure)) {
 			return -1;
 		}
 		else {
 			return fFigures.indexOf(figure);
 		}
 	}
-	
+
 	/**
 	 * Gets the figure from a certain layer.
 	 *
@@ -326,22 +328,19 @@ public abstract class CompositeFigure
 	 */
 	public Figure getFigureFromLayer(int layerNr) {
 		if ((layerNr >= 0) && (layerNr < fFigures.size())) {
-			return (Figure)fFigures.elementAt(layerNr);
+			return (Figure)fFigures.get(layerNr);
 		}
 		else {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Draws all the contained figures
 	 * @see Figure#draw
 	 */
 	public void draw(Graphics g) {
-		FigureEnumeration fe = figures();
-		while (fe.hasMoreElements()) {
-			fe.nextFigure().draw(g);
-		}
+		draw(g, figures());
 	}
 
 	/**
@@ -349,7 +348,7 @@ public abstract class CompositeFigure
 	 * @see Figure#draw
 	 */
 	public void draw(Graphics g, FigureEnumeration fe) {
-		while (fe.hasMoreElements()) {
+		while (fe.hasNextFigure()) {
 			fe.nextFigure().draw(g);
 		}
 	}
@@ -358,15 +357,18 @@ public abstract class CompositeFigure
 	 * Gets a figure at the given index.
 	 */
 	public Figure figureAt(int i) {
-		return (Figure)fFigures.elementAt(i);
+		return (Figure)fFigures.get(i);
 	}
 
 	/**
 	 * Returns an Enumeration for accessing the contained figures.
+     * The enumeration is a snapshot of the current contained figures
+     * and is not a "live" enumeration and does not take subsequent
+     * changes of the CompositeFigure into account.
 	 * The figures are returned in the drawing order.
 	 */
-	public final FigureEnumeration figures() {
-		return new FigureEnumerator((Vector)fFigures.clone());
+	public FigureEnumeration figures() {
+		return new FigureEnumerator(CollectionsFactory.current().createList(fFigures));
 	}
 
 	/**
@@ -377,28 +379,27 @@ public abstract class CompositeFigure
 	public FigureEnumeration figures(Rectangle viewRectangle) {
 		if (_theQuadTree != null) {
 
-			Vector v =
+			FigureEnumeration fe =
 				_theQuadTree.getAllWithin(new Bounds(viewRectangle).asRectangle2D());
 
-			Vector v2 = new Vector();
+			List l2 = CollectionsFactory.current().createList();
 
-			for (Enumeration e=v.elements(); e.hasMoreElements(); ) {
-				Figure f = (Figure) e.nextElement();
+			while (fe.hasNextFigure()) {
+				Figure f = fe.nextFigure();
 				//int z = fFigures.indexOf(f);
-				v2.addElement(new OrderedFigureElement(f, f.getZValue()));
+				l2.add(new OrderedFigureElement(f, f.getZValue()));
 			}
 
-			Collections.sort(v2);
+			Collections.sort(l2);
 
-			Vector v3 = new Vector();
+			List l3 = CollectionsFactory.current().createList();
 
-			for (Enumeration e=v2.elements(); e.hasMoreElements(); ) {
-				OrderedFigureElement ofe = (OrderedFigureElement)
-				e.nextElement();
-				v3.addElement(ofe.getFigure());
+			for (Iterator iter = l2.iterator(); iter.hasNext(); ) {
+				OrderedFigureElement ofe = (OrderedFigureElement)iter.next();
+				l3.add(ofe.getFigure());
 			}
 
-			return new FigureEnumerator(v3);
+			return new FigureEnumerator(l3);
 		}
 
 		return figures();
@@ -412,11 +413,18 @@ public abstract class CompositeFigure
 	}
 
 	/**
+	 * Check whether a given figure is a child figure of this CompositeFigure.
+	 */
+	public boolean containsFigure(Figure checkFigure) {
+		return fFigures.contains(checkFigure);
+	}
+
+    /**
 	 * Returns an Enumeration for accessing the contained figures
 	 * in the reverse drawing order.
 	 */
 	public final FigureEnumeration figuresReverse() {
-		return new ReverseFigureEnumerator((Vector)fFigures.clone());
+		return new ReverseFigureEnumerator(CollectionsFactory.current().createList(fFigures));
 	}
 
 	/**
@@ -424,9 +432,9 @@ public abstract class CompositeFigure
 	 * should not descend into the figure's children.
 	 */
 	public Figure findFigure(int x, int y) {
-		FigureEnumeration k = figuresReverse();
-		while (k.hasMoreElements()) {
-			Figure figure = k.nextFigure();
+		FigureEnumeration fe = figuresReverse();
+		while (fe.hasNextFigure()) {
+			Figure figure = fe.nextFigure();
 			if (figure.containsPoint(x, y)) {
 				return figure;
 			}
@@ -438,9 +446,9 @@ public abstract class CompositeFigure
 	 * Finds a top level Figure that intersects the given rectangle.
 	 */
 	public Figure findFigure(Rectangle r) {
-		FigureEnumeration k = figuresReverse();
-		while (k.hasMoreElements()) {
-			Figure figure = k.nextFigure();
+		FigureEnumeration fe = figuresReverse();
+		while (fe.hasNextFigure()) {
+			Figure figure = fe.nextFigure();
 			Rectangle fr = figure.displayBox();
 			if (r.intersects(fr)) {
 				return figure;
@@ -459,11 +467,13 @@ public abstract class CompositeFigure
 	 * the find.
 	 */
 	public Figure findFigureWithout(int x, int y, Figure without) {
-		if (without == null)
+		if (without == null) {
 			return findFigure(x, y);
-		FigureEnumeration k = figuresReverse();
-		while (k.hasMoreElements()) {
-			Figure figure = k.nextFigure();
+		}
+
+		FigureEnumeration fe = figuresReverse();
+		while (fe.hasNextFigure()) {
+			Figure figure = fe.nextFigure();
 			if (figure.containsPoint(x, y) && !figure.includes(without)) {
 				return figure;
 			}
@@ -478,11 +488,13 @@ public abstract class CompositeFigure
 	 * that is temporarily inserted into the drawing.
 	 */
 	public Figure findFigure(Rectangle r, Figure without) {
-		if (without == null)
+		if (without == null) {
 			return findFigure(r);
-		FigureEnumeration k = figuresReverse();
-		while (k.hasMoreElements()) {
-			Figure figure = k.nextFigure();
+		}
+
+		FigureEnumeration fe = figuresReverse();
+		while (fe.hasNextFigure()) {
+			Figure figure = fe.nextFigure();
 			Rectangle fr = figure.displayBox();
 			if (r.intersects(fr) && !figure.includes(without)) {
 				return figure;
@@ -498,14 +510,21 @@ public abstract class CompositeFigure
 	 * figure containing the given point.
 	 */
 	public Figure findFigureInside(int x, int y) {
-		FigureEnumeration k = figuresReverse();
-		while (k.hasMoreElements()) {
-			Figure figure = k.nextFigure().findFigureInside(x, y);
+		FigureEnumeration fe = figuresReverse();
+		while (fe.hasNextFigure()) {
+			Figure figure = fe.nextFigure().findFigureInside(x, y);
 			if (figure != null) {
 				return figure;
 			}
 		}
-		return null;
+
+		// bug-fix: 661878
+		if (containsPoint(x, y)) {
+			return this;
+		}
+		else {
+			return null;
+		}
 	}
 
 	/**
@@ -515,17 +534,27 @@ public abstract class CompositeFigure
 	 * that is temporarily inserted into the drawing.
 	 */
 	public Figure findFigureInsideWithout(int x, int y, Figure without) {
-		FigureEnumeration k = figuresReverse();
-		while (k.hasMoreElements()) {
-			Figure figure = k.nextFigure();
+		if (without == null) {
+			return findFigureInside(x, y);
+		}
+
+		FigureEnumeration fe = figuresReverse();
+		while (fe.hasNextFigure()) {
+			Figure figure = fe.nextFigure();
 			if (figure != without) {
 				Figure found = figure.findFigureInside(x, y);
-				if (found != null) {
+				if ((found != null) &&  !figure.includes(without)) {
 					return found;
 				}
 			}
 		}
-		return null;
+
+		if (containsPoint(x, y)) {
+			return this;
+		}
+		else {
+			return null;
+		}
 	}
 
 	/**
@@ -539,7 +568,7 @@ public abstract class CompositeFigure
 		}
 
 		FigureEnumeration fe = figures();
-		while (fe.hasMoreElements()) {
+		while (fe.hasNextFigure()) {
 			Figure f = fe.nextFigure();
 			if (f.includes(figure)) {
 				return true;
@@ -556,7 +585,7 @@ public abstract class CompositeFigure
 	 */
 	protected void basicMoveBy(int x, int y) {
 		FigureEnumeration fe = figures();
-		while (fe.hasMoreElements()) {
+		while (fe.hasNextFigure()) {
 			fe.nextFigure().moveBy(x,y);
 		}
 	}
@@ -565,12 +594,13 @@ public abstract class CompositeFigure
 	 * Releases the figure and all its children.
 	 */
 	public void release() {
-		super.release();
 		FigureEnumeration fe = figures();
-		while (fe.hasMoreElements()) {
+		while (fe.hasNextFigure()) {
 			Figure figure = fe.nextFigure();
 			figure.release();
 		}
+		// bug-fix: 661879 (CompositeFigure.release releasing itself before containees)
+		super.release();
 	}
 
 	/**
@@ -604,11 +634,14 @@ public abstract class CompositeFigure
 	}
 
 	public void figureChanged(FigureChangeEvent e) {
-	  _removeFromQuadTree(e.getFigure());
-	  _addToQuadTree(e.getFigure());
+		_removeFromQuadTree(e.getFigure());
+		_addToQuadTree(e.getFigure());
 	}
 
 	public void figureRemoved(FigureChangeEvent e) {
+		if (listener() != null) {
+			listener().figureRemoved(e);
+		}
 	}
 
 	/**
@@ -618,7 +651,7 @@ public abstract class CompositeFigure
 		super.write(dw);
 		dw.writeInt(figureCount());
 		FigureEnumeration fe = figures();
-		while (fe.hasMoreElements()) {
+		while (fe.hasNextFigure()) {
 			dw.writeStorable(fe.nextFigure());
 		}
 	}
@@ -629,10 +662,11 @@ public abstract class CompositeFigure
 	public void read(StorableInput dr) throws IOException {
 		super.read(dr);
 		int size = dr.readInt();
-		fFigures = new Vector(size);
+		fFigures = CollectionsFactory.current().createList(size);
 		for (int i=0; i<size; i++) {
 			add((Figure)dr.readStorable());
 		}
+		init(displayBox());
 	}
 
 	private void readObject(ObjectInputStream s)
@@ -641,10 +675,12 @@ public abstract class CompositeFigure
 		s.defaultReadObject();
 
 		FigureEnumeration fe = figures();
-		while (fe.hasMoreElements()) {
+		while (fe.hasNextFigure()) {
 			Figure figure = fe.nextFigure();
 			figure.addToContainer(this);
 		}
+
+		init(new Rectangle(0, 0));
 	}
 
 	/**
@@ -662,14 +698,25 @@ public abstract class CompositeFigure
 		_theQuadTree = new QuadTree(new Bounds(viewRectangle).asRectangle2D());
 
 		FigureEnumeration fe = figures();
-		while (fe.hasMoreElements()) {
+		while (fe.hasNextFigure()) {
 			_addToQuadTree(fe.nextFigure());
 		}
 	}
 
 	private void _addToQuadTree(Figure f) {
 		if (_theQuadTree != null) {
-			_theQuadTree.add(f, new Bounds(f.displayBox()).asRectangle2D());
+			// Bugfix: Make sure the rectangle is not zero width or height.
+			// Otherwise, the quadTree search in this.figures(Rectangle)
+			// will be incorrect. [John Yu, 2002/05/23]
+			Rectangle r = f.displayBox();
+			if (r.height == 0) {
+				r.grow(0, 1);
+			}
+			if (r.width == 0) {
+				r.grow(1, 0);
+			}
+
+			_theQuadTree.add(f, new Bounds(r).asRectangle2D());
 		}
 	}
 

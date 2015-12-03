@@ -12,7 +12,6 @@
 package CH.ifa.draw.util;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.*;
 
 /**
@@ -29,14 +28,14 @@ public abstract class PaletteButton
 				extends JButton
 				implements MouseListener, MouseMotionListener {
 
-	static final int NORMAL = 1;
-	static final int PRESSED = 2;
-	static final int SELECTED = 3;
+	protected static final int NORMAL = 1;
+	protected static final int PRESSED = 2;
+	protected static final int SELECTED = 3;
 
-	private PaletteListener  fListener;
 	private int             fState;
 	private int             fOldState;
 
+	private PaletteListener  fListener;
 
 	/**
 	 * Constructs a PaletteButton.

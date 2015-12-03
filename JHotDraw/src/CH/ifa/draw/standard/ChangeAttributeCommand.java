@@ -14,7 +14,6 @@ package CH.ifa.draw.standard;
 import CH.ifa.draw.framework.*;
 import CH.ifa.draw.util.UndoableAdapter;
 import CH.ifa.draw.util.Undoable;
-import java.awt.Color;
 import java.util.Hashtable;
 
 /**
@@ -24,29 +23,29 @@ import java.util.Hashtable;
  */
 public  class ChangeAttributeCommand extends AbstractCommand {
 
-	private String      fAttribute;
+	private FigureAttributeConstant fAttribute;
 	private Object      fValue;
 
 	/**
 	 * Constructs a change attribute command.
 	 * @param name the command name
-	 * @param attributeName the name of the attribute to be changed
+	 * @param attribute the attribute to be changed
 	 * @param value the new attribute value
 	 * @param newDrawingEditor the DrawingEditor which manages the views
 	 */
-	public ChangeAttributeCommand(String name, String attributeName,
+	public ChangeAttributeCommand(String name, FigureAttributeConstant attribute,
 						   Object value, DrawingEditor newDrawingEditor) {
 		super(name, newDrawingEditor);
-		fAttribute = attributeName;
+		fAttribute = attribute;
 		fValue = value;
 	}
 
 	public void execute() {
 		super.execute();
 		setUndoActivity(createUndoActivity());
-		getUndoActivity().setAffectedFigures(view().selectionElements());
+		getUndoActivity().setAffectedFigures(view().selection());
 		FigureEnumeration fe = getUndoActivity().getAffectedFigures();
-		while (fe.hasMoreElements()) {
+		while (fe.hasNextFigure()) {
 			fe.nextFigure().setAttribute(fAttribute, fValue);
 		}
 		view().checkDamage();
@@ -64,14 +63,14 @@ public  class ChangeAttributeCommand extends AbstractCommand {
 	}
 
 	public static class UndoActivity extends UndoableAdapter {
-		private Hashtable	myOriginalValues;
-		private String      myUndoAttribute;
-		private Object      myUndoValue;
+		private FigureAttributeConstant myUndoAttribute;
+		private Hashtable	            myOriginalValues;
+		private Object                  myUndoValue;
 
-		public UndoActivity(DrawingView newDrawingView, String newUndoAttribute, Object newUndoValue) {
+		public UndoActivity(DrawingView newDrawingView, FigureAttributeConstant newUndoAttribute, Object newUndoValue) {
 			super(newDrawingView);
 			myOriginalValues = new Hashtable();
-			setAttributeName(newUndoAttribute);
+			setAttribute(newUndoAttribute);
 			setBackupValue(newUndoValue);
 			setUndoable(true);
 			setRedoable(true);
@@ -82,11 +81,11 @@ public  class ChangeAttributeCommand extends AbstractCommand {
 				return false;
 			}
 
-			FigureEnumeration k = getAffectedFigures();
-			while (k.hasMoreElements()) {
-				Figure f = k.nextFigure();
+			FigureEnumeration fe = getAffectedFigures();
+			while (fe.hasNextFigure()) {
+				Figure f = fe.nextFigure();
 				if (getOriginalValue(f) != null) {
-					f.setAttribute(getAttributeName(), getOriginalValue(f));
+					f.setAttribute(getAttribute(), getOriginalValue(f));
 				}
 			}
 
@@ -98,11 +97,11 @@ public  class ChangeAttributeCommand extends AbstractCommand {
 				return false;
 			}
 
-			FigureEnumeration k = getAffectedFigures();
-			while (k.hasMoreElements()) {
-				Figure f = k.nextFigure();
+			FigureEnumeration fe = getAffectedFigures();
+			while (fe.hasNextFigure()) {
+				Figure f = fe.nextFigure();
 				if (getBackupValue() != null) {
-					f.setAttribute(getAttributeName(), getBackupValue());
+					f.setAttribute(getAttribute(), getBackupValue());
 				}
 			}
 
@@ -117,11 +116,11 @@ public  class ChangeAttributeCommand extends AbstractCommand {
 			return myOriginalValues.get(lookupAffectedFigure);
 		}
 
-		protected void setAttributeName(String newUndoAttribute) {
+		protected void setAttribute(FigureAttributeConstant newUndoAttribute) {
 			myUndoAttribute = newUndoAttribute;
 		}
 
-		public String getAttributeName() {
+		public FigureAttributeConstant getAttribute() {
 			return myUndoAttribute;
 		}
 
@@ -143,9 +142,9 @@ public  class ChangeAttributeCommand extends AbstractCommand {
 			super.setAffectedFigures(fe);
 			// then get new FigureEnumeration of copy to save attributes
 			FigureEnumeration copyFe = getAffectedFigures();
-			while (copyFe.hasMoreElements()) {
+			while (copyFe.hasNextFigure()) {
 				Figure f = copyFe.nextFigure();
-				Object attributeValue = f.getAttribute(getAttributeName());
+				Object attributeValue = f.getAttribute(getAttribute());
 				if (attributeValue != null) {
 					addOriginalValue(f, attributeValue);
 				}

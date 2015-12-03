@@ -13,9 +13,11 @@ package CH.ifa.draw.figures;
 
 import CH.ifa.draw.framework.*;
 import CH.ifa.draw.standard.*;
-import CH.ifa.draw.util.UndoableAdapter;
-import CH.ifa.draw.util.Undoable;
-import java.util.Vector;
+import CH.ifa.draw.util.*;
+
+import java.awt.event.MouseEvent;
+import java.awt.event.InputEvent;
+import java.util.List;
 
 /**
  * BorderTool decorates the clicked figure with a BorderDecorator.
@@ -31,16 +33,50 @@ public  class BorderTool extends ActionTool {
 	}
 
 	/**
+	 * Add the touched figure to the selection of an invoke action.
+	 * Overrides ActionTool's mouseDown to allow for peeling the border
+	 * if there is one already.
+	 * This is done by CTRLing the click
+	 * @see #action
+	 */
+	public void mouseDown(MouseEvent e, int x, int y) {
+		setView((DrawingView)e.getSource());
+		// if not CTRLed then proceed normally
+		if ((e.getModifiers() & InputEvent.CTRL_MASK) == 0) {
+			super.mouseDown(e, x, y);
+		}
+		else {
+			Figure target = drawing().findFigure(x, y);
+			if ((target != null) && (target != target.getDecoratedFigure())) {
+				view().addToSelection(target);
+				reverseAction(target);
+			}
+		}
+	}
+
+	/**
 	* Decorates the clicked figure with a border.
 	*/
 	public void action(Figure figure) {
 //    	Figure replaceFigure = drawing().replace(figure, new BorderDecorator(figure));
 		
 		setUndoActivity(createUndoActivity());
-		Vector v = new Vector();
-		v.addElement(figure);
-		v.addElement(new BorderDecorator(figure));
-		getUndoActivity().setAffectedFigures(new FigureEnumerator(v));
+		List l = CollectionsFactory.current().createList();
+		l.add(figure);
+		l.add(new BorderDecorator(figure));
+		getUndoActivity().setAffectedFigures(new FigureEnumerator(l));
+		((BorderTool.UndoActivity)getUndoActivity()).replaceAffectedFigures();
+	}
+
+	/**
+	* Peels off the border from the clicked figure.
+	*/
+	public void reverseAction(Figure figure) {
+		setUndoActivity(createUndoActivity());
+		List l = CollectionsFactory.current().createList();
+		l.add(figure);
+		l.add(((DecoratorFigure)figure).peelDecoration());
+		getUndoActivity().setAffectedFigures(new FigureEnumerator(l));
 		((BorderTool.UndoActivity)getUndoActivity()).replaceAffectedFigures();
 	}
 
@@ -76,21 +112,21 @@ public  class BorderTool extends ActionTool {
 		
 		public boolean replaceAffectedFigures() {
 			FigureEnumeration fe = getAffectedFigures();
-			if (!fe.hasMoreElements()) {
+			if (!fe.hasNextFigure()) {
 				return false;
 			}
 			Figure oldFigure = fe.nextFigure();
 
-			if (!fe.hasMoreElements()) {
+			if (!fe.hasNextFigure()) {
 				return false;
 			}
 			Figure replaceFigure = fe.nextFigure();
 			
 			replaceFigure = getDrawingView().drawing().replace(oldFigure, replaceFigure);
-			Vector v = new Vector();
-			v.addElement(replaceFigure);
-			v.addElement(oldFigure);
-			setAffectedFigures(new FigureEnumerator(v));			
+			List l = CollectionsFactory.current().createList();
+			l.add(replaceFigure);
+			l.add(oldFigure);
+			setAffectedFigures(new FigureEnumerator(l));
 			
 			return true;
 		}

@@ -11,45 +11,50 @@
 
 package CH.ifa.draw.standard;
 
-import java.util.*;
-import CH.ifa.draw.util.ReverseVectorEnumerator;
+import CH.ifa.draw.util.ReverseListEnumerator;
 import CH.ifa.draw.framework.*;
 
+import java.util.Iterator;
+import java.util.List;
+
 /**
- * An Enumeration that enumerates a vector of figures back (size-1) to front (0).
+ * An Enumeration that enumerates a Collection of figures back (size-1) to front (0).
  *
  * @version <$CURRENT_VERSION$>
  */
 public final class ReverseFigureEnumerator implements FigureEnumeration {
-	ReverseVectorEnumerator fEnumeration;
+	private Iterator myIterator;
+	private List myInitialList;
 
-	public ReverseFigureEnumerator(Vector v) {
-		fEnumeration = new ReverseVectorEnumerator(v);
+	public ReverseFigureEnumerator(List l) {
+		myInitialList = l;
+		reset();
 	}
 
 	/**
 	 * Returns true if the enumeration contains more elements; false
 	 * if its empty.
 	 */
-	public boolean hasMoreElements() {
-		return fEnumeration.hasMoreElements();
-	}
-
-	/**
-	 * Returns the next element of the enumeration. Calls to this
-	 * method will enumerate successive elements.
-	 * @exception NoSuchElementException If no more elements exist.
-	 */
-	public Object nextElement() {
-		return fEnumeration.nextElement();
+	public boolean hasNextFigure() {
+		return myIterator.hasNext();
 	}
 
 	/**
 	 * Returns the next element casted as a figure of the enumeration. Calls to this
 	 * method will enumerate successive elements.
-	 * @exception NoSuchElementException If no more elements exist.
+	 * @exception java.util.NoSuchElementException If no more elements exist.
 	 */
 	public Figure nextFigure() {
-		return (Figure)fEnumeration.nextElement();
+		return (Figure)myIterator.next();
+	}
+
+	/**
+	 * Reset the enumeration so it can be reused again. However, the
+	 * underlying collection might have changed since the last usage
+	 * so the elements and the order may vary when using an enumeration
+	 * which has been reset.
+	 */
+	public void reset() {
+		myIterator = new ReverseListEnumerator(myInitialList);
 	}
 }

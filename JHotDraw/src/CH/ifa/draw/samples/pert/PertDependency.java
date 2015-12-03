@@ -13,10 +13,12 @@ package CH.ifa.draw.samples.pert;
 
 import java.awt.*;
 import java.util.*;
-import java.io.IOException;
+import java.util.List;
+
 import CH.ifa.draw.framework.*;
 import CH.ifa.draw.figures.*;
 import CH.ifa.draw.standard.*;
+import CH.ifa.draw.util.CollectionsFactory;
 
 /**
  * @version <$CURRENT_VERSION$>
@@ -37,7 +39,7 @@ public class PertDependency extends LineConnection {
 		PertFigure source = (PertFigure)start;
 		PertFigure target = (PertFigure)end;
 		if (source.hasCycle(target)) {
-			setAttribute("FrameColor", Color.red);
+			setAttribute(FigureAttributeConstant.FRAME_COLOR.getName(), Color.red);
 		}
 		else {
 			target.addPreTask(source);
@@ -62,10 +64,10 @@ public class PertDependency extends LineConnection {
 		return ((start instanceof PertFigure) && (end instanceof PertFigure));
 	}
 
-	public Vector handles() {
-		Vector handles = super.handles();
+	public HandleEnumeration handles() {
+		List handles = super.handles().toList();
 		// don't allow to reconnect the starting figure
-		handles.setElementAt(new NullHandle(this, PolyLineFigure.locator(0)), 0);
-		return handles;
+		handles.set(0, new NullHandle(this, PolyLineFigure.locator(0)));
+		return new HandleEnumerator(handles);
 	}
 }

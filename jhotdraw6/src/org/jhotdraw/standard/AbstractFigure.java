@@ -15,7 +15,7 @@ import CH.ifa.draw.util.*;
 import CH.ifa.draw.framework.*;
 
 import java.awt.*;
-import java.util.*;
+import java.util.List;
 import java.io.*;
 
 /**
@@ -39,11 +39,17 @@ public abstract class AbstractFigure implements Figure {
 
 	/**
 	 * The listeners for a figure's changes.
+	 * It is only one listener but this one can be a (chained) MultiCastFigureChangeListener
 	 * @see #invalidate
 	 * @see #changed
 	 * @see #willChange
 	 */
 	private transient FigureChangeListener fListener;
+
+	/**
+	 * The dependend figures which have been added to this container.
+	 */
+	private List myDependendFigures;
 
 	/*
 	 * Serialization support.
@@ -52,7 +58,9 @@ public abstract class AbstractFigure implements Figure {
 	private int abstractFigureSerializedDataVersion = 1;
 	private int _nZ;
 
-	protected AbstractFigure() { }
+	protected AbstractFigure() {
+		 myDependendFigures = CollectionsFactory.current().createList();
+	}
 
 	/**
 	 * Moves the figure by the given offset.
@@ -101,19 +109,17 @@ public abstract class AbstractFigure implements Figure {
 	/**
 	 * Returns the handles of a Figure that can be used
 	 * to manipulate some of its attributes.
-	 * @return a Vector of handles
+	 * @return a type-safe iterator of handles
 	 * @see Handle
 	 */
-	public abstract Vector handles();
+	public abstract HandleEnumeration handles();
 
 	/**
 	 * Returns an Enumeration of the figures contained in this figure.
 	 * @see CompositeFigure
 	 */
 	public FigureEnumeration figures() {
-		Vector figures = new Vector(1);
-		figures.addElement(this);
-		return new FigureEnumerator(figures);
+		return FigureEnumerator.getEmptyEnumeration();
 	}
 
 	/**
@@ -171,14 +177,13 @@ public abstract class AbstractFigure implements Figure {
 	}
 
 	/**
-	 * Decomposes a figure into its parts. It returns a Vector
+	 * Decomposes a figure into its parts. It returns a FigureEnumeration
 	 * that contains itself.
-	 * @return an Enumeration for a Vector with itself as the
-	 * only element.
+	 * @return an Enumeration with itself as the only element.
 	 */
 	public FigureEnumeration decompose() {
-		Vector figures = new Vector(1);
-		figures.addElement(this);
+		List figures = CollectionsFactory.current().createList(1);
+		figures.add(this);
 		return new FigureEnumerator(figures);
 	}
 
@@ -205,21 +210,21 @@ public abstract class AbstractFigure implements Figure {
 	/**
 	 * Adds a listener for this figure.
 	 */
-	public void addFigureChangeListener(FigureChangeListener l) {
-		fListener = FigureChangeEventMulticaster.add(fListener, l);
+	public synchronized void addFigureChangeListener(FigureChangeListener l) {
+		fListener = FigureChangeEventMulticaster.add(listener(), l);
 	}
 
 	/**
 	 * Removes a listener for this figure.
 	 */
-	public void removeFigureChangeListener(FigureChangeListener l) {
-		fListener = FigureChangeEventMulticaster.remove(fListener, l);
+	public synchronized void removeFigureChangeListener(FigureChangeListener l) {
+		fListener = FigureChangeEventMulticaster.remove(listener(), l);
 	}
 
 	/**
 	 * Gets the figure's listners.
 	 */
-	public FigureChangeListener listener() {
+	public synchronized FigureChangeListener listener() {
 		return fListener;
 	}
 
@@ -229,8 +234,8 @@ public abstract class AbstractFigure implements Figure {
 	 * @see Figure#release
 	 */
 	public void release() {
-		if (fListener != null) {
-			fListener.figureRemoved(new FigureChangeEvent(this));
+		if (listener() != null) {
+			listener().figureRemoved(new FigureChangeEvent(this));
 		}
 	}
 
@@ -240,11 +245,18 @@ public abstract class AbstractFigure implements Figure {
 	 * refreshed.
 	 */
 	public void invalidate() {
-		if (fListener != null) {
-			Rectangle r = displayBox();
-			r.grow(Handle.HANDLESIZE, Handle.HANDLESIZE);
-			fListener.figureInvalidated(new FigureChangeEvent(this, r));
+		if (listener() != null) {
+			Rectangle r = invalidateRectangle(displayBox());
+			listener().figureInvalidated(new FigureChangeEvent(this, r));
 		}
+	}
+
+	/**
+	 * Hook method to change the rectangle that will be invalidated
+	 */
+	protected Rectangle invalidateRectangle(Rectangle r) {
+		r.grow(Handle.HANDLESIZE, Handle.HANDLESIZE);
+		return r;
 	}
 
 	/**
@@ -254,6 +266,7 @@ public abstract class AbstractFigure implements Figure {
 	 * @see Figure#willChange
 	 */
 	public void willChange() {
+		// call invalidate before the change occurs to invalidate the old display area
 		invalidate();
 	}
 
@@ -265,8 +278,8 @@ public abstract class AbstractFigure implements Figure {
 	 */
 	public void changed() {
 		invalidate();
-		if (fListener != null) {
-			fListener.figureChanged(new FigureChangeEvent(this));
+		if (listener() != null) {
+			listener().figureChanged(new FigureChangeEvent(this));
 		}
 	}
 
@@ -310,7 +323,7 @@ public abstract class AbstractFigure implements Figure {
 	 * Sets whether the connectors should be visible.
 	 * By default they are not visible
 	 */
-	public void connectorVisibility(boolean isVisible) {
+	public void connectorVisibility(boolean isVisible, ConnectionFigure connector) {
 	}
 
 	/**
@@ -323,19 +336,39 @@ public abstract class AbstractFigure implements Figure {
 	/**
 	 * Returns the named attribute or null if a
 	 * a figure doesn't have an attribute.
-	 * By default
-	 * figures don't have any attributes getAttribute
+	 * By default figures don't have any attributes so getAttribute
 	 * returns null.
+	 *
+	 * @deprecated use getAttribute(FigureAttributeConstant) instead
 	 */
 	public Object getAttribute(String name) {
 		return null;
 	}
 
 	/**
+	 * Returns the named attribute or null if a
+	 * a figure doesn't have an attribute.
+	 * By default figures don't have any attributes getAttribute
+	 * returns null.
+	 */
+	public Object getAttribute(FigureAttributeConstant attributeConstant) {
+		return null;
+	}
+
+	/**
+	 * Sets the named attribute to the new value. By default
+	 * figures don't have any attributes and the request is ignored.
+	 *
+	 * @deprecated use setAttribute(FigureAttributeConstant, Object) instead
+	 */
+	public void setAttribute(String name, Object value) {
+	}
+
+	/**
 	 * Sets the named attribute to the new value. By default
 	 * figures don't have any attributes and the request is ignored.
 	 */
-	public void setAttribute(String name, Object value) {
+	public void setAttribute(FigureAttributeConstant attributeConstant, Object value) {
 	}
 
 	/**
@@ -360,7 +393,7 @@ public abstract class AbstractFigure implements Figure {
 		InputStream input = new ByteArrayInputStream(output.toByteArray());
 		try {
 			ObjectInput reader = new ObjectInputStream(input);
-			clone = (Object) reader.readObject();
+			clone = reader.readObject();
 		}
 		catch (IOException e) {
 			System.err.println(e.toString());
@@ -396,4 +429,54 @@ public abstract class AbstractFigure implements Figure {
 	public void setZValue(int z) {
 	  _nZ = z;
 	}
+
+	public void visit(FigureVisitor visitor) {
+		// remember original listener as listeners might be changed by a visitor
+		// (e.g. by calling addToContainer() or removeFromContainer())
+		FigureChangeListener originalListener = listener();
+		FigureEnumeration fe = getDependendFigures();
+
+		visitor.visitFigure(this);
+
+		FigureEnumeration visitFigures = figures();
+		while (visitFigures.hasNextFigure()) {
+			visitFigures.nextFigure().visit(visitor);
+		}
+
+		HandleEnumeration visitHandles = handles();
+		while (visitHandles.hasNextHandle()) {
+			visitor.visitHandle(visitHandles.nextHandle());
+		}
+/*
+		originalListener = listener();
+		if (originalListener != null) {
+			visitor.visitFigureChangeListener(originalListener);
+		}
+*/
+
+		while (fe.hasNextFigure()) {
+			fe.nextFigure().visit(visitor);
+			// or visitor.visitDependendFigure(fe.nextFigure());
+		}
+	}
+
+	public synchronized FigureEnumeration getDependendFigures() {
+		return new FigureEnumerator(myDependendFigures);
+	}
+
+	public synchronized void addDependendFigure(Figure newDependendFigure) {
+		myDependendFigures.add(newDependendFigure);
+	}
+
+	public synchronized void removeDependendFigure(Figure oldDependendFigure) {
+		myDependendFigures.remove(oldDependendFigure);
+	}
+
+	public TextHolder getTextHolder() {
+		return null;
+	}
+
+	public Figure getDecoratedFigure() {
+		return this;
+	}	
 }

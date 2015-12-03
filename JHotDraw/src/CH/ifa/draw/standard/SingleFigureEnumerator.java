@@ -12,7 +12,6 @@
 package CH.ifa.draw.standard;
 
 import CH.ifa.draw.framework.*;
-import java.util.*;
 
 /**
  * An Enumeration that contains only a single Figures. An instance of this
@@ -24,38 +23,39 @@ import java.util.*;
  */
 public final class SingleFigureEnumerator implements FigureEnumeration {
 	private Figure mySingleFigure;
+	private Figure myInitialFigure;
 
 	public SingleFigureEnumerator(Figure newSingleFigure) {
-		mySingleFigure = newSingleFigure;
+		myInitialFigure = newSingleFigure;
+		reset();
 	}
 
 	/**
 	 * Returns true if the enumeration contains more elements; false
 	 * if its empty.
 	 */
-	public boolean hasMoreElements() {
+	public boolean hasNextFigure() {
 		return mySingleFigure != null;
 	}
 
 	/**
 	 * Returns the next element of the enumeration. Calls to this
 	 * method will enumerate successive elements.
-	 * @exception NoSuchElementException If no more elements exist.
+	 * @exception java.util.NoSuchElementException If no more elements exist.
 	 */
-	public Object nextElement() {
-		Object returnFigure = mySingleFigure;
+	public Figure nextFigure() {
+		Figure returnFigure = mySingleFigure;
 		mySingleFigure = null;
 		return returnFigure;
 	}
 
 	/**
-	 * Returns the next element of the enumeration. Calls to this
-	 * method will enumerate successive elements.
-	 * @exception NoSuchElementException If no more elements exist.
+	 * Reset the enumeration so it can be reused again. However, the
+	 * underlying collection might have changed since the last usage
+	 * so the elements and the order may vary when using an enumeration
+	 * which has been reset.
 	 */
-	public Figure nextFigure() {
-		Figure returnFigure = (Figure)mySingleFigure;
-		mySingleFigure = null;
-		return returnFigure;
+	public void reset() {
+		mySingleFigure = myInitialFigure;
 	}
 }

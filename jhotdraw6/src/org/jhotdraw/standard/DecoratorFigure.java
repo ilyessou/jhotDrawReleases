@@ -15,7 +15,6 @@ import CH.ifa.draw.util.*;
 import CH.ifa.draw.framework.*;
 
 import java.awt.*;
-import java.util.*;
 import java.io.*;
 
 /**
@@ -41,7 +40,7 @@ public abstract class DecoratorFigure
 	/**
 	 * The decorated figure.
 	 */
-	private Figure fComponent;
+	private Figure myDecoratedFigure;
 
 	/*
 	 * Serialization support.
@@ -67,7 +66,7 @@ public abstract class DecoratorFigure
 	 */
 	protected void initialize() {
 	}
-	
+
 	/**
 	 * Forwards the connection insets to its contained figure..
 	 */
@@ -93,8 +92,9 @@ public abstract class DecoratorFigure
 	 * Decorates the given figure.
 	 */
 	public void decorate(Figure figure) {
-		fComponent = figure;
-		fComponent.addToContainer(this);
+		setDecoratedFigure(figure);
+		getDecoratedFigure().addToContainer(this);
+		//addDependendFigure(getDecoratedFigure());
 	}
 
 	/**
@@ -102,11 +102,16 @@ public abstract class DecoratorFigure
 	 */
 	public Figure peelDecoration() {
 		getDecoratedFigure().removeFromContainer(this); //??? set the container to the listener()?
+		removeDependendFigure(getDecoratedFigure());
 		return getDecoratedFigure();
 	}
 
+	public void setDecoratedFigure(Figure newDecoratedFigure) {
+		myDecoratedFigure = newDecoratedFigure;
+	}
+
 	public Figure getDecoratedFigure() {
-		return fComponent;
+		return myDecoratedFigure;
 	}
 
 	/**
@@ -134,13 +139,21 @@ public abstract class DecoratorFigure
 	 * Forwards findFigureInside to its contained figure.
 	 */
 	public Figure findFigureInside(int x, int y) {
-		return getDecoratedFigure().findFigureInside(x, y);
+		Figure foundFigure = getDecoratedFigure().findFigureInside(x, y);
+		// if the found figure is the same as the one the DecoratorFigure decorates
+		// then do not peel of the decoration
+		if ((foundFigure != null) && (foundFigure == getDecoratedFigure())) {
+			return this;
+		}
+		else {
+			return foundFigure;
+		}
 	}
 
 	/**
 	 * Forwards handles to its contained figure.
 	 */
-	public Vector handles() {
+	public HandleEnumeration handles() {
 		return getDecoratedFigure().handles();
 	}
 
@@ -226,16 +239,34 @@ public abstract class DecoratorFigure
 
 	/**
 	 * Forwards setAttribute to its contained figure.
+	 *
+	 * @deprecated use setAttribute(FigureAttributeConstant, Object) instead
 	 */
 	public void setAttribute(String name, Object value) {
 		getDecoratedFigure().setAttribute(name, value);
 	}
 
 	/**
+	 * Forwards setAttribute to its contained figure.
+	 */
+	public void setAttribute(FigureAttributeConstant attributeConstant, Object value) {
+		getDecoratedFigure().setAttribute(attributeConstant, value);
+	}
+
+	/**
 	 * Forwards getAttribute to its contained figure.
+	 *
+	 * @deprecated use getAttribute(FigureAttributeConstant) instead
 	 */
 	public Object getAttribute(String name) {
 		return getDecoratedFigure().getAttribute(name);
+	}
+
+	/**
+	 * Forwards getAttribute to its contained figure.
+	 */
+	public Object getAttribute(FigureAttributeConstant attributeConstant) {
+		return getDecoratedFigure().getAttribute(attributeConstant);
 	}
 
 	/**
@@ -255,8 +286,8 @@ public abstract class DecoratorFigure
 	/**
 	 * Forwards the connector visibility request to its component.
 	 */
-	public void connectorVisibility(boolean isVisible) {
-		getDecoratedFigure().connectorVisibility(isVisible);
+	public void connectorVisibility(boolean isVisible, ConnectionFigure courtingConnection) {
+		getDecoratedFigure().connectorVisibility(isVisible, null);
 	}
 
 	/**
@@ -281,5 +312,26 @@ public abstract class DecoratorFigure
 		s.defaultReadObject();
 
 		getDecoratedFigure().addToContainer(this);
+	}
+/*
+	public void visit(FigureVisitor visitor) {
+		super.visit(visitor);
+//		getDecoratedFigure().visit(visitor);
+	}
+*/
+	public TextHolder getTextHolder() {
+		return getDecoratedFigure().getTextHolder();
+	}
+
+	public synchronized FigureEnumeration getDependendFigures() {
+		return getDecoratedFigure().getDependendFigures();
+	}
+
+	public synchronized void addDependendFigure(Figure newDependendFigure) {
+		getDecoratedFigure().addDependendFigure(newDependendFigure);
+	}
+
+	public synchronized void removeDependendFigure(Figure oldDependendFigure) {
+		getDecoratedFigure().removeDependendFigure(oldDependendFigure);
 	}
 }

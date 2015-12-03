@@ -15,10 +15,8 @@ import CH.ifa.draw.framework.*;
 import CH.ifa.draw.standard.*;
 import CH.ifa.draw.util.*;
 
-import javax.swing.*;
+import javax.swing.JApplet;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.util.*;
 import java.io.*;
 import java.net.*;
 
@@ -30,17 +28,14 @@ public  class JavaDrawViewer extends JApplet implements DrawingEditor {
 	private Drawing         fDrawing;
 	private Tool            fTool;
 	private StandardDrawingView fView;
-	private Iconkit         fIconkit;
 	private transient 		UndoManager myUndoManager;
-	
+
 	public void init() {
 		setUndoManager(new UndoManager());
 		getContentPane().setLayout(new BorderLayout());
 		fView = new StandardDrawingView(this, 400, 370);
 		getContentPane().add("Center", fView);
-		fTool = new FollowURLTool(this, this);
-
-		fIconkit = new Iconkit(this);
+		setTool(new FollowURLTool(this, this));
 
 		String filename = getParameter("Drawing");
 		if (filename != null) {
@@ -51,7 +46,7 @@ public  class JavaDrawViewer extends JApplet implements DrawingEditor {
 			showStatus("Unable to load drawing");
 		}
 	}
-	
+
 	public void addViewChangeListener(ViewChangeListener vsl)  {
 	}
 
@@ -66,10 +61,14 @@ public  class JavaDrawViewer extends JApplet implements DrawingEditor {
 			fDrawing = (Drawing)reader.readStorable();
 		}
 		catch (IOException e) {
-			fDrawing = new StandardDrawing();
+			fDrawing = createDrawing();
 			System.err.println("Error when Loading: " + e);
 			showStatus("Error when Loading: " + e);
 		}
+	}
+
+	protected Drawing createDrawing() {
+		return new StandardDrawing();
 	}
 
 	/**
@@ -98,6 +97,13 @@ public  class JavaDrawViewer extends JApplet implements DrawingEditor {
 	}
 
 	/**
+     * Sets the current the tool
+     */
+	public void setTool(Tool newTool) {
+		fTool = newTool;
+	}
+
+    /**
 	 * Sets the editor's default tool. Do nothing since we only have one tool.
 	 */
 	public void toolDone() {}
@@ -110,7 +116,7 @@ public  class JavaDrawViewer extends JApplet implements DrawingEditor {
 	protected void setUndoManager(UndoManager newUndoManager) {
 		myUndoManager = newUndoManager;
 	}
-	
+
 	public UndoManager getUndoManager() {
 		return myUndoManager;
 	}

@@ -16,7 +16,6 @@ import CH.ifa.draw.util.UndoableAdapter;
 import CH.ifa.draw.util.Undoable;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.util.*;
 
 /**
  * DragTracker implements the dragging of the clicked
@@ -43,22 +42,25 @@ public class DragTracker extends AbstractTool {
 		fLastY = y;
 
 		if (e.isShiftDown()) {
-		   view().toggleSelection(fAnchorFigure);
+		   getActiveView().toggleSelection(fAnchorFigure);
 		   fAnchorFigure = null;
 		}
-		else if (!view().isFigureSelected(fAnchorFigure)) {
-			view().clearSelection();
-			view().addToSelection(fAnchorFigure);
+		else if (!getActiveView().isFigureSelected(fAnchorFigure)) {
+			getActiveView().clearSelection();
+			getActiveView().addToSelection(fAnchorFigure);
 		}
+		setUndoActivity(createUndoActivity());
+		getUndoActivity().setAffectedFigures(getActiveView().selection());
+//		getUndoActivity().setAffectedFigures(view().selectionElements());
 	}
 
 	public void mouseDrag(MouseEvent e, int x, int y) {
 		super.mouseDrag(e, x, y);
-		fMoved = (Math.abs(x - fAnchorX) > 4) || (Math.abs(y - fAnchorY) > 4);
+		fMoved = (Math.abs(x - getAnchorX()) > 4) || (Math.abs(y - getAnchorY()) > 4);
 
 		if (fMoved) {
 			FigureEnumeration figures = getUndoActivity().getAffectedFigures();
-			while (figures.hasMoreElements()) {
+			while (figures.hasNextFigure()) {
 				figures.nextFigure().moveBy(x - fLastX, y - fLastY);
 			}
 		}
@@ -67,8 +69,8 @@ public class DragTracker extends AbstractTool {
 	}
 
 	public void activate() {
-		setUndoActivity(createUndoActivity());
-		getUndoActivity().setAffectedFigures(view().selectionElements());
+		// suppress clearSelection() and tool-activation-notification
+		// in superclass
 	}
 
 	public void deactivate() {
@@ -84,13 +86,13 @@ public class DragTracker extends AbstractTool {
 	 * Factory method for undo activity
 	 */
 	protected Undoable createUndoActivity() {
-		return new DragTracker.UndoActivity(view(), new Point(fLastX, fLastY));
+		return new DragTracker.UndoActivity(getActiveView(), new Point(fLastX, fLastY));
 	}
 
 	public static class UndoActivity extends UndoableAdapter {
 		private Point myOriginalPoint;
 		private Point myBackupPoint;
-		
+
 		public UndoActivity(DrawingView newDrawingView, Point newOriginalPoint) {
 			super(newDrawingView);
 			setOriginalPoint(newOriginalPoint);
@@ -121,25 +123,26 @@ public class DragTracker extends AbstractTool {
 			moveAffectedFigures(getOriginalPoint(), getBackupPoint());
 			return true;
 		}
+
 		public void setBackupPoint(Point newBackupPoint) {
 			myBackupPoint = newBackupPoint;
 		}
-		
+
 		public Point getBackupPoint() {
 			return myBackupPoint;
 		}
-		
+
 		public void setOriginalPoint(Point newOriginalPoint) {
 			myOriginalPoint = newOriginalPoint;
 		}
-		
+
 		public Point getOriginalPoint() {
 			return myOriginalPoint;
 		}
-		
+
 		public void moveAffectedFigures(Point startPoint, Point endPoint) {
 			FigureEnumeration figures = getAffectedFigures();
-			while (figures.hasMoreElements()) {
+			while (figures.hasNextFigure()) {
 				figures.nextFigure().moveBy(endPoint.x - startPoint.x,
 					endPoint.y - startPoint.y);
 			}
