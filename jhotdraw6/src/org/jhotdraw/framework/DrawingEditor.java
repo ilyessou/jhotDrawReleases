@@ -1,10 +1,17 @@
 /*
- * @(#)DrawingEditor.java 5.2
+ * @(#)DrawingEditor.java
  *
+ * Project:		JHotdraw - a GUI framework for technical drawings
+ *				http://www.jhotdraw.org
+ *				http://jhotdraw.sourceforge.net
+ * Copyright:	© by the original author(s) and all contributors
+ * License:		Lesser GNU Public License (LGPL)
+ *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
 package CH.ifa.draw.framework;
 
+import CH.ifa.draw.util.UndoManager;
 import java.awt.*;
 
 /**
@@ -21,39 +28,46 @@ import java.awt.*;
  * @see Tool
  * @see DrawingView
  * @see Drawing
+ *
+ * @version <$CURRENT_VERSION$>
  */
-public interface DrawingEditor {
+public interface DrawingEditor extends FigureSelectionListener {
 
-    /**
-     * Gets the editor's drawing view.
-     */
-    DrawingView view();
+	/**
+	 * Gets the editor's drawing view.
+	 */
+	public DrawingView view();
 
-    /**
-     * Gets the editor's drawing.
-     */
-    Drawing     drawing();
+	public DrawingView[] views();
+	/**
+	 * Gets the editor's drawing.
+	 */
+//	public Drawing drawing();
 
-    /**
-     * Gets the editor's current tool.
-     */
-    Tool        tool();
+	/**
+	 * Gets the editor's current tool.
+	 */
+	public Tool tool();
 
-    /**
-     * Informs the editor that a tool has done its interaction.
-     * This method can be used to switch back to the default tool.
-     */
-    void        toolDone();
+	/**
+	 * Informs the editor that a tool has done its interaction.
+	 * This method can be used to switch back to the default tool.
+	 */
+	public void toolDone();
 
-    /**
-     * Informs that the current selection has changed.
-     * Override this method to handle selection changes.
-     */
-    void        selectionChanged(DrawingView view);
+	/**
+	 * Informs that the current figure selection has changed.
+	 * Override this method to handle selection changes.
+	 */
+	public void figureSelectionChanged(DrawingView view);
 
-    /**
-     * Shows a status message in the editor's user interface
-     */
-    void        showStatus(String string);
+	public void addViewChangeListener(ViewChangeListener vsl);
+	public void removeViewChangeListener(ViewChangeListener vsl);
 
+	/**
+	 * Shows a status message in the editor's user interface
+	 */
+	public void showStatus(String string);
+
+	public UndoManager getUndoManager();
 }

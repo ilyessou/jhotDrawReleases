@@ -1,9 +1,17 @@
 /*
- * @(#)Command.java 5.2
+ * @(#)Command.java
  *
+ * Project:		JHotdraw - a GUI framework for technical drawings
+ *				http://www.jhotdraw.org
+ *				http://jhotdraw.sourceforge.net
+ * Copyright:	© by the original author(s) and all contributors
+ * License:		Lesser GNU Public License (LGPL)
+ *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
 package CH.ifa.draw.util;
+
+import CH.ifa.draw.framework.DrawingEditor;
 
 /**
  * Commands encapsulate an action to be executed. Commands have
@@ -20,34 +28,32 @@ package CH.ifa.draw.util;
  * @see CommandButton
  * @see CommandMenu
  * @see CommandChoice
+ *
+ * @version <$CURRENT_VERSION$>
  */
-public abstract class Command {
+public interface Command {
 
-    private String  fName;
+	/**
+	 * Executes the command.
+	 */
+	public void execute();
 
-    /**
-     * Constructs a command with the given name.
-     */
-    public Command(String name) {
-        fName = name;
-    }
+	/**
+	 * Tests if the command can be executed.
+	 */
+	public boolean isExecutable();
 
-    /**
-     * Executes the command.
-     */
-    public abstract void execute();
+	/**
+	 * Gets the command name.
+	 */
+	public String name();
+	
+	public DrawingEditor getDrawingEditor();
 
-    /**
-     * Tests if the command can be executed.
-     */
-    public boolean isExecutable() {
-        return true;
-    }
+	public Undoable getUndoActivity();
 
-    /**
-     * Gets the command name.
-     */
-    public String name() {
-        return fName;
-    }
+	public void setUndoActivity(Undoable newUndoableActivity);
+	
+	public void addCommandListener(CommandListener newCommandListener);
+	public void removeCommandListener(CommandListener oldCommandListener);
 }
