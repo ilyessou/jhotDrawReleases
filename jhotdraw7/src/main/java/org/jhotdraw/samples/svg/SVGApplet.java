@@ -1,7 +1,7 @@
 /*
  * @(#)SVGApplet.java
  *
- * Copyright (c) 2006-2009 by the original authors of JHotDraw
+ * Copyright (c) 2006-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,9 @@
  */
 package org.jhotdraw.samples.svg;
 
+import org.jhotdraw.draw.io.InputFormat;
+import org.jhotdraw.draw.io.ImageOutputFormat;
+import org.jhotdraw.draw.io.ImageInputFormat;
 import org.jhotdraw.io.BoundedRangeInputStream;
 import java.applet.AppletContext;
 import org.jhotdraw.draw.*;
@@ -251,7 +254,7 @@ public class SVGApplet extends JApplet {
     public String getAppletInfo() {
         return getName() +
                 "\nVersion " + getVersion() +
-                "\n\nCopyright 1996-2009 (c) by the original authors of JHotDraw and all its contributors" +
+                "\n\nCopyright 1996-2010 (c) by the original authors of JHotDraw and all its contributors" +
                 "\nThis software is licensed under LGPL or" +
                 "\nCreative Commons 2.5 BY";
     }
@@ -306,24 +309,23 @@ public class SVGApplet extends JApplet {
      */
     protected Drawing loadDrawing(ProgressIndicator progress) throws IOException {
         Drawing drawing = createDrawing();
-        InputStream in = null;
-        try {
-            if (getParameter("datafile") != null) {
-                ByteArrayOutputStream buf = new ByteArrayOutputStream();
-                URL url = new URL(getDocumentBase(), getParameter("datafile"));
-                URLConnection uc = url.openConnection();
+        if (getParameter("datafile") != null) {
+            ByteArrayOutputStream buf = new ByteArrayOutputStream();
+            URL url = new URL(getDocumentBase(), getParameter("datafile"));
+            URLConnection uc = url.openConnection();
 
-                // Disable caching. This ensures that we always request the 
-                // newest version of the drawing from the server.
-                // (Note: The server still needs to set the proper HTTP caching
-                // properties to prevent proxies from caching the drawing).
-                if (uc instanceof HttpURLConnection) {
-                    ((HttpURLConnection) uc).setUseCaches(false);
-                }
+            // Disable caching. This ensures that we always request the
+            // newest version of the drawing from the server.
+            // (Note: The server still needs to set the proper HTTP caching
+            // properties to prevent proxies from caching the drawing).
+            if (uc instanceof HttpURLConnection) {
+                ((HttpURLConnection) uc).setUseCaches(false);
+            }
 
-                // Read the data into a buffer
-                int contentLength = uc.getContentLength();
-                in = uc.getInputStream();
+            // Read the data into a buffer
+            int contentLength = uc.getContentLength();
+            InputStream in = uc.getInputStream();
+            try {
                 if (contentLength != -1) {
                     in = new BoundedRangeInputStream(in);
                     ((BoundedRangeInputStream) in).setMaximum(contentLength + 1);
@@ -361,9 +363,7 @@ public class SVGApplet extends JApplet {
                 if (formatException != null) {
                     throw formatException;
                 }
-            }
-        } finally {
-            if (in != null) {
+            } finally {
                 in.close();
             }
         }
@@ -381,6 +381,7 @@ public class SVGApplet extends JApplet {
         } catch (Throwable e) {
             appletContext = null;
         }
+
         if (appletContext == null) {
             System.exit(0);
         } else {
@@ -389,6 +390,7 @@ public class SVGApplet extends JApplet {
             } catch (MalformedURLException ex) {
                 ex.printStackTrace();
             }
+
         }
     }
 
@@ -407,19 +409,29 @@ public class SVGApplet extends JApplet {
                     case '<':
                         buf.append("&lt;");
                         break;
+
                     case '>':
                         buf.append("&gt;");
                         break;
+
                     case '&':
                         buf.append("&amp;");
                         break;
+
                     default:
+
                         buf.append(ch);
                         break;
+
                 }
+
+
+
+
             }
             return buf.toString();
         }
+
     }
 
     public static void main(String[] args) {

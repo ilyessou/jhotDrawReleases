@@ -1,7 +1,7 @@
 /*
  * @(#)EllipseFigure.java
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,8 @@
  */
 package org.jhotdraw.draw;
 
+import org.jhotdraw.draw.connector.ChopEllipseConnector;
+import org.jhotdraw.draw.connector.Connector;
 import org.jhotdraw.geom.Geom;
 import java.awt.*;
 import java.awt.geom.*;
@@ -47,11 +49,6 @@ public class EllipseFigure extends AbstractAttributedFigure {
      */
     public EllipseFigure(double x, double y, double width, double height) {
         ellipse = new Ellipse2D.Double(x, y, width, height);
-        /*
-        setFillColor(Color.white);
-        setStrokeColor(Color.black);
-         */
-        setAttributeEnabled(TEXT_COLOR, false);
     }
 
     // DRAWING
@@ -151,11 +148,11 @@ public class EllipseFigure extends AbstractAttributedFigure {
     }
 
     public void restoreTransformTo(Object geometry) {
-        Ellipse2D.Double r = (Ellipse2D.Double) geometry;
-        ellipse.x = r.x;
-        ellipse.y = r.y;
-        ellipse.width = r.width;
-        ellipse.height = r.height;
+        Ellipse2D.Double e = (Ellipse2D.Double) geometry;
+        ellipse.x = e.x;
+        ellipse.y = e.y;
+        ellipse.width = e.width;
+        ellipse.height = e.height;
     }
 
     public Object getTransformRestoreData() {

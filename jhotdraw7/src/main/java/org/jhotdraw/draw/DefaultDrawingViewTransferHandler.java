@@ -1,7 +1,7 @@
 /*
  * @(#)DefaultDrawingViewTransferHandler.java
  *
- * Copyright (c) 2007-2009 by the original authors of JHotDraw
+ * Copyright (c) 2007-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,10 @@
  */
 package org.jhotdraw.draw;
 
+import org.jhotdraw.draw.io.InputFormat;
+import org.jhotdraw.draw.io.OutputFormat;
+import org.jhotdraw.draw.event.CompositeFigureEvent;
+import org.jhotdraw.draw.event.CompositeFigureListener;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.dnd.DragGestureEvent;
@@ -40,10 +44,6 @@ import org.jhotdraw.util.ReversedList;
 
 /**
  * Default TransferHandler for DrawingView objects.
- * <p>
- * Note: This class is here for backwards compatibilty with J2SE 5. If you
- * have J2SE 6 available, you may want to use class
- * {@link DnDDrawingViewTransferHandler} instead.
  *
  * @author Werner Randelshofer
  * @version $Id$
@@ -65,6 +65,10 @@ public class DefaultDrawingViewTransferHandler extends TransferHandler {
     public boolean importData(JComponent comp, Transferable t) {
         return importData(comp, t, new HashSet<Figure>(), null);
     }
+    @Override
+    public boolean importData(TransferSupport support) {
+       return importData((JComponent) support.getComponent(), support.getTransferable(), new HashSet<Figure>() , support.getDropLocation()==null?null:support.getDropLocation().getDropPoint());
+        }
 
     /** Imports data and stores the transferred figures into the supplied transferFigures collection. */
     @SuppressWarnings("unchecked")
@@ -292,7 +296,14 @@ public class DefaultDrawingViewTransferHandler extends TransferHandler {
     }
 
     protected void moveToDropPoint(JComponent component, HashSet<Figure> transferFigures, Point dropPoint) {
-        if (dropPoint != null) {
+        if (dropPoint == null) {
+            // This ugly code sequence is needed to ensure that the drawing view
+            // repaints the area which contains the dropped figures.
+            for (Figure fig : transferFigures) {
+                fig.willChange();
+                fig.changed();
+            }
+        } else {
             final DrawingView view = (DrawingView) component;
             Point2D.Double drawingDropPoint = view.viewToDrawing(dropPoint);
             //Set<Figure> transferFigures = view.getSelectedFigures();

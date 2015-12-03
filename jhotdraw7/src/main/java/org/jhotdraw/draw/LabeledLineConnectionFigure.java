@@ -1,7 +1,7 @@
 /*
  * @(#)LabeledLineConnection.java
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -14,6 +14,11 @@
 
 package org.jhotdraw.draw;
 
+import org.jhotdraw.draw.layouter.Layouter;
+import org.jhotdraw.draw.event.FigureAdapter;
+import org.jhotdraw.draw.event.FigureEvent;
+import org.jhotdraw.draw.event.CompositeFigureEvent;
+import org.jhotdraw.draw.event.CompositeFigureListener;
 import org.jhotdraw.util.*;
 import java.util.*;
 import java.awt.*;

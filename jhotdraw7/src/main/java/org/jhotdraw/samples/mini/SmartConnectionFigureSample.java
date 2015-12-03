@@ -1,7 +1,7 @@
 /*
  * @(#)SmartConnectionFigureSample.java
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,12 @@
  */
 package org.jhotdraw.samples.mini;
 
+import org.jhotdraw.draw.tool.DelegationSelectionTool;
+import org.jhotdraw.draw.TextAreaFigure;
+import org.jhotdraw.draw.LineConnectionFigure;
+import org.jhotdraw.draw.liner.ElbowLiner;
+import org.jhotdraw.draw.connector.Connector;
+import org.jhotdraw.draw.ConnectionFigure;
 import java.awt.geom.*;
 import javax.swing.*;
 import org.jhotdraw.draw.*;

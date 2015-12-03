@@ -1,7 +1,7 @@
 /*
  * @(#)GroupFigure.java
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -18,7 +18,7 @@ import java.awt.geom.*;
 import org.jhotdraw.geom.*;
 
 /**
- * A {@link Figure} which groups a collection of figures.
+ * A {@link org.jhotdraw.draw.Figure} which groups a collection of figures.
  *
  * @author Werner Randelshofer
  * @version $Id$
@@ -26,10 +26,7 @@ import org.jhotdraw.geom.*;
 public class GroupFigure extends AbstractCompositeFigure {
     /** Creates a new instance. */
     public GroupFigure() {
-    }
-    
-    public boolean canConnect() {
-        return true;
+        setConnectable(false);
     }
     
     /**

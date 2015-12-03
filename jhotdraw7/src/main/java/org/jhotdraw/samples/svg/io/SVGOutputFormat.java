@@ -1,7 +1,7 @@
 /*
  * @(#)SVGOutputFormat.java
  *
- * Copyright (c) 1996-2009 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,8 @@
  */
 package org.jhotdraw.samples.svg.io;
 
+import org.jhotdraw.draw.BezierFigure;
+import org.jhotdraw.draw.io.OutputFormat;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.geom.*;
@@ -69,7 +71,6 @@ public class SVGOutputFormat implements OutputFormat {
     private boolean isPrettyPrint;
     private final static HashMap<Integer, String> strokeLinejoinMap;
 
-
     static {
         strokeLinejoinMap = new HashMap<Integer, String>();
         strokeLinejoinMap.put(BasicStroke.JOIN_MITER, "miter");
@@ -77,7 +78,6 @@ public class SVGOutputFormat implements OutputFormat {
         strokeLinejoinMap.put(BasicStroke.JOIN_BEVEL, "bevel");
     }
     private final static HashMap<Integer, String> strokeLinecapMap;
-
 
     static {
         strokeLinecapMap = new HashMap<Integer, String>();
@@ -1297,9 +1297,7 @@ public class SVGOutputFormat implements OutputFormat {
         try {
             write(out, drawing);
         } finally {
-            if (out != null) {
-                out.close();
-            }
+            out.close();
         }
     }
 

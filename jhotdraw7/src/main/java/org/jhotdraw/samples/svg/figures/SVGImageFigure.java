@@ -1,7 +1,7 @@
  /*
  * @(#)SVGImage.java
  *
- * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,13 @@
  */
 package org.jhotdraw.samples.svg.figures;
 
+import org.jhotdraw.draw.handle.TransformHandleKit;
+import org.jhotdraw.draw.handle.ResizeHandleKit;
+import org.jhotdraw.draw.handle.Handle;
+import org.jhotdraw.draw.event.TransformRestoreEdit;
+import org.jhotdraw.draw.ImageHolderFigure;
+import org.jhotdraw.draw.connector.Connector;
+import org.jhotdraw.draw.ConnectionFigure;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
@@ -22,6 +29,7 @@ import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import org.jhotdraw.draw.*;
+import org.jhotdraw.draw.handle.BoundsOutlineHandle;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.*;
 import org.jhotdraw.samples.svg.*;
 import org.jhotdraw.util.*;
@@ -66,6 +74,7 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
     public SVGImageFigure(double x, double y, double width, double height) {
         rectangle = new Rectangle2D.Double(x, y, width, height);
         SVGAttributeKeys.setDefaults(this);
+        setConnectable(false);
     }
 
     // DRAWING
@@ -314,22 +323,6 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
         return actions;
     }
     // CONNECTING
-
-    @Override
-    public boolean canConnect() {
-        return false; // SVG does not support connecting
-    }
-
-    @Override
-    public Connector findConnector(Point2D.Double p, ConnectionFigure prototype) {
-        return null; // SVG does not support connectors
-    }
-
-    @Override
-    public Connector findCompatibleConnector(Connector c, boolean isStartConnector) {
-        return null; // SVG does not support connectors
-    }
-
     // COMPOSITE FIGURES
     // CLONING
     @Override
@@ -432,9 +425,8 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
     }
 
     public void loadImage(File file) throws IOException {
-        InputStream in = null;
+        InputStream in = new FileInputStream(file);
         try {
-            in = new FileInputStream(file);
             loadImage(in);
         } catch (Throwable t) {
             ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
@@ -442,9 +434,7 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
             e.initCause(t);
             throw e;
         } finally {
-            if (in != null) {
-                in.close();
-            }
+            in.close();
         }
     }
 

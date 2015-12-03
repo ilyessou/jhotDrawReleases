@@ -1,7 +1,7 @@
 /*
  * @(#)RoundRectangleFigure.java
  *
- * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,10 @@
  */
 package org.jhotdraw.draw;
 
+import org.jhotdraw.draw.connector.ChopRoundRectangleConnector;
+import org.jhotdraw.draw.handle.RoundRectangleRadiusHandle;
+import org.jhotdraw.draw.handle.Handle;
+import org.jhotdraw.draw.connector.Connector;
 import java.awt.*;
 import java.awt.geom.*;
 import java.io.*;

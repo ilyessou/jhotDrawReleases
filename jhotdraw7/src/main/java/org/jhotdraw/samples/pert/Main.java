@@ -1,7 +1,7 @@
 /*
  * @(#)Main.java
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -16,8 +16,8 @@ package org.jhotdraw.samples.pert;
 
 import org.jhotdraw.app.Application;
 import org.jhotdraw.app.DefaultApplicationModel;
-import org.jhotdraw.app.DefaultOSXApplication;
-import org.jhotdraw.app.DefaultSDIApplication;
+import org.jhotdraw.app.OSXApplication;
+import org.jhotdraw.app.SDIApplication;
 /**
  * Main.
  *
@@ -31,20 +31,20 @@ public class Main {
         Application app;
         String os = System.getProperty("os.name").toLowerCase();
         if (os.startsWith("mac")) {
-            app = new DefaultOSXApplication();
+            app = new OSXApplication();
         } else if (os.startsWith("win")) {
           //  app = new DefaultMDIApplication();
-            app = new DefaultSDIApplication();
+            app = new SDIApplication();
         } else {
-            app = new DefaultSDIApplication();
+            app = new SDIApplication();
         }
         
         
         DefaultApplicationModel model = new PertApplicationModel();
         model.setName("JHotDraw Pert");
         model.setVersion(Main.class.getPackage().getImplementationVersion());
-        model.setCopyright("Copyright 2006-2009 (c) by the authors of JHotDraw\n" +
-                "This software is licensed under LGPL or Creative Commons 3.0 BY");
+        model.setCopyright("Copyright 2006-2010 (c) by the authors of JHotDraw and all its contributors.\n" +
+                "This software is licensed under LGPL and Creative Commons 3.0 Attribution.");
         model.setViewClassName("org.jhotdraw.samples.pert.PertView");
         app.setModel(model);
         app.launch(args);

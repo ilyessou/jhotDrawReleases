@@ -1,7 +1,7 @@
 /*
  * @(#)DecoratedFigure.java
  *
- * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -14,6 +14,8 @@
 
 package org.jhotdraw.draw;
 
+import org.jhotdraw.draw.*;
+
 /**
  * A <em>decorated figure</em> can be decorated with another {@link Figure},
  * for example to draw a border around the decorated figure.
@@ -24,6 +26,12 @@ package org.jhotdraw.draw;
  * <p><em>Decorator</em><br>
  * Decorated figures can be adorned with another figure.<br>
  * Component: {@link DecoratedFigure}; Decorator: {@link Figure}.
+ *
+ * <p><em>Strategy</em><br>
+ * {@code RelativeDecoratorLocator} encapsulates a strategy for locating a
+ * point on a decorator.<br>
+ * Component: {@link DecoratedFigure}; Strategy: {@link org.jhotdraw.draw.locator.RelativeDecoratorLocator}.
+ * 
  * <hr>
  *
  * @author Werner Randelshofer

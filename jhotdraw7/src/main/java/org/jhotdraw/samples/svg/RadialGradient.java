@@ -1,7 +1,7 @@
 /*
  * @(#)RadialGradient.java
  *
- * Copyright (c) 1996-2009 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -119,15 +119,15 @@ public class RadialGradient implements Gradient {
             return colors[0];
         }
         // Construct the paint
-        org.apache.batik.ext.awt.RadialGradientPaint gp;
-        gp = new org.apache.batik.ext.awt.RadialGradientPaint(
+        RadialGradientPaint gp;
+        gp = new RadialGradientPaint(
                 cp,
                 (float) rr,
                 fp,
                 fractions,
                 colors,
-                org.apache.batik.ext.awt.RadialGradientPaint.NO_CYCLE,
-                org.apache.batik.ext.awt.RadialGradientPaint.SRGB,
+                RadialGradientPaint.CycleMethod.NO_CYCLE,
+                RadialGradientPaint.ColorSpaceType.SRGB,
                 t
                 );
         return gp;

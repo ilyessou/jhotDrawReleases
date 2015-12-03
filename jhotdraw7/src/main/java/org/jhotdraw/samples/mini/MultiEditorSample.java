@@ -1,7 +1,7 @@
 /*
  * @(#)MultiEditorSample.java
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,9 @@
  */
 package org.jhotdraw.samples.mini;
 
+import org.jhotdraw.draw.tool.CreationTool;
+import org.jhotdraw.draw.RectangleFigure;
+import org.jhotdraw.draw.io.SerializationInputOutputFormat;
 import java.awt.*;
 import javax.swing.*;
 import org.jhotdraw.draw.*;

@@ -1,7 +1,7 @@
 /*
  * @(#)LineFigure.java
  *
- * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -14,10 +14,13 @@
 
 package org.jhotdraw.draw;
 
+import org.jhotdraw.draw.handle.BezierOutlineHandle;
+import org.jhotdraw.draw.handle.BezierNodeHandle;
 import javax.swing.undo.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
+import org.jhotdraw.draw.handle.Handle;
 import org.jhotdraw.geom.*;
 
 /**
@@ -32,6 +35,7 @@ public class LineFigure extends BezierFigure {
     public LineFigure() {
         addNode(new BezierPath.Node(new Point2D.Double(0,0)));
         addNode(new BezierPath.Node(new Point2D.Double(0,0)));
+        setConnectable(false);
     }
     
     // DRAWING
@@ -58,10 +62,6 @@ public class LineFigure extends BezierFigure {
     // COMPOSITE FIGURES
     // CLONING
     // EVENT HANDLING
-    @Override
-    public boolean canConnect() {
-        return false;
-    }
     /**
      * Handles a mouse click.
      */

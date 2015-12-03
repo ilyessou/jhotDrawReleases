@@ -1,7 +1,7 @@
 /*
  * @(#)AbstractView.java
  *
- * Copyright (c) 1996-2009 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,11 +13,17 @@
  */
 package org.jhotdraw.app;
 
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jhotdraw.gui.URIChooser;
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 import javax.swing.*;
 import java.util.concurrent.*;
 import java.util.prefs.*;
+import org.jhotdraw.gui.JFileURIChooser;
 import org.jhotdraw.beans.Disposable;
 import org.jhotdraw.util.prefs.PreferencesUtil;
 
@@ -31,31 +37,11 @@ public abstract class AbstractView extends JPanel implements View {
 
     private Application application;
     /**
-     * The file chooser used for saving the view.
-     * Has a null value, if the file chooser has not been used yet.
-     */
-    protected JFileChooser saveChooser;
-    /**
-     * The file chooser used for opening the view.
-     * Has a null value, if the file chooser has not been used yet.
-     */
-    protected JFileChooser openChooser;
-    /**
-     * The view file. 
-     * Has a null value, if the view has not been loaded from a file
-     * or has not been saved yet.
-     */
-    protected File file;
-    /**
      * The executor used to perform background tasks for the View in a
      * controlled manner. This executor ensures that all background tasks
      * are executed sequentually.
      */
     protected ExecutorService executor;
-    /**
-     * Hash map for storing view actions by their ID.
-     */
-    private HashMap<String, Action> actions;
     /**
      * This is set to true, if the view has unsaved changes.
      */
@@ -65,7 +51,7 @@ public abstract class AbstractView extends JPanel implements View {
      */
     protected Preferences preferences;
     /**
-     * This id is used to make multiple open projects from the same view file
+     * This id is used to make multiple open views of the same URI
      * identifiable.
      */
     private int multipleOpenId = 1;
@@ -79,6 +65,12 @@ public abstract class AbstractView extends JPanel implements View {
     private String title;
     /** List of objects that need to be disposed when this view is disposed. */
     private LinkedList<Disposable> disposables;
+    /**
+     * The URI of the view.
+     * Has a null value, if the view has not been loaded from a URI
+     * or has not been saved yet.
+     */
+    protected URI uri;
 
     /**
      * Creates a new instance.
@@ -116,20 +108,15 @@ public abstract class AbstractView extends JPanel implements View {
      * Gets rid of all the resources of the view.
      * No other methods should be invoked on the view afterwards.
      */
+            @SuppressWarnings("unchecked")
     public void dispose() {
         if (executor != null) {
             executor.shutdown();
             executor = null;
         }
 
-        if (openChooser != null) {
-            openChooser = null;
-        }
-        if (saveChooser != null) {
-            saveChooser = null;
-        }
         if (disposables != null) {
-            for (Disposable d : disposables) {
+            for (Disposable d : (LinkedList<Disposable>)disposables.clone()) {
                 d.dispose();
             }
             disposables = null;
@@ -137,6 +124,24 @@ public abstract class AbstractView extends JPanel implements View {
 
         removeAll();
     }
+
+    public boolean canSaveTo(URI uri) {
+        return true;
+    }
+
+    public URI getURI() {
+        return uri;
+    }
+
+    public void setURI(URI newValue) {
+        URI oldValue = uri;
+        uri = newValue;
+        if (preferences != null && newValue != null) {
+            preferences.put("projectFile", newValue.toString());
+        }
+        firePropertyChange(URI_PROPERTY, oldValue, newValue);
+    }
+
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -164,60 +169,6 @@ public abstract class AbstractView extends JPanel implements View {
     public JComponent getComponent() {
         return this;
     }
-
-    public File getFile() {
-        return file;
-    }
-
-    public void setFile(File newValue) {
-        File oldValue = file;
-        file = newValue;
-        if (preferences != null && newValue != null) {
-            preferences.put("projectFile", newValue.getPath());
-        }
-        firePropertyChange(FILE_PROPERTY, oldValue, newValue);
-    }
-
-    /**
-     * Gets the open file chooser for the view.
-     */
-    public JFileChooser getOpenChooser() {
-        if (openChooser == null) {
-            openChooser = createOpenChooser();
-        }
-        return openChooser;
-    }
-
-    protected JFileChooser createOpenChooser() {
-        JFileChooser c = new JFileChooser();
-        if (preferences != null) {
-            c.setSelectedFile(new File(preferences.get("projectFile", System.getProperty("user.home"))));
-        }
-        return c;
-    }
-
-    /**
-     * Gets the save file chooser for the view.
-     */
-    public JFileChooser getSaveChooser() {
-        if (saveChooser == null) {
-            saveChooser = createSaveChooser();
-        }
-        return saveChooser;
-    }
-
-    public boolean canSaveTo(File file) {
-        return true;
-    }
-
-    protected JFileChooser createSaveChooser() {
-        JFileChooser c = new JFileChooser();
-        if (preferences != null) {
-            c.setCurrentDirectory(new File(preferences.get("projectFile", System.getProperty("user.home"))));
-        }
-        return c;
-    }
-
     /**
      * Returns true, if the view has unsaved changes.
      * This is a bound property.
@@ -230,27 +181,6 @@ public abstract class AbstractView extends JPanel implements View {
         boolean oldValue = hasUnsavedChanges;
         hasUnsavedChanges = newValue;
         firePropertyChange(HAS_UNSAVED_CHANGES_PROPERTY, oldValue, newValue);
-    }
-
-    /**
-     * Returns the action with the specified id.
-     */
-    public Action getAction(String id) {
-        return (actions == null) ? null : (Action) actions.get(id);
-    }
-
-    /**
-     * Puts an action with the specified id.
-     */
-    public void putAction(String id, Action action) {
-        if (actions == null) {
-            actions = new HashMap<String, Action>();
-        }
-        if (action == null) {
-            actions.remove(id);
-        } else {
-            actions.put(id, action);
-        }
     }
 
     /**
@@ -310,5 +240,19 @@ public abstract class AbstractView extends JPanel implements View {
             disposables = new LinkedList<Disposable>();
         }
         disposables.add(disposable);
+    }
+
+    /**
+     * Removes a disposable object, which was previously added.
+     *
+     * @param disposable
+     */
+    public void removeDisposable(Disposable disposable) {
+        if (disposables != null) {
+            disposables.remove(disposable);
+            if (disposables.isEmpty()) {
+                disposables = null;
+            }
+        }
     }
 }

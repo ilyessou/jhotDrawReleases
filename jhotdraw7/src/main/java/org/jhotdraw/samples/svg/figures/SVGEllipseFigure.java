@@ -1,7 +1,7 @@
 /*
  * @(#)SVGEllipse.java
  *
- * Copyright (c) 1996-2009 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,10 +13,16 @@
  */
 package org.jhotdraw.samples.svg.figures;
 
+import org.jhotdraw.draw.handle.TransformHandleKit;
+import org.jhotdraw.draw.handle.ResizeHandleKit;
+import org.jhotdraw.draw.handle.Handle;
+import org.jhotdraw.draw.connector.Connector;
+import org.jhotdraw.draw.ConnectionFigure;
 import java.awt.*;
 import java.awt.geom.*;
 import java.util.*;
 import org.jhotdraw.draw.*;
+import org.jhotdraw.draw.handle.BoundsOutlineHandle;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.*;
 import org.jhotdraw.geom.*;
 import org.jhotdraw.samples.svg.*;
@@ -47,6 +53,7 @@ public class SVGEllipseFigure extends SVGAttributedFigure implements SVGFigure {
     public SVGEllipseFigure(double x, double y, double width, double height) {
         ellipse = new Ellipse2D.Double(x, y, width, height);
         SVGAttributeKeys.setDefaults(this);
+        setConnectable(false);
     }
 
     // DRAWING
@@ -214,18 +221,6 @@ public class SVGEllipseFigure extends SVGAttributedFigure implements SVGFigure {
         return handles;
     }
     // CONNECTING
-
-    public boolean canConnect() {
-        return false; // SVG does not support connecting
-    }
-
-    public Connector findConnector(Point2D.Double p, ConnectionFigure prototype) {
-        return null; // SVG does not support connectors
-    }
-
-    public Connector findCompatibleConnector(Connector c, boolean isStartConnector) {
-        return null; // SVG does not support connectors
-    }
     // COMPOSITE FIGURES
     // CLONING
 

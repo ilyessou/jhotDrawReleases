@@ -1,7 +1,7 @@
 /*
  * @(#)TaskFigure.java
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,12 +13,20 @@
  */
 package org.jhotdraw.samples.pert.figures;
 
-import java.awt.Point;
+import org.jhotdraw.draw.locator.RelativeLocator;
+import org.jhotdraw.draw.handle.MoveHandle;
+import org.jhotdraw.draw.handle.Handle;
+import org.jhotdraw.draw.event.FigureAdapter;
+import org.jhotdraw.draw.event.FigureEvent;
+import org.jhotdraw.draw.layouter.VerticalLayouter;
+import org.jhotdraw.draw.connector.LocatorConnector;
+import org.jhotdraw.draw.handle.ConnectorHandle;
 import java.io.IOException;
 import java.awt.geom.*;
 import static org.jhotdraw.draw.AttributeKeys.*;
 import java.util.*;
 import org.jhotdraw.draw.*;
+import org.jhotdraw.draw.handle.BoundsOutlineHandle;
 import org.jhotdraw.geom.*;
 import org.jhotdraw.util.*;
 import org.jhotdraw.xml.*;

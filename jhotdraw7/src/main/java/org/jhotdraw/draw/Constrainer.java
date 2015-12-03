@@ -1,7 +1,7 @@
 /*
  * @(#)Constrainer.java
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -19,7 +19,8 @@ import javax.swing.event.ChangeListener;
 
 /**
  * A <em>constrainer</em> constrains editing operations performed by
- * {@link Tool}s and {@link Handle}s on a {@link DrawingView}.
+ * {@link org.jhotdraw.draw.tool.Tool}s and
+ * {@link org.jhotdraw.draw.handle.Handle}s on a {@link DrawingView}.
  * <p>
  * {@code Constrainer} objects are associated to {@code DrawingView}'s.
  * <p>

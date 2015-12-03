@@ -1,7 +1,7 @@
 /*
  * @(#)PertPanel.java
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -14,6 +14,15 @@
 
 package org.jhotdraw.samples.pert;
 
+import org.jhotdraw.app.action.edit.PasteAction;
+import org.jhotdraw.app.action.edit.CutAction;
+import org.jhotdraw.app.action.edit.DuplicateAction;
+import org.jhotdraw.app.action.edit.CopyAction;
+import org.jhotdraw.app.action.edit.SelectAllAction;
+import org.jhotdraw.draw.tool.CreationTool;
+import org.jhotdraw.draw.tool.TextAreaCreationTool;
+import org.jhotdraw.draw.TextAreaFigure;
+import org.jhotdraw.draw.tool.ConnectionTool;
 import org.jhotdraw.gui.JPopupButton;
 import org.jhotdraw.samples.pert.figures.*;
 import org.jhotdraw.undo.*;

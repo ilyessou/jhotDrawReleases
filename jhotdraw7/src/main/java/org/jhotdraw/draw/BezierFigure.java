@@ -1,7 +1,7 @@
 /*
  * @(#)BezierFigure.java
  *
- * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -14,6 +14,12 @@
 
 package org.jhotdraw.draw;
 
+import org.jhotdraw.draw.connector.Connector;
+import org.jhotdraw.draw.connector.ChopBezierConnector;
+import org.jhotdraw.draw.handle.TransformHandleKit;
+import org.jhotdraw.draw.handle.BezierNodeHandle;
+import org.jhotdraw.draw.handle.BezierOutlineHandle;
+import org.jhotdraw.draw.handle.BezierScaleHandle;
 import org.jhotdraw.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -21,6 +27,7 @@ import java.awt.geom.*;
 import java.util.*;
 import javax.swing.undo.*;
 import java.io.*;
+import org.jhotdraw.draw.handle.Handle;
 import static org.jhotdraw.draw.AttributeKeys.*;
 import org.jhotdraw.geom.*;
 import org.jhotdraw.xml.DOMInput;
@@ -44,10 +51,11 @@ import org.jhotdraw.xml.DOMOutput;
  * <hr>
  * <b>Design Patterns</b>
  *
- * <p><em>Strategy</em><br>
- * {@code LineDecoration} encapsulats a strategy for drawing line decorations
- * of a {@code BezierFigure}.<br>
- * Strategy: {@link LineDecoration}; Context: {@link BezierFigure}.
+ * <p><em>Decorator</em><br>
+ * The start and end point of a {@code BezierFigure} can be decorated with
+ * a line decoration.<br>
+ * Component: {@link BezierFigure};
+ * Decorator: {@link org.jhotdraw.draw.decoration.LineDecoration}.
  * <hr>
  *
  * @see org.jhotdraw.geom.BezierPath
@@ -99,28 +107,30 @@ public class BezierFigure extends AbstractAttributedFigure {
     // CONNECTING
     /**
      * Returns the Figures connector for the specified location.
-     * By default a ChopDiamondConnector is returned.
-     * @see ChopDiamondConnector
+     * By default a {@link ChopBezierConnector} is returned.
      */
+    @Override
     public Connector findConnector(Point2D.Double p, ConnectionFigure prototype) {
         return new ChopBezierConnector(this);
     }
     
+    @Override
     public Connector findCompatibleConnector(Connector c, boolean isStart) {
         return new ChopBezierConnector(this);
     }
     // COMPOSITE FIGURES
     // CLONING
     // EVENT HANDLING
+    @Override
     protected void drawStroke(Graphics2D g) {
         if (isClosed()) {
             double grow = AttributeKeys.getPerpendicularDrawGrowth(this);
             if (grow == 0d) {
                 g.draw(path);
             } else {
-                GrowStroke gs = new GrowStroke((float) grow,
-                        (float) (AttributeKeys.getStrokeTotalWidth(this) *
-                        get(STROKE_MITER_LIMIT))
+                GrowStroke gs = new GrowStroke(grow,
+                        AttributeKeys.getStrokeTotalWidth(this) *
+                        get(STROKE_MITER_LIMIT)
                         );
                 g.draw(gs.createStrokedShape(path));
             }
@@ -153,21 +163,23 @@ public class BezierFigure extends AbstractAttributedFigure {
         }
     }
     
+    @Override
     protected void drawFill(Graphics2D g) {
         if (isClosed() || get(UNCLOSED_PATH_FILLED)) {
             double grow = AttributeKeys.getPerpendicularFillGrowth(this);
             if (grow == 0d) {
                 g.fill(path);
             } else {
-                GrowStroke gs = new GrowStroke((float) grow,
-                        (float) (AttributeKeys.getStrokeTotalWidth(this) *
-                        get(STROKE_MITER_LIMIT))
+                GrowStroke gs = new GrowStroke(grow,
+                        AttributeKeys.getStrokeTotalWidth(this) *
+                        get(STROKE_MITER_LIMIT)
                         );
                 g.fill(gs.createStrokedShape(path));
             }
         }
     }
     
+    @Override
     public boolean contains(Point2D.Double p) {
         double tolerance = Math.max(2f, AttributeKeys.getStrokeTotalWidth(this) / 2d);
         if (isClosed() || get(FILL_COLOR) != null && get(UNCLOSED_PATH_FILLED)) {
@@ -175,9 +187,9 @@ public class BezierFigure extends AbstractAttributedFigure {
                 return true;
             }
             double grow = AttributeKeys.getPerpendicularHitGrowth(this) * 2d;
-            GrowStroke gs = new GrowStroke((float) grow,
-                    (float) (AttributeKeys.getStrokeTotalWidth(this) *
-                    get(STROKE_MITER_LIMIT))
+            GrowStroke gs = new GrowStroke(grow,
+                    AttributeKeys.getStrokeTotalWidth(this) *
+                    get(STROKE_MITER_LIMIT)
                     );
             if (gs.createStrokedShape(path).contains(p)) {
                 return true;
@@ -212,14 +224,7 @@ public class BezierFigure extends AbstractAttributedFigure {
         }
         return false;
     }
-    /**
-     * Checks if this figure can be connected. By default
-     * filled BezierFigures can be connected.
-     */
-    @Override
-    public boolean canConnect() {
-        return isClosed();
-    }
+    
     @Override
     public Collection<Handle> createHandles(int detailLevel) {
         LinkedList<Handle> handles = new LinkedList<Handle>();
@@ -241,6 +246,7 @@ public class BezierFigure extends AbstractAttributedFigure {
         return handles;
     }
     
+    @Override
     public Rectangle2D.Double getBounds() {
         Rectangle2D.Double bounds =path.getBounds2D();
         return bounds;
@@ -294,13 +300,14 @@ public class BezierFigure extends AbstractAttributedFigure {
     }
     public void setClosed(boolean newValue) {
         set(PATH_CLOSED, newValue);
+        setConnectable(newValue);
     }
     @Override
     public <T> void set(AttributeKey<T> key, T newValue) {
         if (key == PATH_CLOSED) {
             path.setClosed((Boolean) newValue);
         } else if (key == WINDING_RULE) {
-            path.setWindingRule(newValue == AttributeKeys.WindingRule.EVEN_ODD ? GeneralPath.WIND_EVEN_ODD : GeneralPath.WIND_NON_ZERO);
+            path.setWindingRule(newValue == AttributeKeys.WindingRule.EVEN_ODD ? Path2D.Double.WIND_EVEN_ODD : Path2D.Double.WIND_NON_ZERO);
         }
         super.set(key, newValue);
         invalidate();
@@ -318,6 +325,7 @@ public class BezierFigure extends AbstractAttributedFigure {
         setEndPoint(lead);
         invalidate();
     }
+    @Override
     public void transform(AffineTransform tx) {
         path.transform(tx);
         invalidate();
@@ -568,10 +576,12 @@ public class BezierFigure extends AbstractAttributedFigure {
         return that;
     }
     
+    @Override
     public void restoreTransformTo(Object geometry) {
         path.setTo((BezierPath) geometry);
     }
     
+    @Override
     public Object getTransformRestoreData() {
         return path.clone();
     }
@@ -582,9 +592,9 @@ public class BezierFigure extends AbstractAttributedFigure {
             if (grow == 0d) {
                 return path.chop(p);
             } else {
-                GrowStroke gs = new GrowStroke((float) grow,
-                        (float) (AttributeKeys.getStrokeTotalWidth(this) *
-                        get(STROKE_MITER_LIMIT))
+                GrowStroke gs = new GrowStroke(grow,
+                        AttributeKeys.getStrokeTotalWidth(this) *
+                        get(STROKE_MITER_LIMIT)
                         );
                 return Geom.chop(gs.createStrokedShape(path), p);
             }
@@ -620,7 +630,7 @@ public class BezierFigure extends AbstractAttributedFigure {
     @Override public boolean handleMouseClick(Point2D.Double p, MouseEvent evt, DrawingView view) {
         if (evt.getClickCount() == 2 && view.getHandleDetailLevel() % 2 == 0) {
             willChange();
-            final int index = splitSegment(p, (float) (5f / view.getScaleFactor()));
+            final int index = splitSegment(p, 5f / view.getScaleFactor());
             if (index != -1) {
                 final BezierPath.Node newNode = getNode(index);
                 fireUndoableEditHappened(new AbstractUndoableEdit() {
@@ -680,7 +690,8 @@ public class BezierFigure extends AbstractAttributedFigure {
         out.closeElement();
     }
     
-    @Override public void read(DOMInput in) throws IOException {
+    @Override
+    public void read(DOMInput in) throws IOException {
         readPoints(in);
         readAttributes(in);
     }

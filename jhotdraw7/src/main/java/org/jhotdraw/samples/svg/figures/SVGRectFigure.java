@@ -1,7 +1,7 @@
 /*
  * @(#)SVGRect.java
  *
- * Copyright (c) 1996-2009 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,10 +13,16 @@
  */
 package org.jhotdraw.samples.svg.figures;
 
+import org.jhotdraw.draw.handle.TransformHandleKit;
+import org.jhotdraw.draw.handle.ResizeHandleKit;
+import org.jhotdraw.draw.handle.Handle;
+import org.jhotdraw.draw.connector.Connector;
+import org.jhotdraw.draw.ConnectionFigure;
 import java.awt.*;
 import java.awt.geom.*;
 import java.util.*;
 import org.jhotdraw.draw.*;
+import org.jhotdraw.draw.handle.BoundsOutlineHandle;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.*;
 import org.jhotdraw.samples.svg.*;
 import org.jhotdraw.geom.*;
@@ -70,6 +76,7 @@ public class SVGRectFigure extends SVGAttributedFigure implements SVGFigure {
     public SVGRectFigure(double x, double y, double width, double height, double rx, double ry) {
         roundrect = new RoundRectangle2D.Double(x, y, width, height, rx, ry);
         SVGAttributeKeys.setDefaults(this);
+        setConnectable(false);
     }
 
     // DRAWING
@@ -88,26 +95,26 @@ public class SVGRectFigure extends SVGAttributedFigure implements SVGFigure {
             // We have to generate the path for the round rectangle manually,
             // because the path of a Java RoundRectangle is drawn counter clockwise
             // whereas an SVG rect needs to be drawn clockwise.
-            GeneralPath p = new GeneralPath();
+            Path2D.Double p = new Path2D.Double();
             double aw = roundrect.arcwidth / 2d;
             double ah = roundrect.archeight / 2d;
-            p.moveTo((float) (roundrect.x + aw), (float) roundrect.y);
-            p.lineTo((float) (roundrect.x + roundrect.width - aw), (float) roundrect.y);
-            p.curveTo((float) (roundrect.x + roundrect.width - aw * acv), (float) roundrect.y, //
-                    (float) (roundrect.x + roundrect.width), (float)(roundrect.y + ah * acv), //
-                    (float) (roundrect.x + roundrect.width), (float) (roundrect.y + ah));
-            p.lineTo((float) (roundrect.x + roundrect.width), (float) (roundrect.y + roundrect.height - ah));
+            p.moveTo((roundrect.x + aw), (float) roundrect.y);
+            p.lineTo((roundrect.x + roundrect.width - aw), (float) roundrect.y);
+            p.curveTo((roundrect.x + roundrect.width - aw * acv), (float) roundrect.y, //
+                    (roundrect.x + roundrect.width), (float)(roundrect.y + ah * acv), //
+                    (roundrect.x + roundrect.width), (roundrect.y + ah));
+            p.lineTo((roundrect.x + roundrect.width), (roundrect.y + roundrect.height - ah));
             p.curveTo(
-                    (float) (roundrect.x + roundrect.width), (float) (roundrect.y + roundrect.height - ah * acv),//
-                    (float) (roundrect.x + roundrect.width - aw * acv), (float) (roundrect.y + roundrect.height),//
-                    (float) (roundrect.x + roundrect.width - aw), (float) (roundrect.y + roundrect.height));
-            p.lineTo((float) (roundrect.x + aw), (float) (roundrect.y + roundrect.height));
-            p.curveTo((float) (roundrect.x + aw*acv), (float) (roundrect.y + roundrect.height),//
-                    (float) (roundrect.x), (float) (roundrect.y + roundrect.height - ah*acv),//
-                   (float) roundrect.x, (float) (roundrect.y + roundrect.height - ah));
-            p.lineTo((float) roundrect.x, (float) (roundrect.y + ah));
-            p.curveTo((float) (roundrect.x), (float) (roundrect.y + ah*acv),//
-                    (float) (roundrect.x + aw*acv), (float)(roundrect.y),//
+                    (roundrect.x + roundrect.width), (roundrect.y + roundrect.height - ah * acv),//
+                    (roundrect.x + roundrect.width - aw * acv), (roundrect.y + roundrect.height),//
+                    (roundrect.x + roundrect.width - aw), (roundrect.y + roundrect.height));
+            p.lineTo((roundrect.x + aw), (roundrect.y + roundrect.height));
+            p.curveTo((roundrect.x + aw*acv), (roundrect.y + roundrect.height),//
+                    (roundrect.x), (roundrect.y + roundrect.height - ah*acv),//
+                   (float) roundrect.x, (roundrect.y + roundrect.height - ah));
+            p.lineTo((float) roundrect.x, (roundrect.y + ah));
+            p.curveTo((roundrect.x), (roundrect.y + ah*acv),//
+                    (roundrect.x + aw*acv), (float)(roundrect.y),//
                     (float)(roundrect.x + aw), (float)(roundrect.y));
             p.closePath();
             g.draw(p);
@@ -311,21 +318,6 @@ public class SVGRectFigure extends SVGAttributedFigure implements SVGFigure {
         }
         return handles;
     }
-    // CONNECTING
-
-    public boolean canConnect() {
-        return false; // SVG does not support connecting
-    }
-
-    public Connector findConnector(Point2D.Double p, ConnectionFigure prototype) {
-        return null; // SVG does not support connectors
-    }
-
-    public Connector findCompatibleConnector(Connector c, boolean isStartConnector) {
-        return null; // SVG does not support connectors
-    }
-
-    // COMPOSITE FIGURES
     // CLONING
     public SVGRectFigure clone() {
         SVGRectFigure that = (SVGRectFigure) super.clone();

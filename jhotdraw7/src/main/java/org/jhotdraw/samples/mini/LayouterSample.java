@@ -1,7 +1,7 @@
 /*
  * @(#)LayouterSample.java
  *
- * Copyright (c) 1996-2009 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,11 @@
  */
 package org.jhotdraw.samples.mini;
 
+import org.jhotdraw.draw.tool.DelegationSelectionTool;
+import org.jhotdraw.draw.LineFigure;
+import org.jhotdraw.draw.layouter.VerticalLayouter;
+import org.jhotdraw.draw.TextFigure;
+import org.jhotdraw.draw.GraphicalCompositeFigure;
 import javax.swing.*;
 import org.jhotdraw.draw.*;
 

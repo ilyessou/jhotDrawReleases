@@ -1,7 +1,7 @@
 /*
  * @(#)LinkHandle.java
  *
- * Copyright (c) 2009 by the original authors of JHotDraw
+ * Copyright (c) 2009-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -14,6 +14,8 @@
 
 package org.jhotdraw.samples.svg.figures;
 
+import org.jhotdraw.draw.handle.HandleAttributeKeys;
+import org.jhotdraw.draw.handle.AbstractHandle;
 import org.jhotdraw.draw.*;
 import java.awt.*;
 import java.awt.geom.*;

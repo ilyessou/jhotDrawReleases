@@ -1,7 +1,7 @@
 /*
  * @(#)ODGGroupFigure.java
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -14,6 +14,9 @@
 
 package org.jhotdraw.samples.odg.figures;
 
+import org.jhotdraw.draw.handle.TransformHandleKit;
+import org.jhotdraw.draw.handle.Handle;
+import org.jhotdraw.draw.GroupFigure;
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;

@@ -1,7 +1,7 @@
 /*
  * @(#)Main.java
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -24,7 +24,7 @@ import org.jhotdraw.app.*;
  */
 public class Main {
     public final static String NAME = "JHotDraw Teddy";
-    public final static String COPYRIGHT = "© 1996-2009 by the original authors of JHotDraw and all its contributors";
+    public final static String COPYRIGHT = "© 1996-2010 by the original authors of JHotDraw and all its contributors.";
     
     /**
      * Launches the application.
@@ -40,12 +40,12 @@ public class Main {
         
         Application app;
         if (System.getProperty("os.name").toLowerCase().startsWith("mac os x")) {
-            app = new DefaultOSXApplication();
+            app = new OSXApplication();
         } else if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
             //app = new DefaultMDIApplication();
-            app = new DefaultSDIApplication();
+            app = new SDIApplication();
         } else {
-            app = new DefaultSDIApplication();
+            app = new SDIApplication();
         }
         app.setModel(tam);
         app.launch(args);

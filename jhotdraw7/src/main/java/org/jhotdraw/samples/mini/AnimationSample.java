@@ -1,7 +1,7 @@
 /*
  * @(#)AnimationSample.java
  * 
- * Copyright (c) 2009 by the original authors of JHotDraw
+ * Copyright (c) 2009-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  * 
@@ -13,6 +13,7 @@
  */
 package org.jhotdraw.samples.mini;
 
+import org.jhotdraw.draw.EllipseFigure;
 import java.awt.Color;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;

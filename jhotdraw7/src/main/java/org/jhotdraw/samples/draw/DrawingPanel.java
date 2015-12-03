@@ -1,7 +1,7 @@
 /*
  * @(#)DrawingPanel.java
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,25 @@
  */
 package org.jhotdraw.samples.draw;
 
+import org.jhotdraw.draw.tool.CreationTool;
+import org.jhotdraw.draw.TriangleFigure;
+import org.jhotdraw.draw.RoundRectangleFigure;
+import org.jhotdraw.draw.RectangleFigure;
+import org.jhotdraw.draw.LineFigure;
+import org.jhotdraw.draw.EllipseFigure;
+import org.jhotdraw.draw.DiamondFigure;
+import org.jhotdraw.draw.BezierFigure;
+import org.jhotdraw.draw.tool.BezierTool;
+import org.jhotdraw.draw.tool.TextCreationTool;
+import org.jhotdraw.draw.TextFigure;
+import org.jhotdraw.draw.tool.TextAreaCreationTool;
+import org.jhotdraw.draw.TextAreaFigure;
+import org.jhotdraw.draw.LineConnectionFigure;
+import org.jhotdraw.draw.liner.ElbowLiner;
+import org.jhotdraw.draw.liner.CurvedLiner;
+import org.jhotdraw.draw.tool.ConnectionTool;
+import org.jhotdraw.draw.ConnectionFigure;
+import org.jhotdraw.draw.decoration.ArrowTip;
 import static org.jhotdraw.draw.AttributeKeys.*;
 import org.jhotdraw.gui.JPopupButton;
 import org.jhotdraw.undo.*;
@@ -20,11 +39,11 @@ import org.jhotdraw.util.*;
 
 import java.util.*;
 import javax.swing.*;
-import org.jhotdraw.app.action.CopyAction;
-import org.jhotdraw.app.action.CutAction;
-import org.jhotdraw.app.action.DuplicateAction;
-import org.jhotdraw.app.action.PasteAction;
-import org.jhotdraw.app.action.SelectAllAction;
+import org.jhotdraw.app.action.edit.CopyAction;
+import org.jhotdraw.app.action.edit.CutAction;
+import org.jhotdraw.app.action.edit.DuplicateAction;
+import org.jhotdraw.app.action.edit.PasteAction;
+import org.jhotdraw.app.action.edit.SelectAllAction;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.action.*;
 

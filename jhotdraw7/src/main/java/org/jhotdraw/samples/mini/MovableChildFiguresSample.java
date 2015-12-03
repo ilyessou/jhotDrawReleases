@@ -1,7 +1,7 @@
 /*
  * @(#)MovableChildFiguresSample.java
  *
- * Copyright (c) 2009 by the original authors of JHotDraw
+ * Copyright (c) 2009-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,14 @@
  */
 package org.jhotdraw.samples.mini;
 
+import org.jhotdraw.draw.tool.DelegationSelectionTool;
+import org.jhotdraw.draw.handle.ResizeHandleKit;
+import org.jhotdraw.draw.handle.MoveHandle;
+import org.jhotdraw.draw.handle.DragHandle;
+import org.jhotdraw.draw.handle.Handle;
+import org.jhotdraw.draw.EllipseFigure;
+import org.jhotdraw.draw.LabelFigure;
+import org.jhotdraw.draw.GraphicalCompositeFigure;
 import java.awt.BorderLayout;
 import java.awt.geom.*;
 import java.util.*;

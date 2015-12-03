@@ -1,7 +1,7 @@
 /**
  * @(#)SelectionComponentRepainter.java
  *
- * Copyright (c) 2008-2009 by the original authors of JHotDraw
+ * Copyright (c) 2008-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,10 @@
  */
 package org.jhotdraw.gui.event;
 
+import org.jhotdraw.draw.event.FigureSelectionEvent;
+import org.jhotdraw.draw.event.FigureSelectionListener;
+import org.jhotdraw.draw.event.FigureAdapter;
+import org.jhotdraw.draw.event.FigureEvent;
 import java.beans.*;
 import javax.swing.*;
 import org.jhotdraw.beans.Disposable;

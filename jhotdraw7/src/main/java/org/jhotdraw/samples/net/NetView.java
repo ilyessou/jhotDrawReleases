@@ -1,7 +1,7 @@
 /*
  * @(#)NetView.java
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -14,6 +14,14 @@
  */
 package org.jhotdraw.samples.net;
 
+import org.jhotdraw.app.action.edit.RedoAction;
+import org.jhotdraw.app.action.edit.UndoAction;
+import org.jhotdraw.draw.io.TextInputFormat;
+import org.jhotdraw.draw.io.OutputFormat;
+import org.jhotdraw.draw.io.InputFormat;
+import org.jhotdraw.draw.io.ImageOutputFormat;
+import org.jhotdraw.draw.print.DrawingPageable;
+import org.jhotdraw.draw.io.DOMStorableInputOutputFormat;
 import java.awt.print.Pageable;
 import org.jhotdraw.gui.*;
 import org.jhotdraw.io.*;
@@ -24,12 +32,15 @@ import java.awt.*;
 import java.beans.*;
 import java.io.*;
 import java.lang.reflect.*;
+import java.net.URI;
 import javax.swing.*;
 import javax.swing.border.*;
 import org.jhotdraw.app.*;
 import org.jhotdraw.app.action.*;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.action.*;
+import org.jhotdraw.gui.URIChooser;
+import org.jhotdraw.gui.JFileURIChooser;
 
 /**
  * A view for Network diagrams.
@@ -58,14 +69,6 @@ public class NetView extends AbstractView  {
      * Creates a new view.
      */
     public NetView() {
-    }
-    
-    /**
-     * Initializes the view.
-     */
-    public void init() {
-        super.init();
-        
         initComponents();
         
         JPanel zoomButtonPanel = new JPanel(new BorderLayout());
@@ -168,8 +171,8 @@ public class NetView extends AbstractView  {
      * Initializes view specific actions.
      */
     private void initActions() {
-        putAction(UndoAction.ID, undo.getUndoAction());
-        putAction(RedoAction.ID, undo.getRedoAction());
+        getActionMap().put(UndoAction.ID, undo.getUndoAction());
+        getActionMap().put(RedoAction.ID, undo.getRedoAction());
     }
     protected void setHasUnsavedChanges(boolean newValue) {
         super.setHasUnsavedChanges(newValue);
@@ -177,22 +180,22 @@ public class NetView extends AbstractView  {
     }
     
     /**
-     * Writes the view to the specified file.
+     * Writes the view to the specified uri.
      */
-    public void write(File f) throws IOException {
+    public void write(URI f, URIChooser chooser) throws IOException {
             Drawing drawing = view.getDrawing();
             OutputFormat outputFormat = drawing.getOutputFormats().get(0);
-            outputFormat.write(f, drawing);
+            outputFormat.write(new File(f), drawing);
     }
     
     /**
-     * Reads the view from the specified file.
+     * Reads the view from the specified uri.
      */
-    public void read(File f) throws IOException {
+    public void read(URI f, URIChooser chooser) throws IOException {
         try {
             final Drawing drawing = createDrawing();
             InputFormat inputFormat = drawing.getInputFormats().get(0);
-            inputFormat.read(f, drawing, true);
+            inputFormat.read(new File(f), drawing, true);
             SwingUtilities.invokeAndWait(new Runnable() { public void run() {
                 view.getDrawing().removeUndoableEditListener(undo);
                 view.setDrawing(drawing);
@@ -252,25 +255,9 @@ public class NetView extends AbstractView  {
     }
     
     
-    @Override protected JFileChooser createOpenChooser() {
-        JFileChooser c =  new JFileChooser();
-        c.addChoosableFileFilter(new ExtensionFileFilter("Net Diagram","xml"));
-        if (preferences != null) {
-            c.setSelectedFile(new File(preferences.get("projectFile", System.getProperty("user.home"))));
-        }
-        return c;
-    }
-    @Override protected JFileChooser createSaveChooser() {
-        JFileChooser c = new JFileChooser();
-        c.addChoosableFileFilter(new ExtensionFileFilter("Net Diagram","xml"));
-        if (preferences != null) {
-            c.setSelectedFile(new File(preferences.get("projectFile", System.getProperty("user.home"))));
-        }
-        return c;
-    }
     @Override
-    public boolean canSaveTo(File file) {
-        return file.getName().endsWith(".xml");
+    public boolean canSaveTo(URI file) {
+        return new File(file).getName().endsWith(".xml");
     }
     /** This method is called from within the constructor to
      * initialize the form.

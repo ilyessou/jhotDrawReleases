@@ -1,7 +1,7 @@
 /*
  * @(#)CreationToolSample.java
  *
- * Copyright (c) 2009 by the original authors of JHotDraw
+ * Copyright (c) 2009-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,9 @@
  */
 package org.jhotdraw.samples.mini;
 
+import org.jhotdraw.draw.tool.CreationTool;
+import org.jhotdraw.draw.RectangleFigure;
+import org.jhotdraw.draw.io.SerializationInputOutputFormat;
 import java.awt.*;
 import java.util.HashMap;
 import javax.swing.*;

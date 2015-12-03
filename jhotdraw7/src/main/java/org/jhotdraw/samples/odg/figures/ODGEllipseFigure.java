@@ -13,6 +13,11 @@
  */
 package org.jhotdraw.samples.odg.figures;
 
+import org.jhotdraw.draw.handle.TransformHandleKit;
+import org.jhotdraw.draw.handle.ResizeHandleKit;
+import org.jhotdraw.draw.handle.Handle;
+import org.jhotdraw.draw.connector.Connector;
+import org.jhotdraw.draw.ConnectionFigure;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
@@ -205,11 +210,6 @@ public class ODGEllipseFigure extends ODGAttributedFigure implements ODGFigure {
         return handles;
     }
     // CONNECTING
-
-    public boolean canConnect() {
-        return false; // ODG does not support connecting
-    }
-
     public Connector findConnector(Point2D.Double p, ConnectionFigure prototype) {
         return null; // ODG does not support connectors
     }

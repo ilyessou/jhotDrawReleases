@@ -1,7 +1,7 @@
 /*
  * @(#)View.java
  *
- * Copyright (c) 1996-2009 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -14,18 +14,60 @@
 
 package org.jhotdraw.app;
 
+import org.jhotdraw.gui.URIChooser;
 import java.io.*;
 import java.beans.*;
+import java.net.URI;
 import javax.swing.*;
 import org.jhotdraw.beans.Disposable;
 
 /**
- * Provides a <em>view</em> on a document or a set of related documents within
- * an {@link Application}.
+ * A <em>view</em> paints a document on a {@code JComponent} within an
+ * {@link Application}.
  * <p>
- * After a view has been initialized using init(),
- * either method clear() must be called
- * or method read(), in order to fully initialize the View.
+ * The document is identified by an {@code URI} (for example a text document
+ * which is identified by the URI {@code "file://home/readme.txt"}).
+ * If the same {@code URI} is opened in multiple views, the application sets
+ * a 'multiple open ID' on the view, so that the user can distinguish between
+ * the views.
+ * <p>
+ * The life of view objects is managed by an application. See the class
+ * comment of {@link Application} on how to launch an application.
+ * <p>
+ * The lifecycle of a view consists of the following steps:
+ * <ol>
+ * <li><b>Creation</b><br>
+ * The application instantiates the view object by calling {@code newInstance()}
+ * on the class of the view.
+ * </li>
+ * <li><b>Initialisation</b><br>
+ * The application calls the following methods: {@code setActionMap();
+ * setApplication(); init()}.
+ * Then it either calls {@code clear()} or {@code read()} on a worker thread.
+ * </li>
+ * <li><b>Start</b><br>
+ * The application adds the component of the view to a container (for example
+ * a JFrame) and then calls {@code start()}.
+ * </li>
+ * <li><b>Activation</b><br>
+ * When a view becomes the active view of the application, application calls
+ * {@code activate()}.
+ * </li>
+ * <li><b>Deactivation</b><br>
+ * When a view is not anymore the active view of the application, application
+ * calls {@code deactivate()}. At a later time, the view may become activated again.
+ * </li>
+ * <li><b>Stop</b><br>
+ * The application calls {@code stop()} on the view and then removes the
+ * component from its container. At a later time, the view may be started
+ * again.
+ * </li>
+ * <li><b>Dispose</b><br>
+ * When the view is no longer needed, application calls {@code dispose()} on
+ * the view, followed by {@code setApplication(null)} and then removes all
+ * references to it, so that it can be garbage collected.
+ * </li>
+ * </ol>
  *
  * <hr>
  * <b>Design Patterns</b>
@@ -42,13 +84,13 @@ import org.jhotdraw.beans.Disposable;
  */
 public interface View {
     /**
+     * The name of the uri property.
+     */
+    public final static String URI_PROPERTY = "uri";
+    /**
      * The name of the application property.
      */
     public final static String APPLICATION_PROPERTY = "application";
-    /**
-     * The name of the file property.
-     */
-    public final static String FILE_PROPERTY = "file";
     /**
      * The name of the title property.
      */
@@ -88,17 +130,6 @@ public interface View {
     public JComponent getComponent();
     
     /**
-     * Returns the file which holds the document of the view.
-     */
-    public File getFile();
-    
-    /**
-     * Sets the file of the view.
-     * This is a bound property.
-     */
-    public void setFile(File newValue);
-    
-    /**
      * Returns the enabled state of the view.
      */
     public boolean isEnabled();
@@ -122,18 +153,6 @@ public interface View {
     public void setEnabled(boolean newValue);
     
     /**
-     * Writes the view to the specified file.
-     * By convention this method is never invoked on the AWT Event Dispatcher Thread.
-     */
-    public void write(File f) throws IOException;
-    
-    /**
-     * Reads the view from the specified file.
-     * By convention this method is never invoked on the AWT Event Dispatcher Thread.
-     */
-    public void read(File f) throws IOException;
-    
-    /**
      * Clears the view, for example by emptying the contents of
      * the view, or by reading a template contents from a file.
      * By convention this method is never invoked on the AWT Event Dispatcher Thread.
@@ -141,14 +160,6 @@ public interface View {
     public void clear();
     
     
-    /**
-     * Gets the open file chooser for the view.
-     */
-    public JFileChooser getOpenChooser();
-    /**
-     * Gets the save file chooser for the view.
-     */
-    public JFileChooser getSaveChooser();
     /**
      * Returns true, if the view has unsaved changes.
      * This is a bound property.
@@ -159,20 +170,6 @@ public interface View {
      * This changes the state of hasUnsavedChanges to false.
      */
     public void markChangesAsSaved();
-    
-    /**
-     * Returns true, if this view can be saved to the specified file.
-     * A reason why the view can't be saved to a file, is that the
-     * view is unable to write to a file with the given filename
-     * extension without losing data. 
-     * <p>
-     * The SaveAction uses this method to decide, whether to display
-     * a file dialog before saving the file.
-     * 
-     * @param file A file. If this parameter is null, a NullPointerException
-     * is thrown.
-     */
-    public boolean canSaveTo(File file);
     
     /**
      * Executes the specified runnable on the worker thread of the view.
@@ -226,14 +223,14 @@ public interface View {
     public void dispose();
     
     /**
-     * Returns the action with the specified id.
+     * Gets the action map of the view.
      */
-    public Action getAction(String id);
+    public ActionMap getActionMap();
     
     /**
-     * Puts an action with the specified id.
+     * Sets the action map for the view.
      */
-    public void putAction(String id, Action action);
+    public void setActionMap(ActionMap m);
     
     /**
      * Adds a property change listener.
@@ -271,7 +268,7 @@ public interface View {
      * Sets the title of the view. 
      * <p>
      * The title is generated by the application, based on the current
-     * file of the view. The application ensures that the title uniquely
+     * URI of the view. The application ensures that the title uniquely
      * identifies each open view.
      * <p> 
      * The application displays the title in the title bar of the view 
@@ -293,4 +290,59 @@ public interface View {
      * @param disposable
      */
     public void addDisposable(Disposable disposable);
+    /**
+     * Removes a disposable object, which was previously added.
+     *
+     * @param disposable
+     */
+    public void removeDisposable(Disposable disposable);
+
+    /**
+     * Returns the uri which holds the document of the view.
+     */
+    public URI getURI();
+
+    /**
+     * Sets the uri of the view.
+     * This is a bound property.
+     */
+    public void setURI(URI newValue);
+
+    /**
+     * Returns true, if this view can be saved to the specified URI.
+     * A reason why the view can't be saved to a URI, is that the
+     * view is unable to write to a file-URI with the given filename
+     * extension without losing data.
+     * <p>
+     * The SaveAction uses this method to decide, whether to display
+     * a save dialog before saving the URI.
+     *
+     * @param uri An URI. If this parameter is null, a NullPointerException
+     * is thrown.
+     */
+    public boolean canSaveTo(URI uri);
+
+    /**
+     * Writes the view to the specified URI.
+     * <p>
+     * By convention this method is never invoked on the AWT Event Dispatcher Thread.
+     *
+     * @param uri The location where to write the view.
+     * @param chooser The chooser which was used for selecting the URI. This
+     * parameter is null if no chooser was used.
+     */
+    public void write(URI uri, URIChooser chooser) throws IOException;
+
+    /**
+     * Reads the view from the specified URI.
+     * <p>
+     * By convention this method is never invoked on the AWT Event Dispatcher Thread.
+     *
+     * @param uri The location where to write the view.
+     * @param chooser The chooser which was used for selecting the URI. This
+     * parameter is null if no chooser was used.
+     */
+    public void read(URI uri, URIChooser chooser) throws IOException;
+
+
 }

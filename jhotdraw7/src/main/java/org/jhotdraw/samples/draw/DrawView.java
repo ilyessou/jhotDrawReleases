@@ -1,7 +1,7 @@
 /*
  * @(#)DrawView.java
  *
- * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -14,6 +14,16 @@
  */
 package org.jhotdraw.samples.draw;
 
+import org.jhotdraw.draw.io.TextInputFormat;
+import org.jhotdraw.draw.TextFigure;
+import org.jhotdraw.draw.TextAreaFigure;
+import org.jhotdraw.draw.io.OutputFormat;
+import org.jhotdraw.draw.io.InputFormat;
+import org.jhotdraw.draw.io.ImageOutputFormat;
+import org.jhotdraw.draw.io.ImageInputFormat;
+import org.jhotdraw.draw.ImageFigure;
+import org.jhotdraw.draw.print.DrawingPageable;
+import org.jhotdraw.draw.io.DOMStorableInputOutputFormat;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.awt.print.Pageable;
@@ -25,13 +35,17 @@ import java.awt.*;
 import java.beans.*;
 import java.io.*;
 import java.lang.reflect.*;
+import java.net.URI;
 import javax.swing.*;
 import javax.swing.border.*;
 import org.jhotdraw.app.AbstractView;
-import org.jhotdraw.app.action.RedoAction;
-import org.jhotdraw.app.action.UndoAction;
+import org.jhotdraw.app.action.edit.RedoAction;
+import org.jhotdraw.app.action.edit.UndoAction;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.action.*;
+import org.jhotdraw.gui.URIChooser;
+import org.jhotdraw.gui.JFileURIChooser;
+import org.jhotdraw.net.URIUtil;
 
 /**
  * A view for JHotDraw drawings.
@@ -110,12 +124,7 @@ public class DrawView extends AbstractView {
         
         drawing.addInputFormat(ioFormat);
         ImageFigure prototype = new ImageFigure();
-        
         drawing.addInputFormat(new ImageInputFormat(prototype));
-        drawing.addInputFormat(new ImageInputFormat(prototype, "JPG","Joint Photographics Experts Group (JPEG)", "jpg", BufferedImage.TYPE_INT_RGB));
-        drawing.addInputFormat(new ImageInputFormat(prototype, "GIF","Graphics Interchange Format (GIF)", "gif", BufferedImage.TYPE_INT_ARGB));
-        drawing.addInputFormat(new ImageInputFormat(prototype));
-        drawing.addInputFormat(new PictImageInputFormat(prototype));
         drawing.addInputFormat(new TextInputFormat(new TextFigure()));
         TextAreaFigure taf = new TextAreaFigure();
         taf.setBounds(new Point2D.Double(10,10), new Point2D.Double(60,40));
@@ -140,8 +149,8 @@ public class DrawView extends AbstractView {
      * Initializes view specific actions.
      */
     private void initActions() {
-        putAction(UndoAction.ID, undo.getUndoAction());
-        putAction(RedoAction.ID, undo.getRedoAction());
+        getActionMap().put(UndoAction.ID, undo.getUndoAction());
+        getActionMap().put(RedoAction.ID, undo.getRedoAction());
     }
     protected void setHasUnsavedChanges(boolean newValue) {
         super.setHasUnsavedChanges(newValue);
@@ -149,27 +158,26 @@ public class DrawView extends AbstractView {
     }
     
     /**
-     * Writes the view to the specified file.
+     * Writes the view to the specified uri.
      */
-    public void write(File f) throws IOException {
+    public void write(URI f, URIChooser fc) throws IOException {
         Drawing drawing = view.getDrawing();
         OutputFormat outputFormat = drawing.getOutputFormats().get(0);
-        outputFormat.write(f, drawing);
+        outputFormat.write(new File(f), drawing);
     }
     
     /**
-     * Reads the view from the specified file.
+     * Reads the view from the specified uri.
      */
-    public void read(File f) throws IOException {
+    public void read(URI f, URIChooser fc) throws IOException {
         try {
-            JFileChooser fc = getOpenChooser();
 
             final Drawing drawing = createDrawing();
 
             boolean success = false;
                 for (InputFormat sfi : drawing.getInputFormats()) {
                         try {
-                            sfi.read(f, drawing, true);
+                            sfi.read(new File(f), drawing, true);
                             success = true;
                             break;
                         } catch (Exception e) {
@@ -178,7 +186,7 @@ public class DrawView extends AbstractView {
                     }
             if (!success) {
                 ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
-                throw new IOException(labels.getFormatted("file.open.unsupportedFileFormat.message", f.getName()));
+                throw new IOException(labels.getFormatted("file.open.unsupportedFileFormat.message", URIUtil.getName(f)));
             }
             SwingUtilities.invokeAndWait(new Runnable() {
 
@@ -242,25 +250,9 @@ public class DrawView extends AbstractView {
         }
     }
     
-    @Override protected JFileChooser createOpenChooser() {
-        JFileChooser c = new JFileChooser();
-        c.addChoosableFileFilter(new ExtensionFileFilter("Drawing .xml","xml"));
-        if (preferences != null) {
-            c.setSelectedFile(new File(preferences.get("projectFile", System.getProperty("user.home"))));
-        }
-        return c;
-    }
-    @Override protected JFileChooser createSaveChooser() {
-        JFileChooser c = new JFileChooser();
-        c.addChoosableFileFilter(new ExtensionFileFilter("Drawing .xml","xml"));
-        if (preferences != null) {
-            c.setSelectedFile(new File(preferences.get("projectFile", System.getProperty("user.home"))));
-        }
-        return c;
-    }
     @Override
-    public boolean canSaveTo(File file) {
-        return file.getName().endsWith(".xml");
+    public boolean canSaveTo(URI file) {
+        return new File(file).getName().endsWith(".xml");
     }
     
     /** This method is called from within the constructor to

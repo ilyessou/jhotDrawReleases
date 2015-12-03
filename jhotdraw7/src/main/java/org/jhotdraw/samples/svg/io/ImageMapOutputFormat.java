@@ -1,7 +1,7 @@
 /*
  * @(#)ImageMapOutputFormat.java
  *
- * Copyright (c) 2007-2009 by the original authors of JHotDraw
+ * Copyright (c) 2007-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,8 @@
  */
 package org.jhotdraw.samples.svg.io;
 
+import org.jhotdraw.draw.BezierFigure;
+import org.jhotdraw.draw.io.OutputFormat;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.geom.*;
@@ -78,9 +80,7 @@ public class ImageMapOutputFormat implements OutputFormat {
         try {
             write(out, drawing);
         } finally {
-            if (out != null) {
-                out.close();
-            }
+            out.close();
         }
     }
 
@@ -331,7 +331,7 @@ public class ImageMapOutputFormat implements OutputFormat {
 
         StringBuilder buf = new StringBuilder();
         float[] coords = new float[6];
-        GeneralPath path = new GeneralPath();
+        Path2D.Double path = new Path2D.Double();
         for (PathIterator i = shape.getPathIterator(t, 1.5f);
                 !i.isDone(); i.next()) {
             switch (i.currentSegment(coords)) {
@@ -370,7 +370,7 @@ public class ImageMapOutputFormat implements OutputFormat {
     }
 
     private void writePathElement(IXMLElement parent, SVGPathFigure f) throws IOException {
-        GrowStroke growStroke = new GrowStroke((float) (getStrokeTotalWidth(f) / 2d), (float) getStrokeTotalWidth(f));
+        GrowStroke growStroke = new GrowStroke( (getStrokeTotalWidth(f) / 2d),  getStrokeTotalWidth(f));
         BasicStroke basicStroke = new BasicStroke((float) getStrokeTotalWidth(f));
         for (Figure child : f.getChildren()) {
             SVGBezierFigure bezier = (SVGBezierFigure) child;
@@ -386,7 +386,7 @@ public class ImageMapOutputFormat implements OutputFormat {
 
     private void writePolygonElement(IXMLElement parent, SVGPathFigure f) throws IOException {
         IXMLElement elem = parent.createElement("area");
-        if (writePolyAttributes(elem, f, new GrowStroke((float) (getStrokeTotalWidth(f) / 2d), (float) getStrokeTotalWidth(f)).createStrokedShape(f.getChild(0).getBezierPath()))) {
+        if (writePolyAttributes(elem, f, new GrowStroke( (getStrokeTotalWidth(f) / 2d),  getStrokeTotalWidth(f)).createStrokedShape(f.getChild(0).getBezierPath()))) {
             parent.addChild(elem);
         }
     }
@@ -401,7 +401,7 @@ public class ImageMapOutputFormat implements OutputFormat {
 
     private void writeLineElement(IXMLElement parent, SVGPathFigure f) throws IOException {
         IXMLElement elem = parent.createElement("area");
-        if (writePolyAttributes(elem, f, new GrowStroke((float) (getStrokeTotalWidth(f) / 2d), (float) getStrokeTotalWidth(f)).createStrokedShape(new Line2D.Double(
+        if (writePolyAttributes(elem, f, new GrowStroke( (getStrokeTotalWidth(f) / 2d),  getStrokeTotalWidth(f)).createStrokedShape(new Line2D.Double(
                 f.getStartPoint(), f.getEndPoint())))) {
             parent.addChild(elem);
         }
@@ -420,7 +420,7 @@ public class ImageMapOutputFormat implements OutputFormat {
             isContained = writeRectAttributes(elem, f, rect);
         } else {
             isContained = writePolyAttributes(elem, f,
-                    new GrowStroke((float) (getStrokeTotalWidth(f) / 2d), (float) getStrokeTotalWidth(f)).createStrokedShape(new RoundRectangle2D.Double(
+                    new GrowStroke( (getStrokeTotalWidth(f) / 2d),  getStrokeTotalWidth(f)).createStrokedShape(new RoundRectangle2D.Double(
                     f.getX(), f.getY(), f.getWidth(), f.getHeight(),
                     f.getArcWidth(), f.getArcHeight())));
         }

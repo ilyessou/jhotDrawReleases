@@ -1,7 +1,7 @@
 /*
  * @(#)DefaultDrawingEditor.java
  *
- * Copyright (c) 1996-2009 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,14 @@
  */
 package org.jhotdraw.draw;
 
+import org.jhotdraw.app.action.edit.PasteAction;
+import org.jhotdraw.app.action.edit.CutAction;
+import org.jhotdraw.app.action.edit.DeleteAction;
+import org.jhotdraw.app.action.edit.CopyAction;
+import org.jhotdraw.app.action.edit.SelectAllAction;
+import org.jhotdraw.draw.tool.Tool;
+import org.jhotdraw.draw.event.ToolEvent;
+import org.jhotdraw.draw.event.ToolListener;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import org.jhotdraw.beans.*;
@@ -26,6 +34,7 @@ import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import org.jhotdraw.app.action.*;
 import org.jhotdraw.draw.action.*;
+import org.jhotdraw.draw.event.ToolAdapter;
 import static org.jhotdraw.draw.AttributeKeys.*;
 
 /**
@@ -36,7 +45,7 @@ import static org.jhotdraw.draw.AttributeKeys.*;
  * @author Werner Randelshofer
  * @version $Id$
  */
-public class DefaultDrawingEditor extends AbstractBean implements DrawingEditor, ToolListener {
+public class DefaultDrawingEditor extends AbstractBean implements DrawingEditor {
 
     private HashMap<AttributeKey, Object> defaultAttributes = new HashMap<AttributeKey, Object>();
     private HashMap<AttributeKey, Object> handleAttributes = new HashMap<AttributeKey, Object>();
@@ -44,6 +53,32 @@ public class DefaultDrawingEditor extends AbstractBean implements DrawingEditor,
     private HashSet<DrawingView> views;
     private DrawingView activeView;
     private boolean isEnabled = true;
+    private ToolHandler toolHandler;
+
+    private class ToolHandler extends ToolAdapter {
+
+        @Override
+        public void areaInvalidated(ToolEvent evt) {
+            Rectangle r = evt.getInvalidatedArea();
+            evt.getView().getComponent().repaint(r.x, r.y, r.width, r.height);
+        }
+
+        @Override
+        public void toolStarted(ToolEvent evt) {
+            setActiveView(evt.getView());
+        }
+
+        @Override
+        public void boundsInvalidated(ToolEvent evt) {
+            Drawing d = evt.getView().getDrawing();
+            for (DrawingView v : views) {
+                if (v.getDrawing() == d) {
+                    JComponent c = v.getComponent();
+                    c.revalidate();
+                }
+            }
+        }
+    }
     /**
      * The input map of the drawing editor.
      */
@@ -71,6 +106,7 @@ public class DefaultDrawingEditor extends AbstractBean implements DrawingEditor,
 
     /** Creates a new instance. */
     public DefaultDrawingEditor() {
+        toolHandler = new ToolHandler();
         setDefaultAttribute(FILL_COLOR, Color.white);
         setDefaultAttribute(STROKE_COLOR, Color.black);
         setDefaultAttribute(TEXT_COLOR, Color.black);
@@ -93,7 +129,7 @@ public class DefaultDrawingEditor extends AbstractBean implements DrawingEditor,
                 v.removeKeyListener(tool);
             }
             tool.deactivate(this);
-            tool.removeToolListener(this);
+            tool.removeToolListener(toolHandler);
         }
         tool = newValue;
         if (tool != null) {
@@ -103,19 +139,10 @@ public class DefaultDrawingEditor extends AbstractBean implements DrawingEditor,
                 v.addMouseMotionListener(tool);
                 v.addKeyListener(tool);
             }
-            tool.addToolListener(this);
+            tool.addToolListener(toolHandler);
         }
 
         firePropertyChange(TOOL_PROPERTY, oldValue, newValue);
-    }
-
-    public void areaInvalidated(ToolEvent evt) {
-        Rectangle r = evt.getInvalidatedArea();
-        evt.getView().getComponent().repaint(r.x, r.y, r.width, r.height);
-    }
-
-    public void toolStarted(ToolEvent evt) {
-        setActiveView(evt.getView());
     }
 
     public void setActiveView(DrawingView newValue) {
@@ -123,15 +150,6 @@ public class DefaultDrawingEditor extends AbstractBean implements DrawingEditor,
         activeView = newValue;
 
         firePropertyChange(ACTIVE_VIEW_PROPERTY, oldValue, newValue);
-    }
-
-    public void toolDone(ToolEvent evt) {
-        // XXX - Maybe we should do this with all views of the editor??
-        DrawingView v = getActiveView();
-        if (v != null) {
-            JComponent c = v.getComponent();
-            c.revalidate();
-        }
     }
 
     public Tool getTool() {

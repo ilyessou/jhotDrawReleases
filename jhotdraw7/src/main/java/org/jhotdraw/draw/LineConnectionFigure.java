@@ -1,7 +1,7 @@
 /*
  * @(#)BezierBezierLineConnection.java
  *
- * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,11 +13,20 @@
  */
 package org.jhotdraw.draw;
 
+import org.jhotdraw.draw.liner.Liner;
+import org.jhotdraw.draw.event.FigureAdapter;
+import org.jhotdraw.draw.event.FigureEvent;
+import org.jhotdraw.draw.handle.BezierOutlineHandle;
+import org.jhotdraw.draw.handle.BezierNodeHandle;
+import org.jhotdraw.draw.connector.Connector;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
 import javax.swing.undo.*;
 import java.io.*;
+import org.jhotdraw.draw.handle.ConnectionEndHandle;
+import org.jhotdraw.draw.handle.ConnectionStartHandle;
+import org.jhotdraw.draw.handle.Handle;
 import org.jhotdraw.geom.*;
 import org.jhotdraw.xml.DOMInput;
 import org.jhotdraw.xml.DOMOutput;
@@ -125,12 +134,12 @@ public class LineConnectionFigure extends LineFigure
 
 // CONNECTING
     /**
-     * Tests whether a figure can be a connection target.
-     * ConnectionFigures cannot be connected and return false.
+     * 
+     * ConnectionFigures cannot be connected and always sets connectable to false.
      */
     @Override
-    public boolean canConnect() {
-        return false;
+    public void setConnectable(boolean newValue) {
+        super.setConnectable(false);
     }
 
     public void updateConnection() {
@@ -158,7 +167,7 @@ public class LineConnectionFigure extends LineFigure
     }
 
     public boolean canConnect(Connector start, Connector end) {
-        return start.getOwner().canConnect() && end.getOwner().canConnect();
+        return start.getOwner().isConnectable() && end.getOwner().isConnectable();
     }
 
     public Connector getEndConnector() {
@@ -387,7 +396,7 @@ public class LineConnectionFigure extends LineFigure
     }
 
     public boolean canConnect(Connector start) {
-        return start.getOwner().canConnect();
+        return start.getOwner().isConnectable();
     }
 
     /**

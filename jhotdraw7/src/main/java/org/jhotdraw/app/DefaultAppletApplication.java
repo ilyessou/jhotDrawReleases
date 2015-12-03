@@ -1,7 +1,7 @@
 /*
  * @(#)DefaultAppletApplication.java
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -34,6 +34,14 @@ public class DefaultAppletApplication extends AbstractApplication {
         this.applet = applet;
     }
     
+    @Override
+    public void init() {
+        super.init();
+        initLabels();
+        setActionMap(model.createActionMap(this, null));
+        model.initApplication(this);
+    }
+    @Override
     public void show(View v) {
         this.view = v;
         applet.getContentPane().removeAll();
@@ -42,6 +50,7 @@ public class DefaultAppletApplication extends AbstractApplication {
         v.activate();
     }
 
+    @Override
     public void hide(View v) {
         v.deactivate();
         v.stop();
@@ -49,19 +58,46 @@ public class DefaultAppletApplication extends AbstractApplication {
         this.view = null;
     }
 
+    @Override
     public View getActiveView() {
         return view;
     }
 
+    @Override
     public boolean isSharingToolsAmongViews() {
         return false;
     }
 
+    @Override
     public Component getComponent() {
         return applet;
     }
 
-    protected void initViewActions(View p) {
+    @Override
+    protected ActionMap createViewActionMap(View p) {
+        return new ActionMap();
     }
-    
+
+    @Override
+    public JMenu createFileMenu(View v) {
+        return null;
+    }
+
+    @Override
+    public JMenu createEditMenu(View v) {
+        return null;
+    }
+
+    @Override
+    public JMenu createViewMenu(View v) {
+        return null;
+    }
+    @Override
+    public JMenu createWindowMenu(View v) {
+        return null;
+    }
+    @Override
+    public JMenu createHelpMenu(View v) {
+        return null;
+    }
 }

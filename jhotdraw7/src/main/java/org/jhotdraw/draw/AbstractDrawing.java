@@ -1,7 +1,7 @@
 /*
  * @(#)AbstractDrawing.java
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,8 @@
  */
 package org.jhotdraw.draw;
 
+import org.jhotdraw.draw.io.InputFormat;
+import org.jhotdraw.draw.io.OutputFormat;
 import org.jhotdraw.xml.*;
 import java.awt.font.*;
 import javax.swing.*;

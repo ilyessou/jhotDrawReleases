@@ -29,8 +29,11 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.undo.*;
 import java.io.*;
-import org.jhotdraw.app.action.RedoAction;
-import org.jhotdraw.app.action.UndoAction;
+import java.net.URI;
+import org.jhotdraw.app.action.edit.RedoAction;
+import org.jhotdraw.app.action.edit.UndoAction;
+import org.jhotdraw.gui.JFileURIChooser;
+import org.jhotdraw.gui.URIChooser;
 import org.jhotdraw.util.prefs.PreferencesUtil;
 
 /**
@@ -102,24 +105,18 @@ public class TeddyView extends AbstractView {
      * The Matcher used to perform find operation.
      */
     private Matcher matcher;
-    private CharacterSetAccessory characterSetAccessory;
     
     
     /** Creates a new instance. */
     public TeddyView() {
         prefs = PreferencesUtil.userNodeForPackage(TeddyView.class);
-    }
-    
-    protected JTextPane createEditor() {
-        return new JTextPane();
-    }
-    
-    public void init() {
         initComponents();
-        
+        // Init preferences
+        statusBar.setVisible(prefs.getBoolean("statusBarVisible", false));
         editor = createEditor();
         editorViewport = new EditorPanel();
         editorViewport.setEditor(editor);
+        editorViewport.setLineWrap(prefs.getBoolean("lineWrap", true));
         scrollPane.setViewportView(editorViewport);
         editor.addCaretListener(new CaretListener() {
             public void caretUpdate(CaretEvent evt) {
@@ -132,38 +129,45 @@ public class TeddyView extends AbstractView {
                 editor.requestFocus();
             }
         });
-        
+
         Font font = getFont();
         MutableAttributeSet attrs = ((StyledEditorKit) editor.getEditorKit()).getInputAttributes();
         StyleConstants.setFontFamily(attrs, font.getFamily());
         StyleConstants.setFontSize(attrs, font.getSize());
         StyleConstants.setItalic(attrs, (font.getStyle() & Font.ITALIC) != 0);
         StyleConstants.setBold(attrs, (font.getStyle() & Font.BOLD) != 0);
-        
-        // Init preferences
-        statusBar.setVisible(prefs.getBoolean("statusBarVisible", false));
-        editorViewport.setLineWrap(prefs.getBoolean("lineWrap", true));
-        
+
+
         NumberedEditorKit editorKit = new NumberedEditorKit();
         ((NumberedViewFactory) editorKit.getViewFactory()).
                 setLineNumbersVisible(prefs.getBoolean("lineNumbersVisible", false));
         editor.setEditorKit(editorKit);
         editor.setDocument(createDocument());
-        
-        
+
+
         setPreferredSize(new Dimension(400, 400));
-        
+
         undoManager = new UndoRedoManager();
         editor.getDocument().addUndoableEditListener(undoManager);
         undoManager.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 setHasUnsavedChanges(undoManager.hasSignificantEdits());
             }
         });
+    }
+    
+    protected JTextPane createEditor() {
+        return new JTextPane();
+    }
+    
+    @Override
+    public void init() {
         initActions();
     }
     
     
+    @Override
     public void setEnabled(boolean newValue) {
         super.setEnabled(newValue);
         editor.setEnabled(newValue);
@@ -190,35 +194,19 @@ public class TeddyView extends AbstractView {
     }
     
     private void initActions() {
-        putAction(UndoAction.ID, undoManager.getUndoAction());
-        putAction(RedoAction.ID, undoManager.getRedoAction());
+        getActionMap().put(UndoAction.ID, undoManager.getUndoAction());
+        getActionMap().put(RedoAction.ID, undoManager.getRedoAction());
     }
     
-    private CharacterSetAccessory getAccessory() {
-        if (characterSetAccessory == null) {
-            characterSetAccessory = new CharacterSetAccessory();
-        }
-        return characterSetAccessory;
-    }
     @Override
-    public JFileChooser getOpenChooser() {
-        JFileChooser chooser = super.getOpenChooser();
-        chooser.setAccessory(getAccessory());
-        return chooser;
+    public void read(URI f, URIChooser chooser) throws IOException {
+        read(f, ((CharacterSetAccessory)((JFileURIChooser)chooser).getAccessory()).getCharacterSet());
     }
-    @Override
-    public JFileChooser getSaveChooser() {
-        JFileChooser chooser = super.getSaveChooser();
-        chooser.setAccessory(getAccessory());
-        return chooser;
-    }
-    public void read(File f) throws IOException {
-        read(f, getAccessory().getCharacterSet());
-    }
-    public void read(File f, String characterSet) throws IOException {
-        final Document doc = readDocument(f, characterSet);
+    public void read(URI f, String characterSet) throws IOException {
+        final Document doc = readDocument(new File(f), characterSet);
         try {
             SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
                 public void run() {
                     editor.getDocument().removeUndoableEditListener(undoManager);
                     editor.setDocument(doc);
@@ -234,13 +222,16 @@ public class TeddyView extends AbstractView {
             throw error;
         }
     }
-    public void write(File f) throws IOException {
-        write(f, getAccessory().getCharacterSet(), getAccessory().getLineSeparator());
+    @Override
+    public void write(URI f, URIChooser chooser) throws IOException {
+
+        write(f, ((CharacterSetAccessory)((JFileURIChooser)chooser).getAccessory()).getCharacterSet(), ((CharacterSetAccessory)((JFileURIChooser)chooser).getAccessory()).getLineSeparator());
     }
-    public void write(File f, String characterSet, String lineSeparator) throws IOException {
-        writeDocument(editor.getDocument(), f, characterSet, lineSeparator);
+    public void write(URI f, String characterSet, String lineSeparator) throws IOException {
+        writeDocument(editor.getDocument(), new File(f), characterSet, lineSeparator);
         try {
             SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
                 public void run() {
                     undoManager.setHasSignificantEdits(false);
                 }
@@ -287,10 +278,12 @@ public class TeddyView extends AbstractView {
         }
     }
     
+    @Override
     public void clear() {
         final Document newDocument = createDocument();
         try {
             SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
                 public void run() {
                     editor.getDocument().removeUndoableEditListener(undoManager);
                     editor.setDocument(newDocument);

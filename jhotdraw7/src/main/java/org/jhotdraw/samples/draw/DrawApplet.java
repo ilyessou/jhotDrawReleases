@@ -1,7 +1,7 @@
 /*
  * @(#)DrawApplet.java
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,14 @@
  */
 package org.jhotdraw.samples.draw;
 
+import org.jhotdraw.draw.io.TextInputFormat;
+import org.jhotdraw.draw.TextFigure;
+import org.jhotdraw.draw.io.OutputFormat;
+import org.jhotdraw.draw.io.InputFormat;
+import org.jhotdraw.draw.io.ImageOutputFormat;
+import org.jhotdraw.draw.io.ImageInputFormat;
+import org.jhotdraw.draw.ImageFigure;
+import org.jhotdraw.draw.io.DOMStorableInputOutputFormat;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.gui.*;
 
@@ -93,16 +101,13 @@ public class DrawApplet extends JApplet {
                     NanoXMLDOMInput domi = new NanoXMLDOMInput(new DrawFigureFactory(), new StringReader(getParameter("data")));
                     result = (Drawing) domi.readObject(0);
                 } else if (getParameter("datafile") != null) {
-                    InputStream in = null;
+                    URL url = new URL(getDocumentBase(), getParameter("datafile"));
+                    InputStream in = url.openConnection().getInputStream();
                     try {
-                        URL url = new URL(getDocumentBase(), getParameter("datafile"));
-                        in = url.openConnection().getInputStream();
                         NanoXMLDOMInput domi = new NanoXMLDOMInput(new DrawFigureFactory(), in);
                         result = (Drawing) domi.readObject(0);
                     } finally {
-                        if (in != null) {
-                            in.close();
-                        }
+                        in.close();
                     }
                 } else {
                     result = null;
@@ -182,9 +187,7 @@ public class DrawApplet extends JApplet {
                 getDrawing().add(tf);
                 e.printStackTrace();
             } finally {
-                if (in != null) {
-                    in.close();
-                }
+                in.close();
             }
         }
     }
@@ -202,9 +205,7 @@ public class DrawApplet extends JApplet {
             getDrawing().add(tf);
             e.printStackTrace();
         } finally {
-            if (out != null) {
-                out.close();
-            }
+            out.close();
         }
         return out.toString();
     }
@@ -218,7 +219,7 @@ public class DrawApplet extends JApplet {
     public String getAppletInfo() {
         return NAME +
                 "\nVersion " + getVersion() +
-                "\n\nCopyright 1996-2009 (c) by the original authors of JHotDraw and all its contributors" +
+                "\n\nCopyright 1996-2010 (c) by the original authors of JHotDraw and all its contributors" +
                 "\nThis software is licensed under LGPL or" +
                 "\nCreative Commons 3.0 BY";
     }

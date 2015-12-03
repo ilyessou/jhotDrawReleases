@@ -1,7 +1,7 @@
 /*
  * @(#)SVGText.java
  *
- * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -14,6 +14,16 @@
 
 package org.jhotdraw.samples.svg.figures;
 
+import org.jhotdraw.draw.tool.Tool;
+import org.jhotdraw.draw.locator.RelativeLocator;
+import org.jhotdraw.draw.handle.TransformHandleKit;
+import org.jhotdraw.draw.handle.MoveHandle;
+import org.jhotdraw.draw.handle.Handle;
+import org.jhotdraw.draw.TextHolderFigure;
+import org.jhotdraw.draw.tool.TextEditingTool;
+import org.jhotdraw.draw.handle.FontSizeHandle;
+import org.jhotdraw.draw.connector.Connector;
+import org.jhotdraw.draw.ConnectionFigure;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.font.*;
@@ -22,6 +32,7 @@ import java.io.*;
 import java.util.*;
 import javax.swing.*;
 import org.jhotdraw.draw.*;
+import org.jhotdraw.draw.handle.BoundsOutlineHandle;
 import org.jhotdraw.geom.*;
 import org.jhotdraw.samples.svg.*;
 import org.jhotdraw.samples.svg.SVGConstants;
@@ -63,6 +74,7 @@ public class SVGTextFigure
     public SVGTextFigure(String text) {
         setText(text);
         SVGAttributeKeys.setDefaults(this);
+        setConnectable(false);
     }
 
     // DRAWING
@@ -395,20 +407,7 @@ public class SVGTextFigure
         }
         return handles;
     }
-    // CONNECTING
-    @Override
-    public boolean canConnect() {
-        return false; // SVG does not support connecting
-    }
-    @Override
-    public Connector findConnector(Point2D.Double p, ConnectionFigure prototype) {
-        return null; // SVG does not support connectors
-    }
-    @Override
-    public Connector findCompatibleConnector(Connector c, boolean isStartConnector) {
-        return null; // SVG does not support connectors
-    }
-    
+    // EDITING
     /**
      * Returns a specialized tool for the given coordinate.
      * <p>Returns null, if no specialized tool is available.

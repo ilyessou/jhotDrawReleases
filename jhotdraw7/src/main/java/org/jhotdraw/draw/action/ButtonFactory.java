@@ -1,7 +1,7 @@
 /*
  * @(#)ButtonFactory.java
  *
- * Copyright (c) 1996-2009 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,6 +13,16 @@
  */
 package org.jhotdraw.draw.action;
 
+import org.jhotdraw.app.action.edit.PasteAction;
+import org.jhotdraw.app.action.edit.CutAction;
+import org.jhotdraw.app.action.edit.CopyAction;
+import org.jhotdraw.app.action.edit.DuplicateAction;
+import org.jhotdraw.draw.tool.Tool;
+import org.jhotdraw.draw.tool.DelegationSelectionTool;
+import org.jhotdraw.draw.event.ToolEvent;
+import org.jhotdraw.draw.event.ToolListener;
+import org.jhotdraw.draw.decoration.LineDecoration;
+import org.jhotdraw.draw.decoration.ArrowTip;
 import org.jhotdraw.gui.event.SelectionComponentRepainter;
 import org.jhotdraw.gui.JPopupButton;
 import org.jhotdraw.util.*;
@@ -28,6 +38,7 @@ import org.jhotdraw.beans.Disposable;
 import static org.jhotdraw.draw.AttributeKeys.*;
 import org.jhotdraw.geom.*;
 import org.jhotdraw.draw.*;
+import org.jhotdraw.draw.event.ToolAdapter;
 import org.jhotdraw.gui.JFontChooser;
 
 /**
@@ -273,16 +284,11 @@ public class ButtonFactory {
         if (tb.getClientProperty("toolHandler") instanceof ToolListener) {
             toolHandler = (ToolListener) tb.getClientProperty("toolHandler");
         } else {
-            toolHandler = new ToolListener() {
+            toolHandler = new ToolAdapter() {
 
-                public void toolStarted(ToolEvent event) {
-                }
-
+                @Override
                 public void toolDone(ToolEvent event) {
                     defaultToolButton.setSelected(true);
-                }
-
-                public void areaInvalidated(ToolEvent e) {
                 }
             };
             tb.putClientProperty("toolHandler", toolHandler);
@@ -1099,7 +1105,7 @@ public class ButtonFactory {
                     new Double(widths[i]),
                     label,
                     icon);
-            a.putValue(Actions.UNDO_PRESENTATION_NAME_KEY, labels.getString("attribute.strokeWidth.text"));
+            a.putValue(ActionUtil.UNDO_PRESENTATION_NAME_KEY, labels.getString("attribute.strokeWidth.text"));
             AbstractButton btn = strokeWidthPopupButton.add(a);
             btn.setDisabledIcon(icon);
         }
@@ -1423,7 +1429,7 @@ public class ButtonFactory {
         AbstractAction a = new AttributeToggler<Boolean>(editor,
                 FONT_BOLD, Boolean.TRUE, Boolean.FALSE,
                 new StyledEditorKit.BoldAction());
-        a.putValue(Actions.UNDO_PRESENTATION_NAME_KEY, labels.getString("attribute.fontStyle.bold.text"));
+        a.putValue(ActionUtil.UNDO_PRESENTATION_NAME_KEY, labels.getString("attribute.fontStyle.bold.text"));
         btn.addActionListener(a);
         return btn;
     }
@@ -1449,7 +1455,7 @@ public class ButtonFactory {
         AbstractAction a = new AttributeToggler<Boolean>(editor,
                 FONT_ITALIC, Boolean.TRUE, Boolean.FALSE,
                 new StyledEditorKit.BoldAction());
-        a.putValue(Actions.UNDO_PRESENTATION_NAME_KEY, labels.getString("attribute.fontStyle.italic.text"));
+        a.putValue(ActionUtil.UNDO_PRESENTATION_NAME_KEY, labels.getString("attribute.fontStyle.italic.text"));
         btn.addActionListener(a);
         return btn;
     }
@@ -1475,7 +1481,7 @@ public class ButtonFactory {
         AbstractAction a = new AttributeToggler<Boolean>(editor,
                 FONT_UNDERLINE, Boolean.TRUE, Boolean.FALSE,
                 new StyledEditorKit.BoldAction());
-        a.putValue(Actions.UNDO_PRESENTATION_NAME_KEY, labels.getString("attribute.fontStyle.underline.text"));
+        a.putValue(ActionUtil.UNDO_PRESENTATION_NAME_KEY, labels.getString("attribute.fontStyle.underline.text"));
         btn.addActionListener(a);
         return btn;
     }

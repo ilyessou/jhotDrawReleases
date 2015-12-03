@@ -1,7 +1,7 @@
 /*
  * @(#)DrawingEditorProxy.java
  *
- * Copyright (c) 2007-2009 by the original authors of JHotDraw
+ * Copyright (c) 2007-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -14,6 +14,7 @@
 
 package org.jhotdraw.draw;
 
+import org.jhotdraw.draw.tool.Tool;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.beans.*;
@@ -33,7 +34,7 @@ import org.jhotdraw.beans.AbstractBean;
  * To remove the need for null-handling, {@code AbstractTool} makes use of
  * a proxy for {@code DrawingEditor}.
  * Subject: {@link DrawingEditor}; Proxy: {@link DrawingEditorProxy};
- * Client: {@link AbstractTool}.
+ * Client: {@link org.jhotdraw.draw.tool.AbstractTool}.
  * <hr>
  *
  *

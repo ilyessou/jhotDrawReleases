@@ -1,7 +1,7 @@
 /*
  * @(#)Figure.java
  *
- * Copyright (c) 1996-2009 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -13,9 +13,14 @@
  */
 package org.jhotdraw.draw;
 
+import org.jhotdraw.draw.tool.Tool;
+import org.jhotdraw.draw.connector.Connector;
+import org.jhotdraw.draw.handle.Handle;
+import org.jhotdraw.draw.event.FigureListener;
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeListener;
 import java.util.*;
 import javax.swing.*;
 import java.io.*;
@@ -33,7 +38,7 @@ import org.jhotdraw.xml.DOMStorable;
  * <li>Figures can have an open ended set of attributes. An attribute is
  * identified by an {@link AttributeKey}.</li>
  * 
- * <li>A figure can have {@link Connector}s that define how to locate a
+ * <li>A figure can have {@link org.jhotdraw.draw.connector.Connector}s that define how to locate a
  * connection point on the figure.</li>
  * 
  * <li>A figure can create a set of {@link Handle}s which can interactively
@@ -47,9 +52,6 @@ import org.jhotdraw.xml.DOMStorable;
  * implements the {@link CompositeFigure} interface.</li>
  * </ul>
  * 
- * Specialized subinterfaces of {@code Figure} allow to compose a figure from
- * several figures, to connect a figure to other figures, to hold text or
- * an image, and to layout a figure.
  *
  * <hr>
  * <b>Design Patterns</b>
@@ -57,13 +59,21 @@ import org.jhotdraw.xml.DOMStorable;
  * <p><em>Framework</em><br>
  * The following interfaces define the contracts of a framework for structured
  * drawing editors:<br>
- * Contract: {@link Drawing}, {@link Figure}, {@link CompositeFigure},
- * {@link ConnectionFigure}, {@link Connector}, {@link DrawingView},
- * {@link DrawingEditor}, {@link Handle} and {@link Tool}.
+ * Contract: {@link Drawing}, {@link Figure}, {@link DrawingView},
+ * {@link DrawingEditor}, {@link org.jhotdraw.draw.handle.Handle} and
+ * {@link org.jhotdraw.draw.tool.Tool}.
  *
  * <p><em>Composite</em><br>
  * Composite figures can be composed of other figures.<br>
  * Component: {@link Figure}; Composite: {@link CompositeFigure}.
+ *
+ * <p><em>Framework</em><br>
+ * Two figures can be connected using a connection figure.  The location of
+ * the start or end point of the connection is handled by a connector object
+ * at each connected figure.<br>
+ * Contract: {@link org.jhotdraw.draw.Figure},
+ * {@link ConnectionFigure},
+ * {@link org.jhotdraw.draw.connector.Connector}.
  *
  * <p><em>Decorator</em><br>
  * Decorated figures can be adorned with another figure.<br>
@@ -74,30 +84,42 @@ import org.jhotdraw.xml.DOMStorable;
  * {@code CompositeFigure} observes area invalidations of its child figures. And
  * {@code DrawingView} observers area invalidations of its drawing object.<br>
  * Subject: {@link Figure}; Observer:
- * {@link FigureListener}; Event: {@link FigureEvent}; Concrete Observer:
+ * {@link org.jhotdraw.draw.event.FigureListener}; Event: {@link org.jhotdraw.draw.event.FigureEvent}; Concrete Observer:
  * {@link CompositeFigure}, {@link DrawingView}.
  *
  * <p><em>Prototype</em><br>
  * The creation tool creates new figures by cloning a prototype figure object.
  * That's the reason why {@code Figure} extends the {@code Cloneable} interface.
  * <br>
- * Prototype: {@link Figure}; Client: {@link CreationTool}.
+ * Prototype: {@link Figure}; Client: {@link org.jhotdraw.draw.tool.CreationTool}.
  *
  * <p><em>Strategy</em><br>
  * The location of the start and end points of a connection figure are determined
  * by {@code Connector}s which are owned by the connected figures.<br>
- * Context: {@link Figure}, {@link ConnectionFigure}; Strategy: {@link Connector}.
+ * Context: {@link Figure}, {@link ConnectionFigure}; 
+ * Strategy: {@link org.jhotdraw.draw.connector.Connector}.
  *
  * <p><em>Strategy</em><br>
  * {@code Locator} encapsulates a strategy for locating a point on a
  * {@code Figure}.<br>
- * Strategy: {@link Locator}; Context: {@link Figure}.
+ * Strategy: {@link org.jhotdraw.draw.locator.Locator}; Context: {@link Figure}.
  * <hr>
  * 
  * @author Werner Randelshofer
  * @version $Id$
  */
 public interface Figure extends Cloneable, Serializable, DOMStorable {
+    // PROPERTIES
+    /** The name of the "connectable" property. */
+    public final static String CONNECTABLE_PROPERTY="connectable";
+    /** The name of the "removable" property. */
+    public final static String REMOVABLE_PROPERTY="removable";
+    /** The name of the "selectable" property. */
+    public final static String SELECTABLE_PROPERTY="selectable";
+    /** The name of the "transformable" property. */
+    public final static String TRANSFORMABLE_PROPERTY="transformable";
+
+
     // DRAWING
     /**
      * Draws the figure.
@@ -360,9 +382,9 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
 
     // CONNECTING 
     /**
-     * Checks wether this Figure can be connected to a {@link ConnectionFigure}.
+     * Returns true if this Figure can be connected to a {@link ConnectionFigure}.
      */
-    public boolean canConnect();
+    public boolean isConnectable();
 
     /**
      * Gets a connector for this figure at the given location.
@@ -523,4 +545,17 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
      * Removes a listener for FigureEvent's.
      */
     public void removeFigureListener(FigureListener l);
+
+    /** Adds a {@code PropertyChangeListener} which can optionally be wrapped
+     * into a {@code WeakPropertyChangeListener}.
+     * @param listener
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener);
+    /** Removes a {@code PropertyChangeListener}. If the listener was added
+     * wrapped into a {@code WeakPropertyChangeListener}, the
+     * {@code WeakPropertyChangeListener} is removed.
+     *
+     * @param listener
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener);
 }

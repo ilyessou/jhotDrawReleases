@@ -10,7 +10,7 @@
         <property name="srcdir" value="src/main/java"/>
         <property name="builddir" value="build"/>
         <property name="classdir" value="${builddir}/classes"/>
-        <property name="distdir" value="dist/JHotdraw ${version}/Samples/SVG"/>
+        <property name="distdir" value="dist/JHotDraw ${version}/Samples/SVG"/>
 
         <!-- properties for jar signing -->
         <property name="keystore.file" value="../../../../_Keystore/JavaKeystore"/>
@@ -27,8 +27,6 @@
                 destdir="${classdir}"
                 srcdir="${srcdir}"
                 debug="${debug}"
-                source="1.5"
-                target="1.5"
                 optimize="true"
                 encoding="UTF-8"
          >
@@ -97,13 +95,10 @@
                 destdir="${classdir}"
                 srcdir="${srcdir}"
                 debug="true"
-                source="1.5"
-                target="1.5"
                 optimize="true"
                 encoding="UTF-8"
          >
             <classpath path="${libdir}/quaqua.jar"/>
-            <classpath path="${libdir}/MRJAdapter.jar"/>
             <classpath path="${libdir}/java_30.zip"/>
             <include name="org/jhotdraw/samples/svg/Main.java"/>
             <include name="org/jhotdraw/samples/svg/DrawProject.java"/> 
@@ -141,7 +136,7 @@
             <manifest>
                 <attribute name="Built-By" value="${author}"/>
                 <attribute name="Main-Class" value="org.jhotdraw.samples.svg.Main"/>
-                <attribute name="Class-Path" value="quaqua.jar lib/quaqua.jar ../lib/quaqua.jar ../../lib/quaqua.jar MRJAdapter.jar lib/MRJAdapter.jar ../lib/MRJAdapter.jar ../../lib/MRJAdapter.jar"/>
+                <attribute name="Class-Path" value="quaqua.jar lib/quaqua.jar ../lib/quaqua.jar ../../lib/quaqua.jar"/>
                 <attribute name="Implementation-Version" value="${version}"/>
             </manifest>
         </jar>
@@ -152,7 +147,6 @@
     </target>
     <target name="application.jarsigned" depends="init,application.jar">
         <unjar src="${libdir}/quaqua.jar" dest="${classdir}" />
-        <unjar src="${libdir}/MRJAdapter.jar" dest="${classdir}" />
         <jar destfile="${distdir}/signed/JHotDraw SVG.jar" basedir="${classdir}">
             <manifest>
                 <attribute name="Built-By" value="${author}"/>
@@ -162,7 +156,7 @@
         </jar>
         <exec executable="pack200">
             <arg value="-r"/>
-            <arg value="${distdir}/signed/JHotdraw SVG.jar"/>
+            <arg value="${distdir}/signed/JHotDraw SVG.jar"/>
         </exec>
           <signjar alias="${keystore.alias}" 
                 storepass="${keystore.storepass}"
@@ -199,7 +193,6 @@
             <classpath>
                 <pathelement path="${classdir}"/>
                 <pathelement path="${libdir}/quaqua.jar"/>
-                <pathelement path="${libdir}/MRJAdapter.jar"/>
             </classpath>
             <jvmarg value="-Xdock:name=JHotDraw SVG"/>
             <jvmarg value="-Dlocale=en"/>

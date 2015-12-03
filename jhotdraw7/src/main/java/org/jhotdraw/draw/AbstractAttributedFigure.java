@@ -1,7 +1,7 @@
 /*
  * @(#)AbstractAttributedFigure.java
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -25,7 +25,7 @@ import org.jhotdraw.xml.DOMOutput;
 
 /**
  * This abstract class can be extended to implement a {@link Figure}
- * which has its own attribute put.
+ * which has its own attribute set.
  *
  * @author Werner Randelshofer
  * @version $Id$
