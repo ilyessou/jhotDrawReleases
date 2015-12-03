@@ -18,7 +18,7 @@ import java.beans.*;
 import java.util.LinkedList;
 import java.util.prefs.*;
 import javax.swing.*;
-import org.jhotdraw.beans.Disposable;
+import org.jhotdraw.app.Disposable;
 import org.jhotdraw.gui.*;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.util.prefs.PreferencesUtil;
@@ -65,6 +65,7 @@ public /*abstract*/ class AbstractToolBar extends JDisclosureToolBar implements 
         if (eventHandler == null) {
             eventHandler = new PropertyChangeListener() {
 
+    @Override
                 public void propertyChange(PropertyChangeEvent evt) {
                     String name = evt.getPropertyName();
                     if (name == DISCLOSURE_STATE_PROPERTY) {
@@ -127,6 +128,7 @@ public /*abstract*/ class AbstractToolBar extends JDisclosureToolBar implements 
         return 0;
     }
 
+    @Override
     public void dispose() {
         for (Disposable d : disposables) {
             d.dispose();
@@ -152,6 +154,7 @@ public /*abstract*/ class AbstractToolBar extends JDisclosureToolBar implements 
             final int state = getDisclosureState();
             if (runner == null) {
                 runner = new Runnable() {
+    @Override
                     public void run() {
                         try {
                             panels[state] = createDisclosedComponent(state);

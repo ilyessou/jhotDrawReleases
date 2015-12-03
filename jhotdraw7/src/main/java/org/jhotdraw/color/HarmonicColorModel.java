@@ -14,6 +14,8 @@
 
 package org.jhotdraw.color;
 
+import java.awt.Color;
+import java.awt.color.ColorSpace;
 import java.beans.PropertyChangeListener;
 import javax.swing.ListModel;
 
@@ -24,7 +26,7 @@ import javax.swing.ListModel;
  * @version $Id$
  */
 public interface HarmonicColorModel extends ListModel {
-    public final static String COLOR_SYSTEM_PROPERTY = "colorSystem";
+    public final static String COLOR_SPACE_PROPERTY = "colorSpace";
     
     public void setBase(int newValue);
     public int getBase();
@@ -33,17 +35,17 @@ public interface HarmonicColorModel extends ListModel {
     public void removeAllRules();
     public void applyRules();
 
-    public ColorSystem getColorSystem();
-    public void setColorSystem(ColorSystem newValue);
+    public ColorSpace getColorSpace();
+    public void setColorSpace(ColorSpace newValue);
    
     public void setSize(int newValue);
     public int size();
     
     public boolean isAdjusting();
     
-    public boolean add(CompositeColor c);
-    public void set(int index, CompositeColor color);
-    public CompositeColor get(int index);
+    public boolean add(Color c);
+    public void set(int index, Color color);
+    public Color get(int index);
     public float[] RGBtoComponent(int rgb, float[] hsb);
     public int componentToRGB(float h, float s, float b);
 

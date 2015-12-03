@@ -19,7 +19,8 @@ import java.io.*;
 import java.beans.*;
 import java.net.URI;
 import javax.swing.*;
-import org.jhotdraw.beans.Disposable;
+import org.jhotdraw.annotations.NotNull;
+import org.jhotdraw.annotations.Nullable;
 
 /**
  * A <em>view</em> paints a document on a {@code JComponent} within an
@@ -82,7 +83,8 @@ import org.jhotdraw.beans.Disposable;
  * @author Werner Randelshofer
  * @version $Id$
  */
-public interface View {
+@NotNull
+public interface View extends Disposable {
     /**
      * The name of the uri property.
      */
@@ -173,8 +175,11 @@ public interface View {
     
     /**
      * Executes the specified runnable on the worker thread of the view.
-     * Execution is perfomred sequentially in the same sequence as the
+     * Execution is performed sequentially in the same sequence as the
      * runnables have been passed to this method.
+     * <p>
+     * Use this method for long running tasks which affect the contents
+     * of the view as a whole. For example for loading and saving a document.
      */
     public void execute(Runnable worker);
     
@@ -220,6 +225,7 @@ public interface View {
      * A view must not consume many resources after method dispose() has been called.
      * This is crucial for the responsivenes of an application.
      */
+    @Override
     public void dispose();
     
     /**
@@ -331,7 +337,7 @@ public interface View {
      * @param chooser The chooser which was used for selecting the URI. This
      * parameter is null if no chooser was used.
      */
-    public void write(URI uri, URIChooser chooser) throws IOException;
+    public void write(URI uri, @Nullable URIChooser chooser) throws IOException;
 
     /**
      * Reads the view from the specified URI.
@@ -342,7 +348,7 @@ public interface View {
      * @param chooser The chooser which was used for selecting the URI. This
      * parameter is null if no chooser was used.
      */
-    public void read(URI uri, URIChooser chooser) throws IOException;
+    public void read(URI uri, @Nullable URIChooser chooser) throws IOException;
 
 
 }

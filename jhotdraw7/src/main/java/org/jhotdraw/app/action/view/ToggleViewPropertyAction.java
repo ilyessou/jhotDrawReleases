@@ -28,14 +28,15 @@ import org.jhotdraw.app.action.ActionUtil;
  * @version $Id$
  */
 public class ToggleViewPropertyAction extends AbstractViewAction {
-    private String propertyName;
+    final private String propertyName;
     private Class[] parameterClass;
     private Object selectedPropertyValue;
     private Object deselectedPropertyValue;
-    private String setterName;
-    private String getterName;
+    final private String setterName;
+    final private String getterName;
     
     private PropertyChangeListener viewListener = new PropertyChangeListener() {
+        @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if (evt.getPropertyName() == propertyName) { // Strings get interned
                 updateView();
@@ -50,6 +51,9 @@ public class ToggleViewPropertyAction extends AbstractViewAction {
     public ToggleViewPropertyAction(Application app, View view, String propertyName, Class propertyClass,
             Object selectedPropertyValue, Object deselectedPropertyValue) {
         super(app, view);
+        if (propertyName==null) {
+            throw new IllegalArgumentException("Parameter propertyName must not be null");
+        }
         this.propertyName = propertyName;
         this.parameterClass = new Class[] { propertyClass };
         this.selectedPropertyValue = selectedPropertyValue;
@@ -62,6 +66,7 @@ public class ToggleViewPropertyAction extends AbstractViewAction {
         updateView();
     }
     
+    @Override
     public void actionPerformed(ActionEvent evt) {
         View p = getActiveView();
         Object value = getCurrentValue();
@@ -94,6 +99,7 @@ public class ToggleViewPropertyAction extends AbstractViewAction {
     }
     
     
+    @Override
     protected void installViewListeners(View p) {
         super.installViewListeners(p);
         p.addPropertyChangeListener(viewListener);
@@ -102,12 +108,18 @@ public class ToggleViewPropertyAction extends AbstractViewAction {
     /**
      * Installs listeners on the view object.
      */
+    @Override
     protected void uninstallViewListeners(View p) {
         super.uninstallViewListeners(p);
         p.removePropertyChangeListener(viewListener);
     }
     
     @Override protected void updateView() {
+        if (getterName == null) {
+            // This happens, when updateView is called before the constructor
+            // has been completed.
+            return;
+        }
         boolean isSelected = false;
         View p = getActiveView();
         if (p != null) {
@@ -117,7 +129,7 @@ public class ToggleViewPropertyAction extends AbstractViewAction {
                         value != null && selectedPropertyValue != null &&
                         value.equals(selectedPropertyValue);
             } catch (Throwable e) {
-                InternalError error = new InternalError("No "+getterName+" method on "+p);
+                InternalError error = new InternalError("No "+getterName+" method on "+p+" for property "+propertyName);
                 error.initCause(e);
                 throw error;
             }

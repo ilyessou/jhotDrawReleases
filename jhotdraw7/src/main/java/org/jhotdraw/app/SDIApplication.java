@@ -15,8 +15,6 @@ package org.jhotdraw.app;
 
 import org.jhotdraw.app.action.app.AbstractPreferencesAction;
 import org.jhotdraw.app.action.window.ToggleVisibleAction;
-import org.jhotdraw.app.action.window.MaximizeWindowAction;
-import org.jhotdraw.app.action.window.MinimizeWindowAction;
 import org.jhotdraw.app.action.file.SaveFileAsAction;
 import org.jhotdraw.app.action.file.SaveFileAction;
 import org.jhotdraw.app.action.file.LoadDirectoryAction;
@@ -34,7 +32,6 @@ import org.jhotdraw.util.prefs.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
-import java.io.*;
 import java.net.URI;
 import java.util.*;
 import java.util.prefs.*;
@@ -55,10 +52,17 @@ import org.jhotdraw.app.action.file.NewWindowAction;
 import org.jhotdraw.net.URIUtil;
 
 /**
- * {@code SDIApplication} handles the lifecycle of a {@link View}s
- * using a single document interface (SDI).
+ * {@code SDIApplication} handles the lifecycle of multiple {@link View}s
+ * using a Windows single document interface (SDI).
  * <p>
- * An application consists of independent {@code JFrame}s for each view.
+ * This user interface created by this application follows the guidelines given
+ * in the
+ * <a href="http://msdn.microsoft.com/en-us/library/aa511258.aspx"
+ * >Windows User Experience Interaction Guidelines</a>.
+ * <p>
+ * An application of this type can open multiple {@link View}s. Each view is
+ * shown in a separate {@code JFrame}.
+ * <p>
  * Each JFrame contains a menu bar, toolbars and palette bars for
  * the views.
  * <p>
@@ -133,6 +137,7 @@ public class SDIApplication extends AbstractApplication {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public void show(final View view) {
         if (!view.isShowing()) {
             view.setShowing(true);
@@ -167,6 +172,7 @@ public class SDIApplication extends AbstractApplication {
 
             f.addWindowListener(new WindowAdapter() {
 
+                @Override
                 public void windowClosing(final WindowEvent evt) {
                     getAction(view, CloseFileAction.ID).actionPerformed(
                             new ActionEvent(f, ActionEvent.ACTION_PERFORMED,
@@ -186,6 +192,7 @@ public class SDIApplication extends AbstractApplication {
 
             view.addPropertyChangeListener(new PropertyChangeListener() {
 
+                @Override
                 public void propertyChange(PropertyChangeEvent evt) {
                     String name = evt.getPropertyName();
                     if (name.equals(View.HAS_UNSAVED_CHANGES_PROPERTY)
@@ -226,6 +233,7 @@ public class SDIApplication extends AbstractApplication {
         return c;
     }
 
+    @Override
     public void hide(View p) {
         if (p.isShowing()) {
             p.setShowing(false);
@@ -236,6 +244,7 @@ public class SDIApplication extends AbstractApplication {
         }
     }
 
+    @Override
     public void dispose(View p) {
         super.dispose(p);
         if (views().size() == 0) {
@@ -402,15 +411,18 @@ public class SDIApplication extends AbstractApplication {
         f.setTitle(view.getTitle());
     }
 
+    @Override
     public boolean isSharingToolsAmongViews() {
         return false;
     }
 
+    @Override
     public Component getComponent() {
         View p = getActiveView();
         return (p == null) ? null : p.getComponent();
     }
 
+    @Override
     public JMenu createWindowMenu(View view) {
         return null;
     }
@@ -422,11 +434,10 @@ public class SDIApplication extends AbstractApplication {
      * @return A JMenu or null, if the menu doesn't have any items.
      */
     @SuppressWarnings("unchecked")
+    @Override
     public JMenu createViewMenu(final View view) {
         Object object = view.getComponent().getClientProperty("toolBarActions");
         LinkedList<Action> viewActions = (LinkedList<Action>) object;
-        ApplicationModel model = getModel();
-        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
 
         JMenu m, m2;
         JMenuItem mi;
@@ -451,9 +462,6 @@ public class SDIApplication extends AbstractApplication {
 
     @Override
     public JMenu createHelpMenu(View p) {
-        ApplicationModel model = getModel();
-        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
-
         JMenu m;
         JMenuItem mi;
 

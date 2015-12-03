@@ -19,7 +19,7 @@ import org.jhotdraw.draw.DrawingView;
 import java.beans.*;
 import javax.swing.*;
 import javax.swing.undo.*;
-import org.jhotdraw.beans.Disposable;
+import org.jhotdraw.app.Disposable;
 import org.jhotdraw.beans.WeakPropertyChangeListener;
 
 /**
@@ -50,6 +50,7 @@ public abstract class AbstractDrawingViewAction extends AbstractAction implement
 
     private class EventHandler implements PropertyChangeListener {
 
+        @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if (evt.getPropertyName().equals("enabled")) {
                 updateEnabledState();
@@ -67,6 +68,7 @@ public abstract class AbstractDrawingViewAction extends AbstractAction implement
             }
         }
 
+        @Override
         public String toString() {
             return AbstractDrawingViewAction.this+"^$EventHandler";
         }
@@ -119,7 +121,7 @@ public abstract class AbstractDrawingViewAction extends AbstractAction implement
      * of the active {@code DrawingView}. If no drawing view is active, this
      * action is disabled.
      */
-    public void updateEnabledState() {
+    protected void updateEnabledState() {
         if (getView() != null) {
             setEnabled(getView().isEnabled());
         } else {
@@ -136,6 +138,7 @@ public abstract class AbstractDrawingViewAction extends AbstractAction implement
     /** Frees all resources held by this object, so that it can be garbage
      * collected.
      */
+    @Override
     public void dispose() {
         setEditor(null);
     }

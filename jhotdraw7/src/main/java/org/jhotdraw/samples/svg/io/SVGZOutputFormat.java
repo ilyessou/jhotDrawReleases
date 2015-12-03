@@ -14,11 +14,10 @@
 
 package org.jhotdraw.samples.svg.io;
 
+import org.jhotdraw.gui.filechooser.ExtensionFileFilter;
 import java.io.*;
 import java.util.zip.*;
-import javax.swing.*;
 import org.jhotdraw.draw.*;
-import org.jhotdraw.io.*;
 
 /**
  * SVGZOutputFormat.
@@ -32,9 +31,11 @@ public class SVGZOutputFormat extends SVGOutputFormat {
     public SVGZOutputFormat() {
     }
     
+    @Override
     public String getFileExtension() {
         return "svgz";
     }
+    @Override
     public javax.swing.filechooser.FileFilter getFileFilter() {
         return new ExtensionFileFilter("Compressed Scalable Vector Graphics (SVGZ)", "svgz");
     }

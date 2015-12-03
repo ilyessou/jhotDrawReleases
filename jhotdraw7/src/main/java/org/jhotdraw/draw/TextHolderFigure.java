@@ -16,8 +16,8 @@
 
 package org.jhotdraw.draw;
 
-import org.jhotdraw.draw.*;
 import java.awt.*;
+import org.jhotdraw.annotations.NotNull;
 import org.jhotdraw.geom.*;
 
 /**
@@ -45,6 +45,7 @@ import org.jhotdraw.geom.*;
  * @author Werner Randelshofer
  * @version $Id$
  */
+@NotNull
 public interface TextHolderFigure extends Figure {
     // FIXME - Maybe we can remove method isEditable(), because we already have
     // an isInteractive() method in the Figure interface.

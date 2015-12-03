@@ -24,7 +24,7 @@ import org.jhotdraw.app.*;
 import org.jhotdraw.app.action.*;
 import javax.swing.*;
 import javax.swing.event.UndoableEditListener;
-import org.jhotdraw.beans.Disposable;
+import org.jhotdraw.app.Disposable;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.samples.svg.*;
 import org.jhotdraw.samples.svg.io.*;
@@ -52,6 +52,7 @@ public class ViewSourceAction extends AbstractViewAction {
         labels.configureAction(this, ID);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.svg.Labels");
         final SVGView v = (SVGView) getActiveView();

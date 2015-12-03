@@ -37,19 +37,12 @@ import org.jhotdraw.app.action.edit.PasteAction;
 import org.jhotdraw.app.action.edit.RedoAction;
 import org.jhotdraw.app.action.edit.SelectAllAction;
 import org.jhotdraw.app.action.edit.UndoAction;
-import org.jhotdraw.app.action.file.ClearFileAction;
-import org.jhotdraw.app.action.file.ClearRecentFilesMenuAction;
-import org.jhotdraw.app.action.file.LoadDirectoryAction;
-import org.jhotdraw.app.action.file.LoadFileAction;
-import org.jhotdraw.app.action.file.NewWindowAction;
 import org.jhotdraw.app.action.app.AboutAction;
 import org.jhotdraw.app.action.app.OpenApplicationFileAction;
 import org.jhotdraw.app.action.app.ExitAction;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jhotdraw.gui.*;
 import org.jhotdraw.util.*;
 import org.jhotdraw.util.prefs.*;
@@ -71,8 +64,13 @@ import org.jhotdraw.app.action.file.NewWindowAction;
 import org.jhotdraw.net.URIUtil;
 
 /**
- * {@code MDIApplication} handles the lifecycle of {@link View}s
- * using a multiple document interface (MDI).
+ * {@code MDIApplication} handles the lifecycle of multiple {@link View}s
+ * using a Windows multiple document interface (MDI).
+ * <p>
+ * This user interface created by this application follows the guidelines given
+ * in the
+ * <a href="http://msdn.microsoft.com/en-us/library/aa511258.aspx"
+ * >Windows User Experience Interaction Guidelines</a>.
  * <p>
  * An application consists of a parent {@code JFrame} which holds a {@code JDesktopPane}.
  * The views reside in {@code JInternalFrame}s inside of the {@code JDesktopPane}. 
@@ -165,6 +163,7 @@ public class MDIApplication extends AbstractApplication {
 
         parentFrame.addWindowListener(new WindowAdapter() {
 
+            @Override
             public void windowClosing(final WindowEvent evt) {
                 getAction(null, ExitAction.ID).actionPerformed(
                         new ActionEvent(parentFrame, ActionEvent.ACTION_PERFORMED, "windowClosing"));
@@ -212,6 +211,7 @@ public class MDIApplication extends AbstractApplication {
         super.launch(args);
     }
 
+    @Override
     public void configure(String[] args) {
         System.setProperty("apple.laf.useScreenMenuBar", "false");
         System.setProperty("com.apple.macos.useScreenMenuBar", "false");
@@ -236,6 +236,7 @@ public class MDIApplication extends AbstractApplication {
         }
     }
 
+    @Override
     public void show(final View v) {
         if (!v.isShowing()) {
             v.setShowing(true);
@@ -287,6 +288,7 @@ public class MDIApplication extends AbstractApplication {
 
             v.addPropertyChangeListener(new PropertyChangeListener() {
 
+                @Override
                 public void propertyChange(PropertyChangeEvent evt) {
                     String name = evt.getPropertyName();
                     if (name == View.HAS_UNSAVED_CHANGES_PROPERTY
@@ -298,6 +300,7 @@ public class MDIApplication extends AbstractApplication {
 
             f.addPropertyChangeListener(new PropertyChangeListener() {
 
+                @Override
                 public void propertyChange(PropertyChangeEvent evt) {
                     String name = evt.getPropertyName();
                     if (name.equals("selected")) {
@@ -335,6 +338,7 @@ public class MDIApplication extends AbstractApplication {
         }
     }
 
+    @Override
     public void hide(View v) {
         if (v.isShowing()) {
             JInternalFrame f = (JInternalFrame) SwingUtilities.getRootPane(v.getComponent()).getParent();
@@ -351,10 +355,12 @@ public class MDIApplication extends AbstractApplication {
         }
     }
 
+    @Override
     public boolean isSharingToolsAmongViews() {
         return true;
     }
 
+    @Override
     public Component getComponent() {
         return parentFrame;
     }
@@ -511,12 +517,13 @@ public class MDIApplication extends AbstractApplication {
         f.setTitle(v.getTitle());
     }
 
+    @Override
     public JMenu createViewMenu(View v) {
         return null;
     }
 
+    @Override
     public JMenu createWindowMenu(View view) {
-        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
         ApplicationModel mo = getModel();
 
         JMenu m;
@@ -575,6 +582,7 @@ public class MDIApplication extends AbstractApplication {
         return (m.getPopupMenu().getComponentCount() == 0) ? null : m;
     }
 
+    @Override
     public JMenu createHelpMenu(View view) {
         ApplicationModel mo = getModel();
 
@@ -600,6 +608,7 @@ public class MDIApplication extends AbstractApplication {
             updateWindowMenu();
         }
 
+        @Override
         public void propertyChange(PropertyChangeEvent evt) {
             String name = evt.getPropertyName();
             if (name == VIEW_COUNT_PROPERTY || name == "paletteCount") {

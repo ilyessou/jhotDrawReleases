@@ -17,8 +17,9 @@ import java.awt.*;
 import java.beans.*;
 import java.util.*;
 import javax.swing.*;
-import java.io.*;
 import java.net.URI;
+import org.jhotdraw.annotations.NotNull;
+import org.jhotdraw.annotations.Nullable;
 import org.jhotdraw.gui.URIChooser;
 
 /**
@@ -32,9 +33,15 @@ import org.jhotdraw.gui.URIChooser;
  * application can handle multiple views at the same time, or only one.
  * <p>
  * Typical document interface styles are the Single Document Interface (SDI),
- * the Multiple Document Interface (MDI) and the Mac OS X Application Document
- * Interface (OSX). Typically, for each of these styles an implementation of
+ * the Multiple Document Interface (MDI) and the Mac OS X Application Interface
+ * (OSX). Typically, for each of these styles an implementation of
  * {@code Application} exists.
+ * <p>
+ * Some applications have to decorate all opened windows and dialogs with
+ * user interface elements and special behaviors. To make this work,
+ * it is essential that all code which opens JFrame's, JDialog's or
+ * JWindow's calls the addWindow/Palette and removeWindow/Palette methods on
+ * the application object.
  * <p>
  * Typical usage of this class:
  * <pre>
@@ -63,6 +70,7 @@ import org.jhotdraw.gui.URIChooser;
  * @author Werner Randelshofer
  * @version $Id$
  */
+@NotNull
 public interface Application {
 
     /**
@@ -231,7 +239,7 @@ public interface Application {
      * This may return null, if the application is not represented by a component
      * of its own on the user interface.
      */
-    public Component getComponent();
+    @Nullable public Component getComponent();
 
     /**
      * Adds a palette window to the application.
@@ -250,7 +258,7 @@ public interface Application {
      * @param view The View to which this window is associated, or null
      * if the window is associated to the application.
      */
-    public void addWindow(Window window, View view);
+    public void addWindow(Window window, @Nullable View view);
 
     /**
      * Removes a (non-palette) window from the application.
@@ -276,66 +284,80 @@ public interface Application {
     public void clearRecentURIs();
 
     /**
-     * Creates a file menu for the specified view.
-     * Returns null, if the menu is empty.
+     * Creates a file menu for the specified view or for the entire application.
+     *
+     * @param v A view or null.
+     * @return A JMenu or null, if the menu is empty.
      */
-    public JMenu createFileMenu(View v);
+    @Nullable public JMenu createFileMenu(@Nullable View v);
 
     /**
-     * Creates an edit menu for the specified view.
-     * Returns null, if the menu is empty.
+     * Creates an edit menu for the specified view or for the entire application.
+     *
+     * @param v A view or null.
+     * @return A JMenu or null, if the menu is empty.
      */
-    public JMenu createEditMenu(View v);
+    @Nullable public JMenu createEditMenu(@Nullable View v);
 
     /**
-     * Creates a view menu for the specified view.
-     * Returns null, if the menu is empty.
+     * Creates a view menu for the specified view or for the entire application.
+     *
+     * @param v A view or null.
+     * @return A JMenu or null, if the menu is empty.
      */
-    public JMenu createViewMenu(View v);
+    @Nullable public JMenu createViewMenu(@Nullable View v);
 
     /**
-     * Creates a window menu for the specified view.
-     * Returns null, if the menu is empty.
+     * Creates a window menu for the specified view or for the entire application.
+     *
+     * @param v A view or null.
+     * @return A JMenu or null, if the menu is empty.
      */
-    public JMenu createWindowMenu(View v);
+    @Nullable public JMenu createWindowMenu(@Nullable View v);
 
     /** 
-     * Creates a help menu for the specified view.
-     * Returns null, if the menu is empty.
+     * Creates a help menu for the specified view of for the entire application.
+     *
+     * @param v A view or null.
+     * @return A JMenu or null, if the menu is empty.
      */
-    public JMenu createHelpMenu(View v);
+    @Nullable public JMenu createHelpMenu(@Nullable View v);
 
     /**
-     * Gets the open chooser.
+     * Gets an open chooser for the specified view or for the entire application.
      *
-     * @param v View or null for application-wide chooser.
+     * @param v A view or null.
+     * @return A chooser.
      */
-    public URIChooser getOpenChooser(View v);
+    public URIChooser getOpenChooser(@Nullable View v);
 
     /**
-     * Gets the save chooser.
+     * Gets a save chooser for the specified view or for the entire application.
      *
-     * @param v View or null for application-wide chooser.
+     * @param v A view or null.
+     * @return A chooser.
      */
-    public URIChooser getSaveChooser(View v);
+    public URIChooser getSaveChooser(@Nullable View v);
 
     /**
-     * Gets the export chooser.
+     * Gets an export chooser for the specified view or for the entire application.
      *
-     * @param v View or null for application-wide chooser.
+     * @param v A view or null.
+     * @return A chooser.
      */
-    public URIChooser getExportChooser(View v);
+    public URIChooser getExportChooser(@Nullable View v);
     /**
-     * Gets the import chooser.
+     * Gets an import chooser for the specified view or for the entire application.
      *
-     * @param v View or null for application-wide chooser.
+     * @param v A view or null.
+     * @return A chooser.
      */
-    public URIChooser getImportChooser(View v);
+    public URIChooser getImportChooser(@Nullable View v);
 
     /**
-     * Gets the action map.
+     * Gets an action map for the specified view or for the entire application.
      *
-     * @param v View or null for application-wide action map.
+     * @param v A view or null
      */
-    public ActionMap getActionMap(View v);
+    public ActionMap getActionMap(@Nullable View v);
 }

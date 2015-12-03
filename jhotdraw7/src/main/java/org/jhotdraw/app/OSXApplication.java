@@ -13,7 +13,6 @@
  */
 package org.jhotdraw.app;
 
-import ch.randelshofer.quaqua.QuaquaManager;
 import org.jhotdraw.app.action.app.AbstractPreferencesAction;
 import org.jhotdraw.app.action.window.TogglePaletteAction;
 import org.jhotdraw.app.action.window.FocusWindowAction;
@@ -62,16 +61,32 @@ import org.jhotdraw.app.action.file.LoadDirectoryAction;
 import org.jhotdraw.app.action.file.LoadFileAction;
 import org.jhotdraw.app.action.file.NewWindowAction;
 import org.jhotdraw.app.osx.OSXAdapter;
-import org.jhotdraw.beans.Disposable;
 import org.jhotdraw.net.URIUtil;
 
 /**
- * {@code OSXApplication} handles the lifecycle of {@link View}s using a
- * Mac OS X document interface.
+ * {@code OSXApplication} handles the lifecycle of multiple {@link View}s using
+ * a Mac OS X application interface.
  * <p>
- * An application consists of a screen menu bar and {@code JFrame}s for the
- * {@code View}s. The application also provides floating toolbars and palette
- * windows for the views.
+ * This user interface created by this application follows the guidelines given
+ * in the
+ * <a href="http://developer.apple.com/mac/library/documentation/UserExperience/Conceptual/AppleHIGuidelines/"
+ * >Apple Human Interface Guidelines</a>.
+ * <p>
+ * An application of this type can open multiple {@link View}s. Each view is
+ * shown in a separate {@code JFrame}.
+ * <p>
+ * Conceptually all views share a global 'screen menu bar'. In Swing this is
+ * implemented as multiple JMenuBar instances. There is one JMenuBar for
+ * each opened JFrame, and a special JMenuBar which is shown when all views of
+ * the application are closed.
+ * <p>
+ * The application also provides floating toolbars and palette windows for the
+ * views.
+ * <p>
+ * In order for the screen menu bar and the floating palettes to function
+ * properly, it is essential that all code which opens JFrame's, JDialog's or
+ * JWindow's calls addWindow/Palette and removeWindow/Palette on the application
+ * object.
  * <p>
  * The life cycle of the application is tied to the screen menu bar. Choosing
  * the quit action in the screen menu bar quits the application.
@@ -169,7 +184,7 @@ public class OSXApplication extends AbstractApplication {
 
     protected void initLookAndFeel() {
         try {
-            UIManager.setLookAndFeel(QuaquaManager.getLookAndFeel());
+            UIManager.setLookAndFeel("ch.randelshofer.quaqua.QuaquaLookAndFeel");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -183,6 +198,7 @@ public class OSXApplication extends AbstractApplication {
         }
     }
 
+    @Override
     public void dispose(View p) {
         FocusWindowAction a = (FocusWindowAction) getAction(p, FocusWindowAction.ID);
         if (a != null) {
@@ -222,6 +238,7 @@ public class OSXApplication extends AbstractApplication {
         paletteHandler.remove(window);
     }
 
+    @Override
     public void show(View view) {
         if (!view.isShowing()) {
             view.setShowing(true);
@@ -284,6 +301,7 @@ public class OSXApplication extends AbstractApplication {
         }
     }
 
+    @Override
     public void hide(View p) {
         if (p.isShowing()) {
             JFrame f = (JFrame) SwingUtilities.getWindowAncestor(p.getComponent());
@@ -378,8 +396,6 @@ public class OSXApplication extends AbstractApplication {
 
     @Override
     public JMenu createWindowMenu(View view) {
-        ApplicationModel model = getModel();
-
         JMenu m;
         JMenuItem mi;
 
@@ -426,6 +442,7 @@ public class OSXApplication extends AbstractApplication {
         return (m.getPopupMenu().getComponentCount() == 0) ? null : m;
     }
 
+    @Override
     public JMenu createEditMenu(View view) {
         JMenu m;
         JMenuItem mi;
@@ -450,12 +467,12 @@ public class OSXApplication extends AbstractApplication {
         return (m.getPopupMenu().getComponentCount() == 0) ? null : m;
     }
 
+    @Override
     public JMenu createHelpMenu(View p) {
         return null;
     }
 
     protected void initScreenMenuBar() {
-        ApplicationModel model = getModel();
         setScreenMenuBar(createMenuBar(null));
         paletteHandler.add((JFrame) getComponent(), null);
 
@@ -486,6 +503,7 @@ public class OSXApplication extends AbstractApplication {
     protected void initPalettes(final LinkedList<Action> paletteActions) {
         SwingUtilities.invokeLater(new Worker<LinkedList<JFrame>>() {
 
+            @Override
             public LinkedList<JFrame> construct() {
                 LinkedList<JFrame> palettes = new LinkedList<JFrame>();
                 LinkedList<JToolBar> toolBars = new LinkedList<JToolBar>(getModel().createToolBars(OSXApplication.this, null));
@@ -523,11 +541,13 @@ public class OSXApplication extends AbstractApplication {
                     PreferencesUtil.installPalettePrefsHandler(prefs, "toolbar." + i, d, x);
                     x += d.getWidth();
 
-                    paletteActions.add(new TogglePaletteAction(OSXApplication.this, d, tb.getName()));
+                    TogglePaletteAction tpa=new TogglePaletteAction(OSXApplication.this, d, tb.getName());
                     palettes.add(d);
                     if (prefs.getBoolean("toolbar." + i + ".visible", true)) {
                         addPalette(d);
+                        tpa.putValue(ActionUtil.SELECTED_KEY, true);
                     }
+                    paletteActions.add(tpa);
                 }
                 return palettes;
 
@@ -548,12 +568,14 @@ public class OSXApplication extends AbstractApplication {
         });
     }
 
+    @Override
     public boolean isSharingToolsAmongViews() {
         return true;
     }
 
     /** Returns the Frame which holds the frameless JMenuBar.
      */
+    @Override
     public Component getComponent() {
         if (invisibleFrame == null) {
             invisibleFrame = new JFrame();
@@ -622,6 +644,7 @@ public class OSXApplication extends AbstractApplication {
             updateWindowMenu();
         }
 
+        @Override
         public void propertyChange(PropertyChangeEvent evt) {
             String name = evt.getPropertyName();
             if (name == VIEW_COUNT_PROPERTY || name == "paletteCount") {
@@ -657,6 +680,7 @@ public class OSXApplication extends AbstractApplication {
             }
         }
 
+        @Override
         public void dispose() {
             windowMenu.removeAll();
             removePropertyChangeListener(this);

@@ -13,9 +13,9 @@
  */
 package org.jhotdraw.samples.svg.gui;
 
-import org.jhotdraw.gui.event.SelectionComponentRepainter;
-import org.jhotdraw.gui.event.FigureAttributeEditorHandler;
-import org.jhotdraw.gui.event.SelectionComponentDisplayer;
+import org.jhotdraw.draw.event.SelectionComponentRepainter;
+import org.jhotdraw.draw.event.FigureAttributeEditorHandler;
+import org.jhotdraw.draw.event.SelectionComponentDisplayer;
 import org.jhotdraw.text.JavaNumberFormatter;
 import javax.swing.border.*;
 import org.jhotdraw.gui.*;
@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.*;
 import javax.swing.plaf.SliderUI;
+import javax.swing.text.DefaultFormatterFactory;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.action.*;
 import org.jhotdraw.text.ColorFormatter;
@@ -86,9 +87,9 @@ public class StrokeToolBar extends AbstractToolBar {
                 // Stroke color
                 Map<AttributeKey, Object> defaultAttributes = new HashMap<AttributeKey, Object>();
                 STROKE_GRADIENT.put(defaultAttributes, null);
-                btn = ButtonFactory.createSelectionColorButton(editor,
-                        STROKE_COLOR, ButtonFactory.HSV_COLORS, ButtonFactory.HSV_COLORS_COLUMN_COUNT,
-                        "attribute.strokeColor", labels, defaultAttributes, new Rectangle(3, 3, 10, 10), disposables);
+                btn = ButtonFactory.createSelectionColorChooserButton(editor,
+                        STROKE_COLOR, "attribute.strokeColor", labels,
+                        defaultAttributes, new Rectangle(3, 3, 10, 10), PaletteColorChooserUI.class, disposables);
                 btn.setUI((PaletteButtonUI) PaletteButtonUI.createUI(btn));
                 ((JPopupButton) btn).setAction(null, null);
                 gbc = new GridBagConstraints();
@@ -191,7 +192,7 @@ public class StrokeToolBar extends AbstractToolBar {
                 colorField.setToolTipText(labels.getString("attribute.strokeColor.toolTipText"));
                 colorField.putClientProperty("Palette.Component.segmentPosition", "first");
                 colorField.setUI((PaletteFormattedTextFieldUI) PaletteFormattedTextFieldUI.createUI(colorField));
-                colorField.setFormatterFactory(ColorFormatter.createFormatterFactory());
+                colorField.setFormatterFactory(ColorFormatter.createFormatterFactory(ColorFormatter.Format.RGB_INTEGER_SHORT, false, false));
                 colorField.setHorizontalAlignment(JTextField.LEFT);
                 disposables.add(new FigureAttributeEditorHandler<Color>(STROKE_COLOR, defaultAttributes, colorField, editor, true));
                 gbc = new GridBagConstraints();
@@ -200,9 +201,9 @@ public class StrokeToolBar extends AbstractToolBar {
                 gbc.fill = GridBagConstraints.HORIZONTAL;
                 gbc.anchor = GridBagConstraints.FIRST_LINE_START;
                 p.add(colorField, gbc);
-                btn = ButtonFactory.createSelectionColorButton(editor,
-                        STROKE_COLOR, ButtonFactory.HSV_COLORS, ButtonFactory.HSV_COLORS_COLUMN_COUNT,
-                        "attribute.strokeColor", labels, defaultAttributes, new Rectangle(3, 3, 10, 10), disposables);
+                btn = ButtonFactory.createSelectionColorChooserButton(editor,
+                        STROKE_COLOR, "attribute.strokeColor", labels,
+                        defaultAttributes, new Rectangle(3, 3, 10, 10), PaletteColorChooserUI.class, disposables);
                 btn.setUI((PaletteButtonUI) PaletteButtonUI.createUI(btn));
                 ((JPopupButton) btn).setAction(null, null);
                 gbc = new GridBagConstraints();
@@ -212,13 +213,16 @@ public class StrokeToolBar extends AbstractToolBar {
 
                 // Opacity field with slider
                 JAttributeTextField<Double> opacityField = new JAttributeTextField<Double>();
-                opacityField.setColumns(3);
+                opacityField.setColumns(4);
                 opacityField.setToolTipText(labels.getString("attribute.strokeOpacity.toolTipText"));
                 opacityField.setHorizontalAlignment(JAttributeTextField.RIGHT);
                 opacityField.putClientProperty("Palette.Component.segmentPosition", "first");
                 opacityField.setUI((PaletteFormattedTextFieldUI) PaletteFormattedTextFieldUI.createUI(opacityField));
-                opacityField.setFormatterFactory(JavaNumberFormatter.createFormatterFactory(0d, 1d, 100d));
                 opacityField.setHorizontalAlignment(JTextField.LEFT);
+                JavaNumberFormatter formatter = new JavaNumberFormatter(0d, 100d, 100d, false, "%");
+                formatter.setUsesScientificNotation(false);
+                formatter.setMaximumFractionDigits(1);
+                opacityField.setFormatterFactory(new DefaultFormatterFactory(formatter));
                 disposables.add(new FigureAttributeEditorHandler<Double>(STROKE_OPACITY, opacityField, editor));
                 gbc = new GridBagConstraints();
                 gbc.gridx = 0;
@@ -253,7 +257,10 @@ public class StrokeToolBar extends AbstractToolBar {
                 strokeWidthField.setHorizontalAlignment(JAttributeTextField.LEFT);
                 strokeWidthField.putClientProperty("Palette.Component.segmentPosition", "first");
                 strokeWidthField.setUI((PaletteFormattedTextFieldUI) PaletteFormattedTextFieldUI.createUI(strokeWidthField));
-                strokeWidthField.setFormatterFactory(JavaNumberFormatter.createFormatterFactory(0d, 100d, 1d));
+                formatter = new JavaNumberFormatter(0d, 100d, 1d);
+                formatter.setUsesScientificNotation(false);
+                formatter.setMaximumFractionDigits(1);
+                strokeWidthField.setFormatterFactory(new DefaultFormatterFactory(formatter));
                 disposables.add(new FigureAttributeEditorHandler<Double>(STROKE_WIDTH, strokeWidthField, editor));
                 gbc = new GridBagConstraints();
                 gbc.gridx = 0;

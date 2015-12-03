@@ -14,7 +14,6 @@
 package org.jhotdraw.draw.liner;
 
 import org.jhotdraw.draw.handle.Handle;
-import org.jhotdraw.draw.LineConnectionFigure;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.connector.Connector;
 import org.jhotdraw.draw.ConnectionFigure;
@@ -45,10 +44,12 @@ public class CurvedLiner
         this.shoulderSize = slantSize;
     }
 
+    @Override
     public Collection<Handle> createHandles(BezierPath path) {
         return null;
     }
 
+    @Override
     public void lineout(ConnectionFigure figure) {
         BezierPath path = ((LineConnectionFigure) figure).getBezierPath();
         Connector start = figure.getStartConnector();
@@ -189,12 +190,15 @@ public class CurvedLiner
         path.invalidatePath();
     }
 
+    @Override
     public void read(DOMInput in) {
     }
 
+    @Override
     public void write(DOMOutput out) {
     }
 
+    @Override
     public Liner clone() {
         try {
             return (Liner) super.clone();

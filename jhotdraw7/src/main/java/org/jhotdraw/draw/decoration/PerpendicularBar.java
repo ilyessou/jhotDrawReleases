@@ -14,7 +14,6 @@
 package org.jhotdraw.draw.decoration;
 
 import org.jhotdraw.draw.*;
-import org.jhotdraw.draw.decoration.AbstractLineDecoration;
 import java.awt.geom.Path2D;
 
 import org.jhotdraw.xml.DOMInput;
@@ -50,6 +49,7 @@ public class PerpendicularBar extends AbstractLineDecoration implements DOMStora
      * Calculates the path of the decorator...a simple line
      * perpendicular to the figure.
      */
+    @Override
     protected Path2D.Double getDecoratorPath(Figure f) {
         Path2D.Double path = new Path2D.Double();
         double halfHeight = height / 2;
@@ -63,14 +63,17 @@ public class PerpendicularBar extends AbstractLineDecoration implements DOMStora
     /**
      * Calculates the radius of the decorator path.
      */
+    @Override
     protected double getDecoratorPathRadius(Figure f) {
         return 0.5;
     }
 
+    @Override
     public void read(DOMInput in) {
         height = in.getAttribute("height", 10);
     }
 
+    @Override
     public void write(DOMOutput out) {
         out.addAttribute("height", height);
     }

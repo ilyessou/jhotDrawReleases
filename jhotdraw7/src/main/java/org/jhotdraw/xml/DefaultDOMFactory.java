@@ -23,7 +23,7 @@ import java.util.*;
  * @author Werner Randelshofer.
  * @version $Id$
  */
-public class DefaultDOMFactory implements DOMFactory {
+public class DefaultDOMFactory extends JavaPrimitivesDOMFactory {
     private final static HashMap<Class,String> classToNameMap = new HashMap<Class,String>();
     private final static HashMap<String,Object> nameToPrototypeMap = new HashMap<String,Object>();
     private final static HashMap<Class,String> enumClassToNameMap = new HashMap<Class,String>();
@@ -75,6 +75,7 @@ public class DefaultDOMFactory implements DOMFactory {
     /**
      * Creates a DOMStorable object.
      */
+    @Override
     public Object create(String name) {
         Object o = nameToPrototypeMap.get(name);
         if (o == null) {
@@ -100,15 +101,20 @@ public class DefaultDOMFactory implements DOMFactory {
         }
     }
     
-    public String getName(DOMStorable o) {
+    @Override
+    public String getName(Object o) {
         String name = classToNameMap.get(o.getClass());
         if (name == null) {
-            throw new IllegalArgumentException("Storable class not known to factory. Storable:"+o+" Factory:"+this.getClass());
+            name=super.getName(o);
+        }
+        if (name == null) {
+            throw new IllegalArgumentException("Storable class not known to factory. Storable class:"+o.getClass()+" Factory:"+this.getClass());
         }
         return name;
     }
     
-    public String getEnumName(Enum e) {
+    @Override
+    protected String getEnumName(Enum e) {
         String name = enumClassToNameMap.get(e.getClass());
         if (name == null) {
             throw new IllegalArgumentException("Enum class not known to factory:"+e.getClass());
@@ -116,12 +122,14 @@ public class DefaultDOMFactory implements DOMFactory {
         return name;
     }
     
-    public String getEnumValue(Enum e) {
+    @Override
+    protected String getEnumValue(Enum e) {
         return (enumToValueMap.containsKey(e)) ? enumToValueMap.get(e) : e.toString();
     }
     
     @SuppressWarnings("unchecked")
-    public Enum createEnum(String name, String value) {
+    @Override
+    protected Enum createEnum(String name, String value) {
         Class enumClass = nameToEnumClassMap.get(name);
         if (enumClass == null) {
             throw new IllegalArgumentException("Enum name not known to factory:"+name);

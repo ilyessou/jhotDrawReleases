@@ -14,12 +14,10 @@
 package org.jhotdraw.samples.draw;
 
 import org.jhotdraw.draw.io.TextInputFormat;
-import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.draw.io.OutputFormat;
 import org.jhotdraw.draw.io.InputFormat;
 import org.jhotdraw.draw.io.ImageOutputFormat;
 import org.jhotdraw.draw.io.ImageInputFormat;
-import org.jhotdraw.draw.ImageFigure;
 import org.jhotdraw.draw.io.DOMStorableInputOutputFormat;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.gui.*;
@@ -95,6 +93,7 @@ public class DrawApplet extends JApplet {
         // --------------------------------------
         new Worker<Drawing>() {
 
+            @Override
             protected Drawing construct() throws IOException {
                 Drawing result;
                 if (getParameter("data") != null) {
@@ -210,18 +209,20 @@ public class DrawApplet extends JApplet {
         return out.toString();
     }
 
+    @Override
     public String[][] getParameterInfo() {
         return new String[][]{
                     {"data", "String", "the data to be displayed by this applet."},
                     {"datafile", "URL", "an URL to a file containing the data to be displayed by this applet."},};
     }
 
+    @Override
     public String getAppletInfo() {
-        return NAME +
-                "\nVersion " + getVersion() +
-                "\n\nCopyright 1996-2010 (c) by the original authors of JHotDraw and all its contributors" +
-                "\nThis software is licensed under LGPL or" +
-                "\nCreative Commons 3.0 BY";
+        return NAME
+                + "\nVersion " + getVersion()
+                + "\n\nCopyright 1996-2010 (c) by the original authors of JHotDraw and all its contributors"
+                + "\nThis software is licensed under LGPL or"
+                + "\nCreative Commons 3.0 BY";
     }
 
     /** This method is called from within the init() method to
@@ -238,6 +239,7 @@ public class DrawApplet extends JApplet {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 JFrame f = new JFrame("JHotDraw Draw Applet");
                 f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

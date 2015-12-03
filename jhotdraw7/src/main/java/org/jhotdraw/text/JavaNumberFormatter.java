@@ -13,7 +13,12 @@
  */
 package org.jhotdraw.text;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
+import java.util.Locale;
+import java.util.logging.Logger;
 import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 import javax.swing.text.DefaultFormatter;
 import javax.swing.text.DefaultFormatterFactory;
@@ -30,11 +35,20 @@ public class JavaNumberFormatter extends DefaultFormatter {
     /**
      * Specifies whether the formatter allows null values.
      */
-    private double scaleFactor = 1d;
     private boolean allowsNullValue = false;
     private Comparable min;
     private Comparable max;
-    private boolean appendsDotZero = true;
+    private String unit;
+    private DecimalFormat decimalFormat;
+    private DecimalFormat scientificFormat;
+    private double multiplier = 1;
+    private int minIntDigits;
+    private int maxIntDigits;
+    private int minFractionDigits;
+    private int maxFractionDigits;
+    private int minNegativeExponent = -3;
+    private int minPositiveExponent = 8;
+    private boolean usesScientificNotation = true;
 
     /**
      * Creates a <code>NumberFormatter</code> with the a default
@@ -43,26 +57,40 @@ public class JavaNumberFormatter extends DefaultFormatter {
      */
     public JavaNumberFormatter() {
         super();
+        initFormats();
     }
 
     /**
      * Creates a NumberFormatter with the specified Format instance.
      */
-    public JavaNumberFormatter(double min, double max, double scaleFactor) {
-        this(min, max, scaleFactor, false, true);
+    public JavaNumberFormatter(double min, double max, double multiplier) {
+        this(min, max, multiplier, false, null);
     }
 
     /**
      * Creates a NumberFormatter with the specified Format instance.
      */
-    public JavaNumberFormatter(double min, double max, double scaleFactor, boolean allowsNullValue, boolean appendsDotZero) {
+    public JavaNumberFormatter(double min, double max, double multiplier, boolean allowsNullValue) {
+        this(min, max, multiplier, allowsNullValue, null);
+    }
+    /**
+     * Creates a NumberFormatter with the specified Format instance.
+     */
+    public JavaNumberFormatter(double min, double max, double multiplier, boolean allowsNullValue, String unit) {
         super();
+        initFormats();
         setMinimum(min);
         setMaximum(max);
-        setScaleFactor(scaleFactor);
+        setMultiplier(multiplier);
         setAllowsNullValue(allowsNullValue);
-        setAppendsDotZero(appendsDotZero);
         setOverwriteMode(false);
+        setUnit(unit);
+    }
+
+    private void initFormats() {
+        DecimalFormatSymbols s = new DecimalFormatSymbols(Locale.ENGLISH);
+        decimalFormat = new DecimalFormat("#################0.#################", s);
+        scientificFormat = new DecimalFormat("0.0################E0", s);
     }
 
     /**
@@ -116,19 +144,17 @@ public class JavaNumberFormatter extends DefaultFormatter {
     }
 
     /**
-     * Changes the scale factor of the number formatter.
-     *
-     * @param newValue
+     * Sets the multiplier for use in percent, per mille, and similar formats.
      */
-    public void setScaleFactor(double newValue) {
-        scaleFactor = newValue;
+    public void setMultiplier(double newValue) {
+        multiplier = newValue;
     }
 
     /**
-     * Returns the scale factor of the number formatter.
+     * Gets the multiplier for use in percent, per mille, and similar formats.
      */
-    public double getScaleFactor() {
-        return scaleFactor;
+    public double getMultiplier() {
+        return multiplier;
     }
 
     /**
@@ -153,15 +179,16 @@ public class JavaNumberFormatter extends DefaultFormatter {
      *
      * @param newValue
      */
-    public void setAppendsDotZero(boolean newValue) {
-        appendsDotZero = newValue;
+    public void setMinimumFractionDigits(int newValue) {
+        minFractionDigits = newValue;
+        decimalFormat.setMinimumFractionDigits(newValue);
     }
 
     /**
      * Returns true if null values are allowed.
      */
-    public boolean getAppendsDotZero() {
-        return appendsDotZero;
+    public int getMinimumFractionDigits() {
+        return minFractionDigits;
     }
 
     /**
@@ -178,40 +205,54 @@ public class JavaNumberFormatter extends DefaultFormatter {
             return "";
         }
 
+        StringBuilder buf = new StringBuilder();
         if (value instanceof Double) {
             double v = ((Double) value).doubleValue();
-            v *= scaleFactor;
-            String str = Double.toString(v);
-            if (!appendsDotZero && str.endsWith(".0")) {
-                str = str.substring(0, str.length() - 2);
+            v = v * multiplier;
+            String str;
+            BigDecimal big = new BigDecimal(v);
+            int exponent = big.scale() >= 0 ? big.precision() - big.scale() : -big.scale();
+            if (!usesScientificNotation || exponent > minNegativeExponent && exponent < minPositiveExponent) {
+                str = decimalFormat.format(v);
+            } else {
+                str = scientificFormat.format(v);
             }
-            return str;
+            buf.append(str);
         } else if (value instanceof Float) {
             float v = ((Float) value).floatValue();
-            v = (float) (v * scaleFactor);
-            String str = Float.toString(v);
-            if (appendsDotZero && str.endsWith(".0")) {
-                str = str.substring(0, str.length() - 2);
+            v = (float) (v * multiplier);
+            String str;// = Float.toString(v);
+            BigDecimal big = new BigDecimal(v);
+            int exponent = big.scale() >= 0 ? big.precision() - big.scale() : -big.scale();
+            if (!usesScientificNotation || exponent > minNegativeExponent && exponent < minPositiveExponent) {
+                str = decimalFormat.format(v);
+            } else {
+                str = scientificFormat.format(v);
             }
-            return str;
+            buf.append(str);
         } else if (value instanceof Long) {
             long v = ((Long) value).longValue();
-            v = (long) (v * scaleFactor);
-            return Long.toString(v);
+            v = (long) (v * multiplier);
+            buf.append(Long.toString(v));
         } else if (value instanceof Integer) {
             int v = ((Integer) value).intValue();
-            v = (int) (v * scaleFactor);
-            return Integer.toString(v);
+            v = (int) (v * multiplier);
+            buf.append(Integer.toString(v));
         } else if (value instanceof Byte) {
             byte v = ((Byte) value).byteValue();
-            v = (byte) (v * scaleFactor);
-            return Byte.toString(v);
+            v = (byte) (v * multiplier);
+            buf.append(Byte.toString(v));
         } else if (value instanceof Short) {
             short v = ((Short) value).shortValue();
-            v = (short) (v * scaleFactor);
-            return Short.toString(v);
+            v = (short) (v * multiplier);
+            buf.append(Short.toString(v));
         }
-
+        if (buf.length() != 0) {
+            if (unit != null) {
+                buf.append(unit);
+            }
+            return buf.toString();
+        }
         throw new ParseException("Value is of unsupported class " + value, 0);
     }
 
@@ -228,33 +269,42 @@ public class JavaNumberFormatter extends DefaultFormatter {
         if ((text == null || text.length() == 0) && getAllowsNullValue()) {
             return null;
         }
+
+        // Remove unit from text
+        if (unit != null) {
+            int p = text.lastIndexOf(unit);
+            if (p != -1) {
+                text = text.substring(0, p);
+            }
+        }
+
         Class valueClass = getValueClass();
         Object value;
         if (valueClass != null) {
             try {
                 if (valueClass == Integer.class) {
                     int v = Integer.parseInt(text);
-                    v = (int) (v / scaleFactor);
+                    v = (int) (v / multiplier);
                     value = new Integer(v);
                 } else if (valueClass == Long.class) {
                     long v = Long.parseLong(text);
-                    v = (long) (v / scaleFactor);
+                    v = (long) (v / multiplier);
                     value = new Long(v);
                 } else if (valueClass == Float.class) {
                     float v = Float.parseFloat(text);
-                    v = (float) (v / scaleFactor);
+                    v = (float) (v / multiplier);
                     value = new Float(v);
                 } else if (valueClass == Double.class) {
                     double v = Double.parseDouble(text);
-                    v = (double) (v / scaleFactor);
+                    v = (double) (v / multiplier);
                     value = new Double(v);
                 } else if (valueClass == Byte.class) {
                     byte v = Byte.parseByte(text);
-                    v = (byte) (v / scaleFactor);
+                    v = (byte) (v / multiplier);
                     value = new Byte(v);
                 } else if (valueClass == Short.class) {
                     short v = Short.parseShort(text);
-                    v = (short) (v / scaleFactor);
+                    v = (short) (v / multiplier);
                     value = new Short(v);
                 } else {
                     throw new ParseException("Unsupported value class " + valueClass, 0);
@@ -285,8 +335,6 @@ public class JavaNumberFormatter extends DefaultFormatter {
      */
     @SuppressWarnings("unchecked")
     boolean isValidValue(Object value, boolean wantsCCE) {
-        Comparable min = getMinimum();
-
         try {
             if (min != null && min.compareTo(value) > 0) {
                 return false;
@@ -298,7 +346,6 @@ public class JavaNumberFormatter extends DefaultFormatter {
             return false;
         }
 
-        Comparable max = getMaximum();
         try {
             if (max != null && max.compareTo(value) < 0) {
                 return false;
@@ -312,20 +359,136 @@ public class JavaNumberFormatter extends DefaultFormatter {
         return true;
     }
 
+    /** If non-null the unit string is appended to the value. */
+    public void setUnit(String value) {
+        unit = value;
+    }
+
+    /** If non-null the unit string is appended to the value. */
+    public String getUnit() {
+        return unit;
+    }
+
+    /**
+     * Gets the minimum number of digits allowed in the integer portion of a
+     * number.
+     */
+    public int getMinimumIntegerDigits() {
+        return minIntDigits;
+    }
+
+    /**
+     * Sets the minimum number of digits allowed in the integer portion of a
+     * number.
+     */
+    public void setMinimumIntegerDigits(int newValue) {
+        decimalFormat.setMinimumIntegerDigits(newValue);
+        scientificFormat.setMinimumIntegerDigits(newValue);
+        this.minIntDigits = newValue;
+    }
+
+    /**
+     * Gets the maximum number of digits allowed in the integer portion of a
+     * number.
+     */
+    public int getMaximumIntegerDigits() {
+        return maxIntDigits;
+    }
+
+    /**
+     * Sets the maximum number of digits allowed in the integer portion of a
+     * number.
+     */
+    public void setMaximumIntegerDigits(int newValue) {
+        decimalFormat.setMaximumIntegerDigits(newValue);
+        scientificFormat.setMaximumIntegerDigits(newValue);
+        this.maxIntDigits = newValue;
+    }
+
+    /**
+     * Gets the maximum number of digits allowed in the fraction portion of a
+     * number.
+     */
+    public int getMaximumFractionDigits() {
+        return maxFractionDigits;
+    }
+
+    /**
+     * Sets the maximum number of digits allowed in the fraction portion of a
+     * number.
+     */
+    public void setMaximumFractionDigits(int newValue) {
+        decimalFormat.setMaximumFractionDigits(newValue);
+        scientificFormat.setMaximumFractionDigits(newValue);
+        this.maxFractionDigits = newValue;
+    }
+
+    /**
+     * Gets the minimum negative exponent value for scientific notation.
+     */
+    public int getMinimumNegativeExponent() {
+        return minNegativeExponent;
+    }
+
+    /**
+     * Sets the minimum negative exponent value for scientific notation.
+     */
+    public void setMinimumNegativeExponent(int newValue) {
+        this.minNegativeExponent = newValue;
+    }
+
+    /**
+     * Gets the minimum positive exponent value for scientific notation.
+     */
+    public int getMinimumPositiveExponent() {
+        return minPositiveExponent;
+    }
+
+    /**
+     * Sets the minimum positive exponent value for scientific notation.
+     */
+    public void setMinimumPositiveExponent(int newValue) {
+        this.minPositiveExponent = newValue;
+    }
+
+    /**
+     * Returns true if scientific notation is used.
+     */
+    public boolean isUsesScientificNotation() {
+        return usesScientificNotation;
+    }
+
+    /**
+     * Sets whether scientific notation is used.
+     */
+    public void setUsesScientificNotation(boolean newValue) {
+        this.usesScientificNotation = newValue;
+    }
+
     /**
      * Convenience method for creating a formatter factory with a
      * {@code ScalableNumberFormatter} and a Java-style DecimalFormat.
      * Doesn't allow null values and doesn't append ".0" to double and float values.
      */
-    public static AbstractFormatterFactory createFormatterFactory(double min, double max, double scaleFactor) {
-        return createFormatterFactory(min, max, scaleFactor, false, false);
+    public static AbstractFormatterFactory createFormatterFactory(double min, double max, double multiplier) {
+        return createFormatterFactory(min, max, multiplier, false, null);
     }
 
     /**
      * Convenience method for creating a formatter factory with a
      * {@code ScalableNumberFormatter} and a Java-style DecimalFormat.
      */
-    public static AbstractFormatterFactory createFormatterFactory(double min, double max, double scaleFactor, boolean allowsNullValue, boolean appendsDotZero) {
-        return new DefaultFormatterFactory(new JavaNumberFormatter(min, max, scaleFactor, allowsNullValue, appendsDotZero));
+    public static AbstractFormatterFactory createFormatterFactory(double min, double max, double multiplier, boolean allowsNullValue) {
+        JavaNumberFormatter formatter = new JavaNumberFormatter(min, max, multiplier, allowsNullValue, null);
+        return new DefaultFormatterFactory(formatter);
+    }
+
+    /**
+     * Convenience method for creating a formatter factory with a
+     * {@code ScalableNumberFormatter} and a Java-style DecimalFormat.
+     */
+    public static AbstractFormatterFactory createFormatterFactory(double min, double max, double multiplier, boolean allowsNullValue, String unit) {
+        JavaNumberFormatter formatter = new JavaNumberFormatter(min, max, multiplier, allowsNullValue, unit);
+        return new DefaultFormatterFactory(formatter);
     }
 }

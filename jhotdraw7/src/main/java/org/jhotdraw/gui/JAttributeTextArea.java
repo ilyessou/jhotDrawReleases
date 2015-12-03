@@ -24,6 +24,7 @@ import org.jhotdraw.util.*;
  * @version $Id$
  */
 public class JAttributeTextArea<T> extends JLifeFormattedTextArea implements AttributeEditor<T> {
+
     /**
      * This variable is set to true, when the figures, which are currently
      * being edited by this field, have multiple values.
@@ -37,7 +38,7 @@ public class JAttributeTextArea<T> extends JLifeFormattedTextArea implements Att
     @Override
     protected void paintComponent(Graphics g) {
         if (!isFocusOwner() && isMultipleValues) {
-            ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
+            ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.gui.Labels");
             Color c = getForeground();
             setForeground(new Color(0x0, true));
             super.paintComponent(g);
@@ -47,13 +48,14 @@ public class JAttributeTextArea<T> extends JLifeFormattedTextArea implements Att
             g.setFont(getFont().deriveFont(Font.ITALIC));
             setForeground(c);
             g.setColor(c);
-            g.drawString(labels.getString("attribute.multipleValues.text"),
+            g.drawString(labels.getString("attribute.differentValues.text"),
                     insets.left + margin.left,
                     insets.top + margin.top + fm.getAscent());
         } else {
             super.paintComponent(g);
         }
     }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -63,32 +65,38 @@ public class JAttributeTextArea<T> extends JLifeFormattedTextArea implements Att
     private void initComponents() {
     }// </editor-fold>//GEN-END:initComponents
 
+    @Override
     public JComponent getComponent() {
         return this;
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public T getAttributeValue() {
         return (T) getValue();
     }
 
+    @Override
     public void setMultipleValues(boolean newValue) {
         isMultipleValues = newValue;
         repaint();
     }
 
+    @Override
     public boolean isMultipleValues() {
-      return isMultipleValues;
+        return isMultipleValues;
     }
 
+    @Override
     public boolean getValueIsAdjusting() {
         return isFocusOwner();
     }
 
+    @Override
     public void setAttributeValue(T newValue) {
         setValue(newValue);
     }
-    
+
     @Override
     protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
         super.firePropertyChange(propertyName, oldValue, newValue);
@@ -96,8 +104,6 @@ public class JAttributeTextArea<T> extends JLifeFormattedTextArea implements Att
             super.firePropertyChange(ATTRIBUTE_VALUE_PROPERTY, oldValue, newValue);
         }
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
-
 }

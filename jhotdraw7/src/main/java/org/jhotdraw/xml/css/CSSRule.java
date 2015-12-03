@@ -18,7 +18,6 @@
 package org.jhotdraw.xml.css;
 
 import java.util.*;
-import javax.swing.*;
 import net.n3.nanoxml.IXMLElement;
 import org.w3c.dom.Element;
 
@@ -113,7 +112,7 @@ public class CSSRule {
                 break;
             }
             case CLASS_ATTRIBUTE : {
-                String value = elem.getAttribute("class");
+                String value = elem.getAttribute("class",null);
                 if (value != null) {
                     String[] clazzes = value.split(" ");
                     for (String clazz : clazzes) {
@@ -126,7 +125,7 @@ public class CSSRule {
                 break;
             }
             case ID_ATTRIBUTE : {
-                String name = elem.getAttribute("id");
+                String name = elem.getAttribute("id",null);
                 isMatch = name != null && name.equals(selector);
                 break;
             }
@@ -150,6 +149,7 @@ public class CSSRule {
     }
     
     
+    @Override
     public String toString() {
         return "CSSRule["+selector+properties+"]";
     }

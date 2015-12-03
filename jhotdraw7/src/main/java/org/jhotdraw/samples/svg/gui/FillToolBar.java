@@ -13,9 +13,9 @@
  */
 package org.jhotdraw.samples.svg.gui;
 
-import org.jhotdraw.gui.event.SelectionComponentRepainter;
-import org.jhotdraw.gui.event.FigureAttributeEditorHandler;
-import org.jhotdraw.gui.event.SelectionComponentDisplayer;
+import org.jhotdraw.draw.event.SelectionComponentRepainter;
+import org.jhotdraw.draw.event.FigureAttributeEditorHandler;
+import org.jhotdraw.draw.event.SelectionComponentDisplayer;
 import org.jhotdraw.text.JavaNumberFormatter;
 import javax.swing.border.*;
 import org.jhotdraw.gui.*;
@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.*;
 import javax.swing.plaf.SliderUI;
+import javax.swing.text.DefaultFormatterFactory;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.action.*;
 import org.jhotdraw.gui.plaf.palette.*;
@@ -82,15 +83,21 @@ public class FillToolBar extends AbstractToolBar {
                 p.setLayout(layout);
                 GridBagConstraints gbc;
                 AbstractButton btn;
-
+ 
                 // Fill color
                 Map<AttributeKey, Object> defaultAttributes = new HashMap<AttributeKey, Object>();
                 FILL_GRADIENT.put(defaultAttributes, null);
+                /*
                 btn = ButtonFactory.createSelectionColorButton(editor,
-                        FILL_COLOR, ButtonFactory.HSV_COLORS, ButtonFactory.HSV_COLORS_COLUMN_COUNT,
-                        "attribute.fillColor", labels, defaultAttributes, new Rectangle(3, 3, 10, 10), disposables);
+                FILL_COLOR, ButtonFactory.HSB_COLORS_AS_RGB, ButtonFactory.HSB_COLORS_AS_RGB_COLUMN_COUNT,
+                "attribute.fillColor", labels, defaultAttributes, new Rectangle(3, 3, 10, 10), disposables);
+                 * 
+                 */
+                btn = ButtonFactory.createSelectionColorChooserButton(editor,
+                        FILL_COLOR, "attribute.fillColor", labels,
+                        defaultAttributes, new Rectangle(3, 3, 10, 10), PaletteColorChooserUI.class, disposables);
                 btn.setUI((PaletteButtonUI) PaletteButtonUI.createUI(btn));
-                ((JPopupButton) btn).setAction(null, null);
+                //((JPopupButton) btn).setAction(null, null);
                 gbc = new GridBagConstraints();
                 gbc.gridx = 0;
                 gbc.gridwidth = 2;
@@ -153,7 +160,7 @@ public class FillToolBar extends AbstractToolBar {
                 colorField.setToolTipText(labels.getString("attribute.fillColor.toolTipText"));
                 colorField.putClientProperty("Palette.Component.segmentPosition", "first");
                 colorField.setUI((PaletteFormattedTextFieldUI) PaletteFormattedTextFieldUI.createUI(colorField));
-                colorField.setFormatterFactory(ColorFormatter.createFormatterFactory());
+                colorField.setFormatterFactory(ColorFormatter.createFormatterFactory(ColorFormatter.Format.RGB_INTEGER_SHORT, false, false));
                 colorField.setHorizontalAlignment(JTextField.LEFT);
                 disposables.add(new FigureAttributeEditorHandler<Color>(FILL_COLOR, defaultAttributes, colorField, editor, true));
                 gbc = new GridBagConstraints();
@@ -161,11 +168,11 @@ public class FillToolBar extends AbstractToolBar {
                 gbc.fill = GridBagConstraints.HORIZONTAL;
                 gbc.anchor = GridBagConstraints.FIRST_LINE_START;
                 p1.add(colorField, gbc);
-                btn = ButtonFactory.createSelectionColorButton(editor,
-                        FILL_COLOR, ButtonFactory.HSV_COLORS, ButtonFactory.HSV_COLORS_COLUMN_COUNT,
-                        "attribute.fillColor", labels, defaultAttributes, new Rectangle(3, 3, 10, 10), disposables);
+                 btn = ButtonFactory.createSelectionColorChooserButton(editor,
+                        FILL_COLOR, "attribute.fillColor", labels,
+                        defaultAttributes, new Rectangle(3, 3, 10, 10), PaletteColorChooserUI.class, disposables);
                 btn.setUI((PaletteButtonUI) PaletteButtonUI.createUI(btn));
-                ((JPopupButton) btn).setAction(null, null);
+                //((JPopupButton) btn).setAction(null, null);
                 gbc = new GridBagConstraints();
                 gbc.gridx = 1;
                 gbc.gridwidth = 2;
@@ -174,11 +181,14 @@ public class FillToolBar extends AbstractToolBar {
 
                 // Opacity field with slider
                 JAttributeTextField<Double> opacityField = new JAttributeTextField<Double>();
-                opacityField.setColumns(3);
+                opacityField.setColumns(4);
                 opacityField.setToolTipText(labels.getString("attribute.fillOpacity.toolTipText"));
                 opacityField.putClientProperty("Palette.Component.segmentPosition", "first");
                 opacityField.setUI((PaletteFormattedTextFieldUI) PaletteFormattedTextFieldUI.createUI(opacityField));
-                opacityField.setFormatterFactory(JavaNumberFormatter.createFormatterFactory(0d, 1d, 100d));
+                JavaNumberFormatter formatter = new JavaNumberFormatter(0d, 100d, 100d, false, "%");
+                formatter.setUsesScientificNotation(false);
+                formatter.setMaximumFractionDigits(1);
+                opacityField.setFormatterFactory(new DefaultFormatterFactory(formatter));
                 opacityField.setHorizontalAlignment(JTextField.LEFT);
                 disposables.add(new FigureAttributeEditorHandler<Double>(FILL_OPACITY, opacityField, editor));
                 gbc = new GridBagConstraints();

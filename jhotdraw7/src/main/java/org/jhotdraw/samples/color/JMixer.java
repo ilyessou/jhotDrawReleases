@@ -15,19 +15,18 @@ package org.jhotdraw.samples.color;
 
 import org.jhotdraw.color.*;
 import java.awt.*;
+import java.awt.color.ColorSpace;
 import java.awt.event.MouseEvent;
 import java.beans.*;
-import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.plaf.SliderUI;
 
 /**
  * JMixer.
  * 
  * FIXME - This is an experimental class. Do not use it.
  *
-*
+ *
  * @author Werner Randelshofer
  * @version $Id$
  */
@@ -46,12 +45,13 @@ public class JMixer extends javax.swing.JPanel {
             this.name = name;
             this.index = index;
         }
-        
-        public CompositeColor getCompositeColor() {
-            return new CompositeColor(sliderModel.getColorSystem(), 
-                    (index /8) / 12f,1f,(index%8+2) /12f);
+
+        public Color getColor() {
+            return new Color(sliderModel.getColorSpace(), new float[]{
+                        (index / 8) / 12f, 1f, (index % 8 + 2) / 12f}, 1f);
         }
-        
+
+        @Override
         public String toString() {
             return name;
         }
@@ -113,7 +113,7 @@ public class JMixer extends javax.swing.JPanel {
         swatchesList.setVisibleRowCount(5);
         scrollPane.setViewportView(swatchesList);
 
-        harmonicWheel.setColorSystem(new HSLRGBColorSystem());
+        harmonicWheel.setColorSpace(HSLColorSpace.getInstance());
 
         ColorSliderModel m = harmonicWheel.getModel();
         scrollPane.setPreferredSize(new Dimension(100, 100));
@@ -122,34 +122,39 @@ public class JMixer extends javax.swing.JPanel {
 
         harmonicWheel.getHarmonicColorModel().addPropertyChangeListener(new PropertyChangeListener() {
 
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
             }
         });
 
-        sliderModel = new DefaultColorSliderModel(harmonicWheel.getHarmonicColorModel().getColorSystem());
+        sliderModel = new DefaultColorSliderModel(harmonicWheel.getHarmonicColorModel().getColorSpace());
         sliderModel.configureSlider(1, saturationSlider);
 
         harmonicWheel.getHarmonicColorModel().addListDataListener(new ListDataListener() {
 
+            @Override
             public void intervalAdded(ListDataEvent e) {
             }
 
+            @Override
             public void intervalRemoved(ListDataEvent e) {
             }
 
+            @Override
             public void contentsChanged(ListDataEvent e) {
                 adjusting++;
                 HarmonicColorModel hcm = harmonicWheel.getHarmonicColorModel();
-                CompositeColor cc = hcm.get(e.getIndex0());
+                Color cc = hcm.get(e.getIndex0());
                 if (cc != null) {
-                    sliderModel.setCompositeColor(cc);
+                    sliderModel.setColor(cc);
                 }
                 adjusting--;
             }
         });
         harmonicWheel.addPropertyChangeListener(new PropertyChangeListener() {
 
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
                 if (name == JHarmonicColorWheel.SELECTED_INDEX_PROPERTY) {
@@ -157,7 +162,7 @@ public class JMixer extends javax.swing.JPanel {
                     int index = harmonicWheel.getSelectedIndex();
                     HarmonicColorModel hcm = harmonicWheel.getHarmonicColorModel();
                     if (index != -1) {
-                        sliderModel.setCompositeColor(hcm.get(index));
+                        sliderModel.setColor(hcm.get(index));
                     }
                     adjusting--;
                 }
@@ -166,15 +171,16 @@ public class JMixer extends javax.swing.JPanel {
 
         sliderModel.addChangeListener(new ChangeListener() {
 
+            @Override
             public void stateChanged(ChangeEvent e) {
                 if (adjusting++ == 0) {
                     HarmonicColorModel hcm = harmonicWheel.getHarmonicColorModel();
                     if (!hcm.isAdjusting()) {
                         int index = harmonicWheel.getSelectedIndex();
                         if (index != -1) {
-                            CompositeColor cc = sliderModel.getCompositeColor();
-                            CompositeColor oldValue = hcm.get(index);
-                            CompositeColor newValue = new CompositeColor(oldValue.getSystem(), oldValue.getComponent(0), cc.getComponent(1),oldValue.getComponent(2));
+                            Color cc = sliderModel.getColor();
+                            Color oldValue = hcm.get(index);
+                            Color newValue = new Color(oldValue.getColorSpace(), ColorUtil.fromColor(oldValue.getColorSpace(), cc), 1f);
                             hcm.set(index, newValue);
                         }
                     }
@@ -188,20 +194,21 @@ public class JMixer extends javax.swing.JPanel {
         // updateRules();
 
         HarmonicColorModel h = harmonicWheel.getHarmonicColorModel();
-        ColorSystem sys = h.getColorSystem();
-        h.set(0, new CompositeColor(sys, new Color(0, 19, 148)));
-        h.set(1, new CompositeColor(sys, new Color(218, 37, 26)));
-        h.set(2, new CompositeColor(sys, new Color(70, 148, 27)));
-        h.set(3, new CompositeColor(sys, new Color(174, 46, 248)));
-        h.set(4, new CompositeColor(sys, new Color(255, 252, 76)));
-        h.set(5, new CompositeColor(sys, new Color(234, 155, 65)));
-        h.set(6, new CompositeColor(sys, new Color(51, 51, 51)));
-        h.set(7, new CompositeColor(sys, new Color(153, 153, 153)));
+        ColorSpace sys = h.getColorSpace();
+        h.set(0, new Color(sys, ColorUtil.fromRGB(sys, 0, 19, 148), 1f));
+        h.set(1, new Color(sys, ColorUtil.fromRGB(sys, 218, 37, 26), 1f));
+        h.set(2, new Color(sys, ColorUtil.fromRGB(sys, 70, 148, 27), 1f));
+        h.set(3, new Color(sys, ColorUtil.fromRGB(sys, 174, 46, 248), 1f));
+        h.set(4, new Color(sys, ColorUtil.fromRGB(sys, 255, 252, 76), 1f));
+        h.set(5, new Color(sys, ColorUtil.fromRGB(sys, 234, 155, 65), 1f));
+        h.set(6, new Color(sys, ColorUtil.fromRGB(sys, 51, 51, 51), 1f));
+        h.set(7, new Color(sys, ColorUtil.fromRGB(sys, 153, 153, 153), 1f));
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 JFrame f = new JFrame("Mixer");
                 f.add(new JMixer());
@@ -241,21 +248,21 @@ public class JMixer extends javax.swing.JPanel {
         }
 
         /*if (achromaticCheck.isSelected()) {
-            m.addRule(new SimpleHarmonicRule(1, -1f / 12f, 0, 3, 4));
-            m.addRule(new SimpleHarmonicRule(1, -1f / 12f, 5, 8, 9));
-            m.addRule(new SimpleHarmonicRule(1, -1f / 12f, 10, 13, 14));
+        m.addRule(new SimpleHarmonicRule(1, -1f / 12f, 0, 3, 4));
+        m.addRule(new SimpleHarmonicRule(1, -1f / 12f, 5, 8, 9));
+        m.addRule(new SimpleHarmonicRule(1, -1f / 12f, 10, 13, 14));
         }*/
         if (monochromaticCheck.isSelected()) {
             /*
             m.addRule(new SimpleHarmonicRule(2, 1f/12f, 0, 1, 2));
             m.addRule(new SimpleHarmonicRule(2, 1f/12f, 5, 6, 7));
             m.addRule(new SimpleHarmonicRule(2, 1f/12f, 10, 11, 12));*/
-            m.addRule(new SimpleHarmonicRule(2, 1f/12f, 0, 1, 2));
-            m.addRule(new SimpleHarmonicRule(2, 1f/12f, 5, 6, 7));
-            m.addRule(new SimpleHarmonicRule(2, 1f/12f, 10, 11, 12));
-            m.addRule(new SimpleHarmonicRule(2, -1f/12f, 0, 3, 4));
-            m.addRule(new SimpleHarmonicRule(2, -1f/12f, 5, 8, 9));
-            m.addRule(new SimpleHarmonicRule(2, -1f/12f, 10, 13, 14));
+            m.addRule(new SimpleHarmonicRule(2, 1f / 12f, 0, 1, 2));
+            m.addRule(new SimpleHarmonicRule(2, 1f / 12f, 5, 6, 7));
+            m.addRule(new SimpleHarmonicRule(2, 1f / 12f, 10, 11, 12));
+            m.addRule(new SimpleHarmonicRule(2, -1f / 12f, 0, 3, 4));
+            m.addRule(new SimpleHarmonicRule(2, -1f / 12f, 5, 8, 9));
+            m.addRule(new SimpleHarmonicRule(2, -1f / 12f, 10, 13, 14));
         }
 
         m.applyRules();
@@ -714,36 +721,35 @@ public class JMixer extends javax.swing.JPanel {
 }//GEN-LAST:event_ruleChangePerformed
 
 private void mixerDisclosurePerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mixerDisclosurePerformed
-    mixerPanel.setVisible(disclosureButton.isSelected()) ;
+    mixerPanel.setVisible(disclosureButton.isSelected());
     mixerPanel.getParent().validate();
 
 }//GEN-LAST:event_mixerDisclosurePerformed
 
 private void systemChangePerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_systemChangePerformed
     HarmonicColorModel m = harmonicWheel.getHarmonicColorModel();
-ColorSystem sys;
+    ColorSpace sys;
     if (sysRGBToggle.isSelected()) {
-       sys = new HSLRGBColorSystem();
+        sys = HSLColorSpace.getInstance();
     } else {
-        sys = new HSLRYBColorSystem();
+        sys = HSLPhysiologicColorSpace.getInstance();
     }
- m.setColorSystem(sys);
- sliderModel.setColorSystem(sys);
-  sliderModel.configureSlider(1, saturationSlider);
-  if (harmonicWheel.getSelectedIndex() != -1) {
-      sliderModel.setCompositeColor(m.get(harmonicWheel.getSelectedIndex()));
-  }
+    m.setColorSpace(sys);
+    sliderModel.setColorSpace(sys);
+    sliderModel.configureSlider(1, saturationSlider);
+    if (harmonicWheel.getSelectedIndex() != -1) {
+        sliderModel.setColor(m.get(harmonicWheel.getSelectedIndex()));
+    }
 }//GEN-LAST:event_systemChangePerformed
 
 private void presetPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_presetPerformed
-Object obj = presetCombo.getSelectedItem();
-if (obj instanceof Preset) {
- Preset preset = (Preset) obj;
-    HarmonicColorModel m = harmonicWheel.getHarmonicColorModel();
- m.set(m.getBase(), preset.getCompositeColor());
-}
+    Object obj = presetCombo.getSelectedItem();
+    if (obj instanceof Preset) {
+        Preset preset = (Preset) obj;
+        HarmonicColorModel m = harmonicWheel.getHarmonicColorModel();
+        m.set(m.getBase(), preset.getColor());
+    }
 }//GEN-LAST:event_presetPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox achromaticCheck;
     private org.jhotdraw.gui.JLifeFormattedTextField achromaticField;

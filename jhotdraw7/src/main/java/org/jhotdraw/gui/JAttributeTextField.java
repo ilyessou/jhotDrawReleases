@@ -38,7 +38,7 @@ public class JAttributeTextField<T> extends JLifeFormattedTextField implements A
     @Override
     protected void paintComponent(Graphics g) {
         if (!isFocusOwner() && isMultipleValues) {
-            ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
+            ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.gui.Labels");
             Color c = getForeground();
             setForeground(new Color(0x0, true));
             super.paintComponent(g);
@@ -48,7 +48,7 @@ public class JAttributeTextField<T> extends JLifeFormattedTextField implements A
             g.setFont(getFont().deriveFont(Font.ITALIC));
             setForeground(c);
             g.setColor(c);
-            g.drawString(labels.getString("attribute.multipleValues.text"),
+            g.drawString(labels.getString("attribute.differentValues.text"),
                     insets.left + margin.left,
                     insets.top + margin.top + fm.getAscent());
         } else {
@@ -65,28 +65,34 @@ public class JAttributeTextField<T> extends JLifeFormattedTextField implements A
     private void initComponents() {
     }// </editor-fold>//GEN-END:initComponents
 
+    @Override
     public JComponent getComponent() {
         return this;
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public T getAttributeValue() {
         return (T) getValue();
     }
 
+    @Override
     public void setMultipleValues(boolean newValue) {
         isMultipleValues = newValue;
         repaint();
     }
 
+    @Override
     public boolean isMultipleValues() {
         return isMultipleValues;
     }
 
+    @Override
     public boolean getValueIsAdjusting() {
         return isFocusOwner();
     }
 
+    @Override
     public void setAttributeValue(T newValue) {
         setValue(newValue);
     }

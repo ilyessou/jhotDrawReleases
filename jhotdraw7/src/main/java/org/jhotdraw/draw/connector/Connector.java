@@ -16,16 +16,16 @@
 package org.jhotdraw.draw.connector;
 
 import org.jhotdraw.draw.*;
-import org.jhotdraw.xml.DOMStorable;
 
 import java.awt.*;
 import java.awt.geom.*;
 import java.io.*;
+import org.jhotdraw.annotations.NotNull;
 /**
  * A <em>connector</em> knows how to locate the start point or the end point
  * of a {@link ConnectionFigure} on a connected figure.
  * <p>
- * A connector is owned by a {@link Figure}.
+ * A connector is created and owned by a {@link Figure}.
  * <p>
  * A connector knows its owning figure. A connector has bounds which describe
  * the area of the figure it is responsible for. A connector can be drawn, so
@@ -52,7 +52,8 @@ import java.io.*;
  * @author Werner Randelshofer
  * @version $Id$
  */
-public interface Connector extends Cloneable, Serializable, DOMStorable {
+@NotNull
+public interface Connector extends Cloneable, Serializable {
     
     /**
      * Finds the start point for the connection.

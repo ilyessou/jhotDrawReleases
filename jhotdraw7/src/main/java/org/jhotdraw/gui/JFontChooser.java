@@ -94,18 +94,22 @@ public class JFontChooser extends JComponent {
     private static FutureTask<Font[]> future;
     private TreeModelListener modelHandler = new TreeModelListener() {
 
+    @Override
         public void treeNodesChanged(TreeModelEvent e) {
             updateSelectionPath(getSelectedFont());
         }
 
+    @Override
         public void treeNodesInserted(TreeModelEvent e) {
             updateSelectionPath(getSelectedFont());
         }
 
+    @Override
         public void treeNodesRemoved(TreeModelEvent e) {
             updateSelectionPath(getSelectedFont());
         }
 
+    @Override
         public void treeStructureChanged(TreeModelEvent e) {
             updateSelectionPath(getSelectedFont());
         }
@@ -119,6 +123,7 @@ public class JFontChooser extends JComponent {
         updateUI();
         addPropertyChangeListener(new PropertyChangeListener() {
 
+    @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName() == "ancestor" && evt.getNewValue() != null) {
                     Component ancestor = (Component) evt.getNewValue();
@@ -311,6 +316,7 @@ public class JFontChooser extends JComponent {
         if (future == null) {
             future = new FutureTask<Font[]>(new Callable<Font[]>() {
 
+    @Override
                 public Font[] call() throws Exception {
                     long start = System.currentTimeMillis();
                     Font[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
@@ -320,9 +326,12 @@ public class JFontChooser extends JComponent {
                     // get rid of bogus fonts
                     ArrayList<Font> goodFonts = new ArrayList<Font>(fonts.length);
                     for (Font f : fonts) {
+                        //System.out.println("JFontChooser "+f.getFontName());
                         Font decoded = Font.decode(f.getFontName());
                         if (decoded.getFontName().equals(f.getFontName()) || decoded.getFontName().endsWith("-Derived")) {
                             goodFonts.add(f);
+                        } else {
+                            //System.out.println("JFontChooser ***bogus*** "+decoded.getFontName());
                         }
                     }
                     return goodFonts.toArray(new Font[goodFonts.size()]);

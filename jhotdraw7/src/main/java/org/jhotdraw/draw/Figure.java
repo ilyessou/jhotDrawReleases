@@ -24,8 +24,9 @@ import java.beans.PropertyChangeListener;
 import java.util.*;
 import javax.swing.*;
 import java.io.*;
+import org.jhotdraw.annotations.NotNull;
+import org.jhotdraw.annotations.Nullable;
 import org.jhotdraw.geom.*;
-import org.jhotdraw.xml.DOMStorable;
 
 /**
  * A <em>figure</em> is a graphical element of a {@link Drawing}. A figure
@@ -50,6 +51,8 @@ import org.jhotdraw.xml.DOMStorable;
  * <li>A figure can be composed of other figures. If this is the case,
  * the object implementing the {@code Figure} interface usually also
  * implements the {@link CompositeFigure} interface.</li>
+ *
+ * <li>A figure can create a clone of itself.</li>
  * </ul>
  * 
  *
@@ -108,7 +111,8 @@ import org.jhotdraw.xml.DOMStorable;
  * @author Werner Randelshofer
  * @version $Id$
  */
-public interface Figure extends Cloneable, Serializable, DOMStorable {
+@NotNull
+public interface Figure extends Cloneable, Serializable {
     // PROPERTIES
     /** The name of the "connectable" property. */
     public final static String CONNECTABLE_PROPERTY="connectable";
@@ -159,9 +163,9 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
      * This is a basic operation which does not fire events. Use the following
      * code sequence, if you need event firing:
      * <pre>
-     * aFigure.willChange();
-     * aFigure.setBounds(...);
-     * aFigure.changed();
+     * figure.willChange();
+     * figure.setBounds(...);
+     * figure.changed();
      * </pre>
      * 
      * 
@@ -220,14 +224,13 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
      * <p>
      * This is used for hit testing by Tool's. 
      */
-    boolean contains(Point2D.Double p);
+    public boolean contains(Point2D.Double p);
 
 
     // TRANSFORMING
     /**
      * Gets data which can be used to restore the transformation of the figure 
      * without loss of precision, after a transform has been applied to it.
-     * 
      * 
      * @see #transform(AffineTransform)
      */
@@ -247,9 +250,9 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
      * This is a basic operation which does not fire events. Use the following
      * code sequence, if you need event firing:
      * <pre>
-     * aFigure.willChange();
-     * aFigure.transform(...);
-     * aFigure.changed();
+     * figure.willChange();
+     * figure.transform(...);
+     * figure.changed();
      * </pre>
      * 
      * 
@@ -268,12 +271,15 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
      * For efficiency reasons, the drawing is not automatically repainted.
      * If you want the drawing to be repainted when the attribute is changed,
      * you can either use {@code key.set(figure, value); } or
-     * {@code figure.willChange(); figure.set(key, value);
-     * figure.changed(); }.
+     * <pre>
+     * figure.willChange();
+     * figure.set(...);
+     * figure.changed();
+     * </pre>
      * 
      * @see AttributeKey#set
      */
-    public <T> void set(AttributeKey<T> key, T value);
+    public <T> void set(AttributeKey<T> key, @Nullable T value);
 
     /**
      * Gets an attribute from the Figure.
@@ -283,7 +289,7 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
      * @return Returns the attribute value. If the Figure does not have an
      * attribute with the specified key, returns key.getDefaultValue().
      */
-    public <T> T get(AttributeKey<T> key);
+    @Nullable public <T> T get(AttributeKey<T> key);
 
     /**
      * Returns a view to all attributes of this figure.
@@ -373,7 +379,7 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
      * Returns a specialized tool for the specified location.
      * <p>Returns null, if no specialized tool is available.
      */
-    public Tool getTool(Point2D.Double p);
+    @Nullable public Tool getTool(Point2D.Double p);
 
     /**
      * Returns a tooltip for the specified location on the figure.
@@ -395,16 +401,16 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
      * unknown. This allows for specific connectors for different 
      * connection figures.
      */
-    public Connector findConnector(Point2D.Double p, ConnectionFigure prototype);
+    public Connector findConnector(Point2D.Double p, @Nullable ConnectionFigure prototype);
 
     /**
      * Gets a compatible connector.
      * If the provided connector is part of this figure, return the connector.
      * If the provided connector is part of another figure, return a connector
      * with the same semantics for this figure.
-     * Return null, if no compatible connector is available.
+     * Returns null, if no compatible connector is available.
      */
-    public Connector findCompatibleConnector(Connector c, boolean isStartConnector);
+    @Nullable public Connector findCompatibleConnector(Connector c, boolean isStartConnector);
 
     /**
      * Returns all connectors of this Figure for the specified prototype of
@@ -418,7 +424,7 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
      * unknown. This allows for specific connectors for different 
      * connection figures.
      */
-    public Collection<Connector> getConnectors(ConnectionFigure prototype);
+    public Collection<Connector> getConnectors(@Nullable ConnectionFigure prototype);
 
     // COMPOSITE FIGURES
     /**
@@ -443,7 +449,7 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
      * @return Returns the innermost figure at the location, or null if the
      * location is not contained in a figure.
      */
-    public Figure findFigureInside(Point2D.Double p);
+    @Nullable public Figure findFigureInside(Point2D.Double p);
 
     /**
      * Returns a decompositon of a figure into its parts.

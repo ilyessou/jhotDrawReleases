@@ -87,35 +87,16 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
          * a lock.
          */
         Object value = defaults.get(key);
-        if (!(value instanceof ActiveValue) &&
-                !(value instanceof LazyValue)) {
+        if (!(value instanceof ActiveValue)
+                && !(value instanceof LazyValue)) {
             return value;
         }
 
-        /* At this point we know that the value of key was
-         * a LazyValue or an ActiveValue.
-         */
-        if (value instanceof LazyValue) {
-            try {
-                /* If an exception is thrown we'll just put the LazyValue
-                 * back in the table.
-                 */
-                value = ((LazyValue) value).createValue(defaults);
-            } finally {
-                if (value == null) {
-                    defaults.remove(key);
-                } else {
-                    defaults.put(key, value);
-                }
-            }
-        } else {
-            value = ((ActiveValue) value).createValue(defaults);
-        }
         return value;
     }
 
-    public Font getFont(String key) {
-        return (Font) get(key);
+    public boolean getBoolean(String key) {
+        return ((Boolean) get(key)).booleanValue();
     }
 
     public Border getBorder(String key) {
@@ -126,11 +107,24 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
         return (Color) get(key);
     }
 
+    public Font getFont(String key) {
+        return (Font) get(key);
+    }
+
+    public Icon getIcon(String key) {
+        return (Icon) get(key);
+    }
+
+    public int getInt(String key) {
+        return (Integer) get(key);
+    }
+
     public Insets getInsets(String key) {
         return (Insets) get(key);
     }
-    public boolean getBoolean(String key) {
-        return ((Boolean) get(key)).booleanValue();
+
+    public String getString(String key) {
+        return (String) get(key);
     }
 
     /**
@@ -169,9 +163,9 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
      */
     public static void installBorder(JComponent c, String defaultBorderName) {
         Border b = c.getBorder();
-        //if (b == null || b instanceof UIResource) {
-        c.setBorder(getInstance().getBorder(defaultBorderName));
-    //}
+        if (b == null || b instanceof UIResource) {
+            c.setBorder(getInstance().getBorder(defaultBorderName));
+        }
 
     }
 
@@ -191,14 +185,15 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
     public static void installColors(JComponent c,
             String defaultBgName,
             String defaultFgName) {
+        PaletteLookAndFeel plaf = getInstance();
         Color bg = c.getBackground();
         if (bg == null || bg instanceof UIResource) {
-            c.setBackground(getInstance().getColor(defaultBgName));
+            c.setBackground(plaf.getColor(defaultBgName));
         }
 
         Color fg = c.getForeground();
         if (fg == null || fg instanceof UIResource) {
-            c.setForeground(getInstance().getColor(defaultFgName));
+            c.setForeground(plaf.getColor(defaultFgName));
         }
     }
 
@@ -209,38 +204,36 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
         table.addResourceBundle("org.jhotdraw.gui.Labels");
 
         // *** Shared Fonts
-        Integer eleven = new Integer(11);
-        Integer twelve = new Integer(12);
         Integer fontPlain = new Integer(Font.PLAIN);
         Integer fontBold = new Integer(Font.BOLD);
         Object dialogPlain11 = new ProxyLazyValue(
                 "javax.swing.plaf.FontUIResource",
                 null,
-                new Object[]{"Dialog Sans", fontPlain, eleven});
+                new Object[]{"Dialog Sans", fontPlain, 11});
         Object dialogPlain12 = new ProxyLazyValue(
                 "javax.swing.plaf.FontUIResource",
                 null,
-                new Object[]{"Dialog Sans", fontPlain, twelve});
+                new Object[]{"Dialog Sans", fontPlain, 12});
         Object fieldPlain12 = new ProxyLazyValue(
                 "javax.swing.plaf.FontUIResource",
                 null,
-                new Object[]{"Verdana", fontPlain, twelve});
+                new Object[]{"Verdana", fontPlain, 12});
         Object serifPlain12 = new ProxyLazyValue(
                 "javax.swing.plaf.FontUIResource",
                 null,
-                new Object[]{"Serif", fontPlain, twelve});
+                new Object[]{"Serif", fontPlain, 12});
         Object sansSerifPlain12 = new ProxyLazyValue(
                 "javax.swing.plaf.FontUIResource",
                 null,
-                new Object[]{"SansSerif", fontPlain, twelve});
+                new Object[]{"SansSerif", fontPlain, 12});
         Object monospacedPlain12 = new ProxyLazyValue(
                 "javax.swing.plaf.FontUIResource",
                 null,
-                new Object[]{"MonoSpaced", fontPlain, twelve});
+                new Object[]{"MonoSpaced", fontPlain, 12});
         Object dialogBold12 = new ProxyLazyValue(
                 "javax.swing.plaf.FontUIResource",
                 null,
-                new Object[]{"Dialog", fontBold, twelve});
+                new Object[]{"Dialog", fontBold, 12});
 
 
         // *** Shared Colors
@@ -251,6 +244,12 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
 
         ColorUIResource selectionBackground = new ColorUIResource(0xb5d5ff);
         ColorUIResource selectionForeground = black;
+
+        ColorUIResource listSelectionBackground = new ColorUIResource(0x3875d7);
+        Object focusCellHighlightBorder = new UIDefaults.ProxyLazyValue(
+                "javax.swing.plaf.BorderUIResource$LineBorderUIResource",
+                // null,
+                new Object[]{listSelectionBackground});
 
         // *** Shared Insets
         InsetsUIResource zeroInsets = new InsetsUIResource(0, 0, 0, 0);
@@ -267,7 +266,6 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
         Object[] defaults = {
             // *** Fonts
             "SmallSystemFont", dialogPlain11,
-
             // *** Buttons
             "Button.font", dialogPlain12,
             "Button.background", control,
@@ -279,6 +277,15 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
             "Button.foreground", controlText,
             "Button.border", buttonBorder,
             "Button.margin", zeroInsets,
+            // *** ColorChooser
+            // class names of default choosers
+            "ColorChooser.font", dialogPlain11,
+            "ColorChooser.defaultChoosers", new String[]{
+                "org.jhotdraw.gui.plaf.palette.colorchooser.PaletteSwatchesChooser",
+                "org.jhotdraw.gui.plaf.palette.colorchooser.PaletteColorWheelChooser",
+                "org.jhotdraw.gui.plaf.palette.colorchooser.PaletteColorSlidersChooser",},
+            "ColorChooser.textSliderGap", 3,
+            //
             // *** FormattedTextField
             "FormattedTextField.font", fieldPlain12,
             "FormattedTextField.background", control,
@@ -288,21 +295,47 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
             "FormattedTextField.opaque", Boolean.TRUE,
             "FormattedTextField.errorIndicatorForeground", new ColorUIResource(0xfe4a41),
             "FormattedTextField.selectionBackground", selectionBackground,
-            "FormattedTextField.selectionForeground",  selectionForeground,
+            "FormattedTextField.selectionForeground", selectionForeground,
             // *** Labels
             "Label.font", dialogPlain12,
+            "Label.border", new UIDefaults.ProxyLazyValue(
+            "javax.swing.plaf.BorderUIResource$EmptyBorderUIResource",
+            new Object[]{0, 0, 0, 0}),
+            // *** Lists
+            "List.focusCellHighlightBorder", focusCellHighlightBorder,
+            "List.cellRenderer", new UIDefaults.ProxyLazyValue("org.jhotdraw.gui.plaf.palette.PaletteListCellRenderer"),
+            // *** Panels
+            "Panel.background", control,
+            "Panel.foreground", controlText,
+            "Panel.opaque", Boolean.TRUE,
             // *** Ribbons
-            "Ribbon.border", new UIDefaults.ProxyLazyValue("javax.swing.border.MatteBorder", new Object[] {new Insets(1,0,0,0), new Color(0x777777)}), //
+            "Ribbon.border", new UIDefaults.ProxyLazyValue("javax.swing.border.MatteBorder", new Object[]{new Insets(1, 0, 0, 0), new Color(0x777777)}), //
             // *** ScrollPane
-            "ScrollPane.border", new UIDefaults.ProxyLazyValue("javax.swing.border.MatteBorder", new Object[] {new Insets(1,1,1,1), new Color(0xa5a5a5)}), //
+            "ScrollPane.border", new UIDefaults.ProxyLazyValue("javax.swing.border.MatteBorder", new Object[]{new Insets(1, 1, 1, 1), new Color(0xa5a5a5)}), //
             // *** Slider
             "Slider.background", control,
             "Slider.foreground", controlText,
             "Slider.horizontalSize", new DimensionUIResource(100, 20),
             "Slider.verticalSize", new DimensionUIResource(20, 100),
+            "Slider.northThumb.small", new UIDefaults.ProxyLazyValue(
+            "org.jhotdraw.gui.plaf.palette.PaletteSliderThumbIcon",
+            new Object[]{"/org/jhotdraw/gui/plaf/palette/images/Slider.northThumbs.small.png", 6, true}),
+            "Slider.westThumb.small", new UIDefaults.ProxyLazyValue(
+            "org.jhotdraw.gui.plaf.palette.PaletteSliderThumbIcon",
+            new Object[]{"/org/jhotdraw/gui/plaf/palette/images/Slider.westThumbs.small.png", 6, true}),
+            // *** TabbedPane
+            "TabbedPane.font", dialogPlain12,
+            "TabbedPane.selectedFont", dialogBold12,
+            "TabbedPane.background", control,
+            "TabbedPane.contentAreaColor", control,
+            "TabbedPane.foreground", controlText,
+            "TabbedPane.highlight", new ColorUIResource(0xa5a5a5),
+            "TabbedPane.lightHighlight", new ColorUIResource(0xa5a5a5),
+            "TabbedPane.shadow", new ColorUIResource(0xa5a5a5),
+            "TabbedPane.darkShadow", new ColorUIResource(0x333333),
             // *** TextArea
             "TextArea.selectionBackground", selectionBackground,
-            "TextArea.selectionForeground",  selectionForeground,
+            "TextArea.selectionForeground", selectionForeground,
             // *** TextField
             "TextField.font", fieldPlain12,
             "TextField.background", control,
@@ -311,7 +344,7 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
             "TextField.margin", zeroInsets,
             "TextField.opaque", Boolean.TRUE,
             "TextField.selectionBackground", selectionBackground,
-            "TextField.selectionForeground",  selectionForeground,
+            "TextField.selectionForeground", selectionForeground,
             // *** ToolBar
             "ToolBar.font", dialogPlain12,
             "ToolBar.background", control,
@@ -322,9 +355,8 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
             //	    "ToolBar.floatingForeground", darkGray,
             //	    "ToolBar.border", etchedBorder,
             "ToolBar.border", new UIDefaults.ProxyLazyValue("org.jhotdraw.gui.plaf.palette.PaletteToolBarBorder$UIResource"), //
-            //	    "ToolBar.separatorSize", toolBarSeparatorSize,
+        //	    "ToolBar.separatorSize", toolBarSeparatorSize,
         };
-
         table.putDefaults(defaults);
     }
 

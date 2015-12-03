@@ -16,6 +16,7 @@
 package org.jhotdraw.draw.layouter;
 import org.jhotdraw.draw.*;
 import java.awt.geom.*;
+import org.jhotdraw.annotations.NotNull;
 /**
  * A Layouter encapsulates a strategy for laying out the child figures of
  * a CompositeFigure. 
@@ -32,7 +33,8 @@ import java.awt.geom.*;
  * @author Werner Randelshofer
  * @version $Id$
  */
-public interface Layouter /*extends Serializable, Storable*/ {
+@NotNull
+public interface Layouter {
     
     /**
      * Calculate the layout for the figure and all its subelements. The

@@ -15,6 +15,7 @@ package org.jhotdraw.color;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.color.ColorSpace;
 
 /**
  * HSLHarmonicColorWheelImageProducer.
@@ -22,15 +23,16 @@ import java.awt.Point;
  * @author Werner Randelshofer
  * @version $Id$
  */
-public class HSLHarmonicColorWheelImageProducer extends ColorWheelImageProducer {
+public class HSLHarmonicColorWheelImageProducer extends PolarColorWheelImageProducer {
 
     private float[] brights;
     private boolean isDiscrete = true;
 
     public HSLHarmonicColorWheelImageProducer(int w, int h) {
-        super(new HSLRYBColorSystem(), w, h);
+        super(HSLPhysiologicColorSpace.getInstance(), w, h);
     }
-    public HSLHarmonicColorWheelImageProducer(ColorSystem sys, int w, int h) {
+
+    public HSLHarmonicColorWheelImageProducer(ColorSpace sys, int w, int h) {
         super(sys, w, h);
     }
 
@@ -128,7 +130,7 @@ public class HSLHarmonicColorWheelImageProducer extends ColorWheelImageProducer 
         float radius = (float) Math.min(w, h);
         for (int index = 0; index < pixels.length; index++) {
             if (alphas[index] != 0) {
-                pixels[index] = alphas[index] | 0xffffff & colorSystem.toRGB(angulars[index], radials[index], brights[index]);
+                pixels[index] = alphas[index] | 0xffffff & ColorUtil.toRGB(colorSpace, angulars[index], radials[index], brights[index]);
             }
         }
         newPixels();
@@ -136,46 +138,48 @@ public class HSLHarmonicColorWheelImageProducer extends ColorWheelImageProducer 
     }
 
     @Override
-    protected Point getColorLocation(Color c, int width, int height) {
-        float[] hsb = new float[3];
-        hsb = colorSystem.toComponents(c.getRGB(), hsb);
-        return getColorLocation(hsb[0], hsb[1], hsb[2], width, height);
+    public Point getColorLocation(Color c) {
+        float[] hsb = ColorUtil.fromColor(colorSpace, c);
+        return getColorLocation(hsb);
     }
 
     @Override
-    protected Point getColorLocation(float hue, float saturation, float brightness, int width, int height) {
-        float radius = Math.min(width, height) / 2f;
+    public Point getColorLocation(float[] hsb) {
+        float hue = hsb[0];
+        float saturation = hsb[1];
+        float brightness = hsb[2];
+        float radius = Math.min(w, h) / 2f;
         float radiusH = radius / 2f;
 
         saturation = Math.max(0f, Math.min(1f, saturation));
         brightness = Math.max(0f, Math.min(1f, brightness));
-        
+
         Point p;
-            p = new Point(
-                    width / 2 + (int) ((radius - radius * brightness) * Math.cos(hue * Math.PI * 2d)),
-                    height / 2 - (int) ((radius - radius * brightness) * Math.sin(hue * Math.PI * 2d)));
+        p = new Point(
+                w / 2 + (int) ((radius - radius * brightness) * Math.cos(hue * Math.PI * 2d)),
+                h / 2 - (int) ((radius - radius * brightness) * Math.sin(hue * Math.PI * 2d)));
         return p;
     }
 
     @Override
-    protected float[] getColorAt(int x, int y, int width, int height) {
-        x -= width / 2;
-        y -= height / 2;
+    public float[] getColorAt(int x, int y) {
+        x -= w / 2;
+        y -= h / 2;
         float r = (float) Math.sqrt(x * x + y * y);
         float theta = (float) Math.atan2(-y, x);
-        float radius = Math.min(width, height) / 2f;
+        float radius = Math.min(w, h) / 2f;
 
         float[] hsb;
-        float sat = (float) r / radius ;
+        float sat = (float) r / radius;
         float hue = (float) (theta / Math.PI / 2d);
         if (hue < 0) {
             hue += 1f;
         }
         hsb = new float[]{
-            hue,
-            1f,
-            1f - sat
-        };
+                    hue,
+                    1f,
+                    1f - sat
+                };
 
         return hsb;
     }

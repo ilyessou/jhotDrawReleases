@@ -14,6 +14,7 @@
 
 package org.jhotdraw.gui.plaf.palette;
 
+import java.awt.Color;
 import java.awt.Font;
 import javax.swing.*;
 import org.jhotdraw.util.ResourceBundleUtil;
@@ -34,11 +35,21 @@ private ResourceBundleUtil labels;
         familyList.setModel(new DefaultListModel());
         faceList.setModel(new DefaultListModel());
         
-        // Customiziation of Quaqua Look and Feel: Set small scroll bars
-        Font smallSystemFont = new Font("Dialog", Font.PLAIN, 11);
-        collectionsScrollPane.setFont(smallSystemFont);
-        familiesScrollPane.setFont(smallSystemFont);
-        facesScrollPane.setFont(smallSystemFont);
+        // Customization of Quaqua Look and Feel: Set small scroll bars
+        collectionsScrollPane.putClientProperty("JComponent.sizeVariant", "small");
+        familiesScrollPane.putClientProperty("JComponent.sizeVariant", "small");
+        facesScrollPane.putClientProperty("JComponent.sizeVariant", "small");
+
+        // Customization of Nimbus Look and Feel: Set small scroll bars
+        collectionsScrollPane.getVerticalScrollBar().putClientProperty("JComponent.sizeVariant", "small");
+        familiesScrollPane.getVerticalScrollBar().putClientProperty("JComponent.sizeVariant", "small");
+        facesScrollPane.getVerticalScrollBar().putClientProperty("JComponent.sizeVariant", "small");
+        collectionsScrollPane.getVerticalScrollBar().updateUI();
+        familiesScrollPane.updateUI();
+        facesScrollPane.getVerticalScrollBar().updateUI();
+
+        setOpaque(true);
+        setBackground(new Color(0xededed));
     }
     
     public JList getCollectionList() {

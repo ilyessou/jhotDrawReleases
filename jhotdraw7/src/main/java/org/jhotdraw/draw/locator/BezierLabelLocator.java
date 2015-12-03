@@ -14,7 +14,6 @@
 
 package org.jhotdraw.draw.locator;
 
-import org.jhotdraw.draw.BezierFigure;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.geom.*;
 import java.awt.geom.*;
@@ -58,9 +57,11 @@ public class BezierLabelLocator implements Locator, DOMStorable {
         this.distance = distance;
     }
     
+    @Override
     public Point2D.Double locate(Figure owner) {
         return getRelativePoint((BezierFigure) owner);
     }
+    @Override
     public Point2D.Double locate(Figure owner, Figure label) {
         Point2D.Double relativePoint = getRelativeLabelPoint((BezierFigure) owner, label);
         return relativePoint;
@@ -222,6 +223,7 @@ public class BezierLabelLocator implements Locator, DOMStorable {
         }*/
     }
     
+    @Override
     public void read(DOMInput in) {
         relativePosition = in.getAttribute("relativePosition", 0d);
         angle = in.getAttribute("angle", 0d);
@@ -229,6 +231,7 @@ public class BezierLabelLocator implements Locator, DOMStorable {
         
     }
     
+    @Override
     public void write(DOMOutput out) {
         out.addAttribute("relativePosition", relativePosition);
         out.addAttribute("angle", angle);

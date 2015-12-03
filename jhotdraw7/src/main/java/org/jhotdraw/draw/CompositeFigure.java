@@ -14,9 +14,9 @@
 
 package org.jhotdraw.draw;
 
+import org.jhotdraw.annotations.NotNull;
 import org.jhotdraw.draw.layouter.Layouter;
 import org.jhotdraw.draw.event.CompositeFigureListener;
-import org.jhotdraw.draw.*;
 import org.jhotdraw.geom.*;
 
 /**
@@ -60,6 +60,7 @@ import org.jhotdraw.geom.*;
  * @author Werner Randelshofer
  * @version $Id$
  */
+@NotNull
 public interface CompositeFigure extends Figure {
     /**
      * The value of this attribute is a Insets2D.Double object.
@@ -214,9 +215,13 @@ public interface CompositeFigure extends Figure {
     public Layouter getLayouter();
     /**
      * A layout algorithm is used to define how the child components
-     * should be laid out in relation to each other. The task for
-     * layouting the child components for presentation is delegated
-     * to a Layouter which can be plugged in at runtime.
+     * should be laid out in relation to each other.
+     * <p>
+     * This method first calls layout() on all child figures which implement
+     * the CompositeFigure interface. Then the children are laid out.
+     * <p>
+     * The task for laying out the child figures is delegated to a Layouter
+     * which can be plugged in at runtime.
      */
     public void layout();
     /**

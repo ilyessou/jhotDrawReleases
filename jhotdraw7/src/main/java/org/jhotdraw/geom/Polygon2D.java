@@ -22,7 +22,6 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
-import java.util.Arrays;
 import sun.awt.geom.Crossings;
 
 /**
@@ -133,6 +132,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
      * <code>Polygon</code>.
      * 
      */
+    @Override
     public Rectangle getBounds() {
         return getBounds2D().getBounds();
     }
@@ -167,39 +167,24 @@ public abstract class Polygon2D implements Shape, Cloneable {
     }
 
     /**
-     * Determines whether the specified coordinates are contained in this 
-     * <code>Polygon</code>.
-     * @param x the specified X coordinate to be tested
-     * @param y the specified Y coordinate to be tested
-     * @return {@code true} if this {@code Polygon} contains
-     *         the specified coordinates {@code (x,y)};
-     *         {@code false} otherwise.
-     * @see #contains(double, double)
-     * @deprecated As of JDK version 1.1,
-     * replaced by <code>contains(int, int)</code>.
-     * 
-     */
-    @Deprecated
-    public boolean inside(int x, int y) {
-        return contains((double) x, (double) y);
-    }
-
-    /**
      * {@inheritDoc}
      * 
      */
+    @Override
     public abstract Rectangle2D getBounds2D();
 
     /**
      * {@inheritDoc}
      * 
      */
+    @Override
     public abstract boolean contains(double x, double y);
 
     /**
      * {@inheritDoc}
      * 
      */
+    @Override
     public boolean contains(Point2D p) {
         return contains(p.getX(), p.getY());
     }
@@ -208,12 +193,14 @@ public abstract class Polygon2D implements Shape, Cloneable {
      * {@inheritDoc}
      * 
      */
+    @Override
     public abstract boolean intersects(double x, double y, double w, double h);
 
     /**
      * {@inheritDoc}
      * 
      */
+    @Override
     public boolean intersects(Rectangle2D r) {
         return intersects(r.getX(), r.getY(), r.getWidth(), r.getHeight());
     }
@@ -222,12 +209,14 @@ public abstract class Polygon2D implements Shape, Cloneable {
      * {@inheritDoc}
      * 
      */
+    @Override
     public abstract boolean contains(double x, double y, double w, double h);
 
     /**
      * {@inheritDoc}
      * 
      */
+    @Override
     public boolean contains(Rectangle2D r) {
         return contains(r.getX(), r.getY(), r.getWidth(), r.getHeight());
     }
@@ -245,6 +234,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
      *		geometry of this <code>Polygon</code>.      
      * 
      */
+    @Override
     public abstract PathIterator getPathIterator(AffineTransform at);
 
     /**
@@ -268,6 +258,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
      * 		<code>Shape</code> object's geometry.
      * 
      */
+    @Override
     public PathIterator getPathIterator(AffineTransform at, double flatness) {
         return getPathIterator(at);
     }
@@ -331,8 +322,8 @@ public abstract class Polygon2D implements Shape, Cloneable {
             // Fix 4489009: should throw IndexOutofBoundsException instead
             // of OutofMemoryException if npoints is huge and > {x,y}points.length
             if (npoints > xpoints.length || npoints > ypoints.length) {
-                throw new IndexOutOfBoundsException("npoints > xpoints.length || " +
-                        "npoints > ypoints.length");
+                throw new IndexOutOfBoundsException("npoints > xpoints.length || "
+                        + "npoints > ypoints.length");
             }
             // Fix 6191114: should throw NegativeArraySizeException with
             // negative npoints
@@ -371,6 +362,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
             }
         }
 
+        @Override
         public void invalidate() {
             bounds = null;
         }
@@ -411,7 +403,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
                 bounds.x = x;
             } else {
                 bounds.width = Math.max(bounds.width, x - bounds.x);
-            // bounds.x = bounds.x;
+                // bounds.x = bounds.x;
             }
 
             if (y < bounds.y) {
@@ -419,10 +411,11 @@ public abstract class Polygon2D implements Shape, Cloneable {
                 bounds.y = y;
             } else {
                 bounds.height = Math.max(bounds.height, y - bounds.y);
-            // bounds.y = bounds.y;
+                // bounds.y = bounds.y;
             }
         }
 
+        @Override
         public boolean contains(double x, double y) {
             if (npoints <= 2 || !getBounds2D().contains(x, y)) {
                 return false;
@@ -517,6 +510,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
             return cross;
         }
 
+        @Override
         public void addPoint(double x, double y) {
             if (npoints >= xpoints.length || npoints >= ypoints.length) {
                 int newLength = npoints * 2;
@@ -531,12 +525,12 @@ public abstract class Polygon2D implements Shape, Cloneable {
                 double[] helper = new double[newLength];
                 System.arraycopy(xpoints, 0, helper, 0,
                         npoints);
-                xpoints=helper;
+                xpoints = helper;
 
                 helper = new double[newLength];
                 System.arraycopy(ypoints, 0, helper, 0,
                         npoints);
-                ypoints=helper;
+                ypoints = helper;
             }
             xpoints[npoints] = x;
             ypoints[npoints] = y;
@@ -563,6 +557,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
             return (Rectangle2D) bounds.clone();
         }
 
+        @Override
         public boolean contains(double x, double y, double w, double h) {
             if (npoints <= 0 || !getBounds2D().intersects(x, y, w, h)) {
                 return false;
@@ -572,6 +567,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
             return (cross != null && cross.covers(y, y + h));
         }
 
+        @Override
         public PathIterator getPathIterator(AffineTransform at) {
             return new PolygonPathIteratorDouble(this, at);
         }
@@ -636,8 +632,8 @@ public abstract class Polygon2D implements Shape, Cloneable {
             // Fix 4489009: should throw IndexOutofBoundsException instead
             // of OutofMemoryException if npoints is huge and > {x,y}points.length
             if (npoints > xpoints.length || npoints > ypoints.length) {
-                throw new IndexOutOfBoundsException("npoints > xpoints.length || " +
-                        "npoints > ypoints.length");
+                throw new IndexOutOfBoundsException("npoints > xpoints.length || "
+                        + "npoints > ypoints.length");
             }
             // Fix 6191114: should throw NegativeArraySizeException with
             // negative npoints
@@ -680,6 +676,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
             }
         }
 
+        @Override
         public void invalidate() {
             bounds = null;
         }
@@ -720,7 +717,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
                 bounds.x = x;
             } else {
                 bounds.width = Math.max(bounds.width, x - bounds.x);
-            // bounds.x = bounds.x;
+                // bounds.x = bounds.x;
             }
 
             if (y < bounds.y) {
@@ -728,7 +725,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
                 bounds.y = y;
             } else {
                 bounds.height = Math.max(bounds.height, y - bounds.y);
-            // bounds.y = bounds.y;
+                // bounds.y = bounds.y;
             }
         }
 
@@ -835,6 +832,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
             return cross;
         }
 
+        @Override
         public void addPoint(double x, double y) {
             addPoint((float) x, (float) y);
         }
@@ -852,12 +850,12 @@ public abstract class Polygon2D implements Shape, Cloneable {
                 float[] helper = new float[newLength];
                 System.arraycopy(xpoints, 0, helper, 0,
                         npoints);
-                xpoints=helper;
+                xpoints = helper;
 
                 helper = new float[newLength];
                 System.arraycopy(ypoints, 0, helper, 0,
                         npoints);
-                ypoints=helper;
+                ypoints = helper;
             }
             xpoints[npoints] = x;
             ypoints[npoints] = y;
@@ -884,6 +882,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
             return (Rectangle2D) bounds.clone();
         }
 
+        @Override
         public boolean contains(double x, double y, double w, double h) {
             return contains((float) x, (float) y, (float) w, (float) h);
         }
@@ -897,6 +896,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
             return (cross != null && cross.covers(y, y + h));
         }
 
+        @Override
         public PathIterator getPathIterator(AffineTransform at) {
             return new PolygonPathIteratorFloat(this, at);
         }
@@ -923,6 +923,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
          * @return an integer representing the current winding rule.
          * @see PathIterator#WIND_NON_ZERO
          */
+        @Override
         public int getWindingRule() {
             return WIND_EVEN_ODD;
         }
@@ -932,6 +933,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
          * @return <code>true</code> if there are more points to read;
          *          <code>false</code> otherwise.
          */
+        @Override
         public boolean isDone() {
             return index > poly.npoints;
         }
@@ -941,6 +943,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
          * traversal, to the next segment of the path when there are
          * more points in that direction.
          */
+        @Override
         public void next() {
             index++;
         }
@@ -963,6 +966,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
          * @see PathIterator#SEG_LINETO
          * @see PathIterator#SEG_CLOSE
          */
+        @Override
         public int currentSegment(float[] coords) {
             if (index >= poly.npoints) {
                 return SEG_CLOSE;
@@ -994,6 +998,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
          * @see PathIterator#SEG_LINETO
          * @see PathIterator#SEG_CLOSE
          */
+        @Override
         public int currentSegment(double[] coords) {
             if (index >= poly.npoints) {
                 return SEG_CLOSE;
@@ -1028,6 +1033,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
          * @return an integer representing the current winding rule.
          * @see PathIterator#WIND_NON_ZERO
          */
+        @Override
         public int getWindingRule() {
             return WIND_EVEN_ODD;
         }
@@ -1037,6 +1043,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
          * @return <code>true</code> if there are more points to read;
          *          <code>false</code> otherwise.
          */
+        @Override
         public boolean isDone() {
             return index > poly.npoints;
         }
@@ -1046,6 +1053,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
          * traversal, to the next segment of the path when there are
          * more points in that direction.
          */
+        @Override
         public void next() {
             index++;
         }
@@ -1068,6 +1076,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
          * @see PathIterator#SEG_LINETO
          * @see PathIterator#SEG_CLOSE
          */
+        @Override
         public int currentSegment(float[] coords) {
             if (index >= poly.npoints) {
                 return SEG_CLOSE;
@@ -1099,6 +1108,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
          * @see PathIterator#SEG_LINETO
          * @see PathIterator#SEG_CLOSE
          */
+        @Override
         public int currentSegment(double[] coords) {
             if (index >= poly.npoints) {
                 return SEG_CLOSE;

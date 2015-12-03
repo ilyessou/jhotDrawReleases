@@ -47,7 +47,8 @@ import org.jhotdraw.util.*;
  * The interfaces and classes listed below define together the contracts
  * of a smaller framework inside of the JHotDraw framework for document oriented
  * applications.<br>
- * Contract: {@link PrintableView}, {@link org.jhotdraw.app.action.file.PrintFileAction}.
+ * Contract: {@link PrintableView}.<br>
+ * Client: {@link org.jhotdraw.app.action.file.PrintFileAction}.
  * <hr>
  *
  * @author Werner Randelshofer
@@ -64,6 +65,7 @@ public class PrintFileAction extends AbstractViewAction {
         labels.configureAction(this, ID);
     }
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
         PrintableView view = (PrintableView)getActiveView();
         view.setEnabled(false);
@@ -162,6 +164,7 @@ public class PrintFileAction extends AbstractViewAction {
         getActiveView().setEnabled(false);
         new Worker() {
 
+            @Override
             protected Object construct() throws PrinterException {
 
                 // Compute page format from settings of the print job
@@ -209,9 +212,11 @@ public class PrintFileAction extends AbstractViewAction {
                 return null;
             }
 
+            @Override
             protected void failed(Throwable error) {
                error.printStackTrace();
             }
+            @Override
             protected void finished() {
                 getActiveView().setEnabled(true);
             }

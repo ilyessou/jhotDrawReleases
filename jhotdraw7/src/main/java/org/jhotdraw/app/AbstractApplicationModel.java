@@ -20,10 +20,10 @@ import org.jhotdraw.gui.JFileURIChooser;
 import org.jhotdraw.gui.URIChooser;
 
 /**
- * AbstractApplicationModel.
+ * This abstract class can be extended to implement an {@link ApplicationModel}.
  *
  * @author Werner Randelshofer
- * @version 1.0 2009-12-19 Created.
+ * @version $Id$
  */
 public abstract class AbstractApplicationModel extends AbstractBean
         implements ApplicationModel {
@@ -49,6 +49,7 @@ public abstract class AbstractApplicationModel extends AbstractBean
         firePropertyChange(NAME_PROPERTY, oldValue, newValue);
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -59,6 +60,7 @@ public abstract class AbstractApplicationModel extends AbstractBean
         firePropertyChange(VERSION_PROPERTY, oldValue, newValue);
     }
 
+    @Override
     public String getVersion() {
         return version;
     }
@@ -69,6 +71,7 @@ public abstract class AbstractApplicationModel extends AbstractBean
         firePropertyChange(COPYRIGHT_PROPERTY, oldValue, newValue);
     }
 
+    @Override
     public String getCopyright() {
         return copyright;
     }
@@ -106,6 +109,7 @@ public abstract class AbstractApplicationModel extends AbstractBean
         return viewClass;
     }
 
+    @Override
     public View createView() {
         try {
             return (View) getViewClass().newInstance();

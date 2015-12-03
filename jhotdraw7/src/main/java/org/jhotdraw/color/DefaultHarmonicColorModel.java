@@ -14,6 +14,7 @@
 package org.jhotdraw.color;
 
 import java.awt.Color;
+import java.awt.color.ColorSpace;
 import java.beans.*;
 import java.util.ArrayList;
 import javax.swing.*;
@@ -28,7 +29,7 @@ import static org.jhotdraw.color.HarmonicColorModel.*;
 public class DefaultHarmonicColorModel extends AbstractListModel implements HarmonicColorModel {
 
     protected PropertyChangeSupport propertySupport = new PropertyChangeSupport(this);
-    private ArrayList<CompositeColor> colors;
+    private ArrayList<Color> colors;
     private ColorSliderModel sliderModel;
     private int base;
     private ArrayList<HarmonicRule> rules;
@@ -36,23 +37,24 @@ public class DefaultHarmonicColorModel extends AbstractListModel implements Harm
     private int adjusting;
 
     public DefaultHarmonicColorModel() {
-        ColorSystem sys = new HSLRYBColorSystem();
+        ColorSpace sys = HSLPhysiologicColorSpace.getInstance();
         sliderModel = new DefaultColorSliderModel(sys);
-        colors = new ArrayList<CompositeColor>();
+        colors = new ArrayList<Color>();
         rules = new ArrayList<HarmonicRule>();
 
         base = 0;
-        add(new CompositeColor(sys, Color.RED));
+        add(Color.RED);
 
         DefaultListModel x;
     }
 
+    @Override
     public void setSize(int newValue) {
         int oldSize = size();
         while (colors.size() > newValue) {
             colors.remove(colors.size() - 1);
         }
-        ColorSystem sys = sliderModel.getColorSystem();
+        ColorSpace sys = sliderModel.getColorSpace();
         while (colors.size() < newValue) {
             colors.add(null);
         }
@@ -64,17 +66,20 @@ public class DefaultHarmonicColorModel extends AbstractListModel implements Harm
         }
     }
 
+    @Override
     public int size() {
         return colors.size();
     }
 
+    @Override
     public boolean isAdjusting() {
         return adjusting > 0;
     }
 
-    public void set(int index, CompositeColor newValue) {
+    @Override
+    public void set(int index, Color newValue) {
         adjusting++;
-        CompositeColor oldValue = colors.set(index, newValue);
+        Color oldValue = colors.set(index, newValue);
         for (HarmonicRule r : rules) {
             r.colorChanged(this, index, oldValue, newValue);
         }
@@ -87,6 +92,7 @@ public class DefaultHarmonicColorModel extends AbstractListModel implements Harm
         fireContentsChanged(this, index, index);
     }
     
+    @Override
     public void applyRules() {
         for (HarmonicRule r : rules) {
             if (r.getBaseIndex() == base) {
@@ -95,11 +101,13 @@ public class DefaultHarmonicColorModel extends AbstractListModel implements Harm
         }
     }
 
-    public CompositeColor get(int index) {
+    @Override
+    public Color get(int index) {
         return colors.get(index);
     }
 
-    public boolean add(CompositeColor c) {
+    @Override
+    public boolean add(Color c) {
         boolean b = colors.add(c);
         if (b) {
             fireIntervalAdded(this, size() - 1, size() - 1);
@@ -107,42 +115,52 @@ public class DefaultHarmonicColorModel extends AbstractListModel implements Harm
         return b;
     }
 
+    @Override
     public void setBase(int newValue) {
         base = newValue;
     }
 
+    @Override
     public int getBase() {
         return base;
     }
 
+    @Override
     public float[] RGBtoComponent(int rgb, float[] hsb) {
-        return sliderModel.getColorSystem().toComponents(rgb, hsb);
+        return ColorUtil.fromColor(sliderModel.getColorSpace(), new Color(rgb));
     }
 
+    @Override
     public int componentToRGB(float h, float s, float b) {
-        return sliderModel.getColorSystem().toRGB(h, s, b);
+        return ColorUtil.toRGB(sliderModel.getColorSpace(), h,s,b);
     }
 
+    @Override
     public int getSize() {
         return size();
     }
 
+    @Override
     public Object getElementAt(int index) {
         return get(index);
     }
 
-    public ColorSystem getColorSystem() {
-        return sliderModel.getColorSystem();
+    @Override
+    public ColorSpace getColorSpace() {
+        return sliderModel.getColorSpace();
     }
 
+    @Override
     public void addRule(HarmonicRule newValue) {
         rules.add(newValue);
     }
 
+    @Override
     public void removeAllRules() {
         rules.clear();
     }
 
+    @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         propertySupport.addPropertyChangeListener(listener);
     }
@@ -151,6 +169,7 @@ public class DefaultHarmonicColorModel extends AbstractListModel implements Harm
         propertySupport.addPropertyChangeListener(propertyName, listener);
     }
 
+    @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         propertySupport.removePropertyChangeListener(listener);
     }
@@ -171,6 +190,7 @@ public class DefaultHarmonicColorModel extends AbstractListModel implements Harm
         propertySupport.firePropertyChange(propertyName, oldValue, newValue);
     }
 
+    @Override
     public DefaultHarmonicColorModel clone() {
         DefaultHarmonicColorModel that;
         try {
@@ -184,13 +204,14 @@ public class DefaultHarmonicColorModel extends AbstractListModel implements Harm
         return that;
     }
 
-    public void setColorSystem(ColorSystem newValue) {
-        ColorSystem oldValue = sliderModel.getColorSystem();
-        sliderModel.setColorSystem(newValue);
-        firePropertyChange(COLOR_SYSTEM_PROPERTY, oldValue, newValue);
+    @Override
+    public void setColorSpace(ColorSpace newValue) {
+        ColorSpace oldValue = sliderModel.getColorSpace();
+        sliderModel.setColorSpace(newValue);
+        firePropertyChange(COLOR_SPACE_PROPERTY, oldValue, newValue);
         for (int i = 0; i < colors.size(); i++) {
             if (get(i) != null) {
-                set(i, new CompositeColor(newValue, get(i).getColor()));
+                set(i, new Color(newValue, ColorUtil.fromColor(newValue,get(i)),1f));
             }
         }
         fireContentsChanged(this, 0, size() - 1);

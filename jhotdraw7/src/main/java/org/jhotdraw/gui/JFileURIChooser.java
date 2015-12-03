@@ -11,7 +11,6 @@
  * accordance with the license agreement you entered into with  
  * the copyright holders. For details see accompanying license terms. 
  */
-
 package org.jhotdraw.gui;
 
 import java.io.File;
@@ -23,19 +22,22 @@ import javax.swing.JFileChooser;
  * JFileURIChooser.
  *
  * @author Werner Randelshofer
- * @version 1.0 2009-12-16 Created.
+ * @version $Id$
  */
 public class JFileURIChooser extends JFileChooser implements URIChooser {
+
+    @Override
     public void setSelectedURI(URI uri) {
         setSelectedFile(new File(uri));
     }
 
+    @Override
     public URI getSelectedURI() {
-        return getSelectedFile()==null?null:getSelectedFile().toURI();
+        return getSelectedFile() == null ? null : getSelectedFile().toURI();
     }
 
+    @Override
     public JComponent getComponent() {
         return this;
     }
-
 }

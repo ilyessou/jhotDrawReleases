@@ -18,8 +18,8 @@ import javax.swing.border.*;
 import org.jhotdraw.util.*;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
-import java.util.prefs.Preferences;
 import javax.swing.*;
+import javax.swing.text.DefaultFormatterFactory;
 import org.jhotdraw.draw.DrawingView;
 import org.jhotdraw.draw.GridConstrainer;
 import org.jhotdraw.draw.action.*;
@@ -127,16 +127,17 @@ public class ViewToolBar extends AbstractToolBar {
 
                 // Grid size field and toggle grid button
                 JLifeFormattedTextField gridSizeField = new JLifeFormattedTextField();
-                gridSizeField.setColumns(3);
+                gridSizeField.setColumns(4);
                 gridSizeField.setToolTipText(labels.getString("view.gridSize.toolTipText"));
                 gridSizeField.setHorizontalAlignment(JLifeFormattedTextField.RIGHT);
                 gridSizeField.putClientProperty("Palette.Component.segmentPosition", "first");
                 gridSizeField.setUI((PaletteFormattedTextFieldUI) PaletteFormattedTextFieldUI.createUI(gridSizeField));
-                gridSizeField.setFormatterFactory(JavaNumberFormatter.createFormatterFactory(0d, 1000d, 1d, true, false));
+                gridSizeField.setFormatterFactory(JavaNumberFormatter.createFormatterFactory(0d, 1000d, 1d, true));
                 gridSizeField.setHorizontalAlignment(JTextField.LEADING);
                 final GridConstrainer constrainer = (GridConstrainer) view.getVisibleConstrainer();
                 gridSizeField.addPropertyChangeListener(new PropertyChangeListener() {
 
+                    @Override
                     public void propertyChange(PropertyChangeEvent evt) {
                         if (evt.getPropertyName().equals("value")) {
                             if (evt.getNewValue() != null) {
@@ -146,7 +147,7 @@ public class ViewToolBar extends AbstractToolBar {
                                 try {
                                     prefs.putDouble("view.gridSize", (Double) evt.getNewValue());
                                 } catch (IllegalStateException e) {//ignore
-                                    }
+                                }
                                 view.getComponent().repaint();
                             }
                         }
@@ -173,16 +174,20 @@ public class ViewToolBar extends AbstractToolBar {
 
                 // Zoom factor field and zoom button
                 final JLifeFormattedTextField scaleFactorField = new JLifeFormattedTextField();
-                scaleFactorField.setColumns(3);
+                scaleFactorField.setColumns(4);
                 scaleFactorField.setToolTipText(labels.getString("view.zoomFactor.toolTipText"));
                 scaleFactorField.setHorizontalAlignment(JLifeFormattedTextField.RIGHT);
                 scaleFactorField.putClientProperty("Palette.Component.segmentPosition", "first");
                 scaleFactorField.setUI((PaletteFormattedTextFieldUI) PaletteFormattedTextFieldUI.createUI(scaleFactorField));
-                scaleFactorField.setFormatterFactory(JavaNumberFormatter.createFormatterFactory(0.01d, 50d, 100d, true, false));
+                JavaNumberFormatter formatter = new JavaNumberFormatter(0.01d, 50d, 100d, false, "%");
+                formatter.setUsesScientificNotation(false);
+                formatter.setMaximumFractionDigits(1);
+                scaleFactorField.setFormatterFactory(new DefaultFormatterFactory(formatter));
                 scaleFactorField.setHorizontalAlignment(JTextField.LEADING);
                 scaleFactorField.setValue(view.getScaleFactor());
                 scaleFactorField.addPropertyChangeListener(new PropertyChangeListener() {
 
+                    @Override
                     public void propertyChange(PropertyChangeEvent evt) {
                         if (evt.getPropertyName().equals("value")) {
                             if (evt.getNewValue() != null) {
@@ -193,6 +198,7 @@ public class ViewToolBar extends AbstractToolBar {
                 });
                 view.addPropertyChangeListener(new PropertyChangeListener() {
 
+                    @Override
                     public void propertyChange(PropertyChangeEvent evt) {
                         if (evt.getPropertyName() == DrawingView.SCALE_FACTOR_PROPERTY) {
                             if (evt.getNewValue() != null) {
