@@ -1,5 +1,5 @@
 /*
- * @(#)CharacterSetAccessory.java  1.0  8. Oktober 2005
+ * @(#)CharacterSetAccessory.java
  *
  * Copyright (c) 2005 by the original authors of JHotDraw
  * and all its contributors.
@@ -19,14 +19,15 @@ import java.nio.charset.*;
 import javax.swing.*;
 import java.util.*;
 import java.util.prefs.*;
+import org.jhotdraw.util.prefs.PreferencesUtil;
 /**
  * CharacterSetAccessory.
  *
  * @author Werner Randelshofer
- * @version 1.0 8. Oktober 2005 Created.
+ * @version $Id$
  */
 public class CharacterSetAccessory extends javax.swing.JPanel {
-    private final static Preferences prefs = Preferences.userNodeForPackage(TeddyView.class);
+    private final static Preferences prefs = PreferencesUtil.userNodeForPackage(TeddyView.class);
     private static Object[] availableCharSets;
     
     /** Creates a new instance. */
@@ -68,7 +69,8 @@ public class CharacterSetAccessory extends javax.swing.JPanel {
                     Arrays.sort(availableCharSets);
                     return null;
                 }
-                public void finished(Object value) {
+                @Override
+                public void finished() {
                     Object selectedItem = charSetCombo.getSelectedItem();
                     charSetCombo.setModel(new DefaultComboBoxModel(availableCharSets));
                     charSetCombo.setSelectedItem(selectedItem);

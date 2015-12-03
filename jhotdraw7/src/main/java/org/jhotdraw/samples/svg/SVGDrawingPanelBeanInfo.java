@@ -1,5 +1,5 @@
 /*
- * @(#)JSVGDrawingAppletPanelBeanInfo.java  1.0  11. November 2003
+ * @(#)JSVGDrawingAppletPanelBeanInfo.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -15,6 +15,12 @@ package org.jhotdraw.samples.svg;
 
 import java.beans.*;
 
+/**
+ * The BeanInfo for {@link SVGDrawingPanel}.
+ *
+ * @author Werner Randelshofer
+ * @version $Id$
+ */
 public class SVGDrawingPanelBeanInfo extends SimpleBeanInfo {
     
     // Bean descriptor information will be obtained from introspection.//GEN-FIRST:BeanDescriptor

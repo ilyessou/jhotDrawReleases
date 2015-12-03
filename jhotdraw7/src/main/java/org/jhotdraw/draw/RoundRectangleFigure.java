@@ -1,5 +1,5 @@
 /*
- * @(#)RoundRectangleFigure.java  2.3  2008-07-06
+ * @(#)RoundRectangleFigure.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -17,25 +17,27 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.io.*;
 import java.util.*;
-import javax.swing.undo.*;
-import static org.jhotdraw.draw.AttributeKeys.*;
 import org.jhotdraw.geom.*;
 import org.jhotdraw.xml.DOMInput;
 import org.jhotdraw.xml.DOMOutput;
 
 /**
- * A Rectangle2D.Double with round corners.
- * 
+ * A {@link Figure} with a rounded rectangular shape.
+ * <p>
+ * This figure has two JavaBeans properties {@code arcWidth} and
+ * {@code arcHeight} which specify the corner radius.
+ * <p>
+ * This figure creates a {@link RoundRectangleRadiusHandle} which allows
+ * to interactively change the corner radius.
+ *
  * @author Werner Randelshofer
- * @version 2.3 2008-07-06 Changed visibility of instance variables from private
- * to protected. 
- * <br>2.2 2006-06-17 Method chop added.
- * 2.1 2006-05-29 Method basetBoundsid not work for bounds smaller
- * than 1 pixel.
- * <br>2.0 2006-01-14 Changed to support double precison coordinates.
- * <br>1.0 2004-03-02 Derived from JHotDraw 6.0b1.
+ * @version $Id$
  */
 public class RoundRectangleFigure extends AbstractAttributedFigure {
+    /** Identifies the {@code arcWidth} JavaBeans property. */
+    public final static String ARC_WIDTH_PROPERTY = "arcWidth";
+    /** Identifies the {@code arcHeight} JavaBeans property. */
+    public final static String ARC_HEIGHT_PROPERTY = "arcHeight";
 
     protected RoundRectangle2D.Double roundrect;
     protected static final double DEFAULT_ARC = 20;
@@ -92,20 +94,34 @@ public class RoundRectangleFigure extends AbstractAttributedFigure {
 
         return r;
     }
-    // ATTRIBUTES
+
+    /** Gets the arc width. */
     public double getArcWidth() {
         return roundrect.arcwidth;
     }
 
+    /** Gets the arc height. */
     public double getArcHeight() {
         return roundrect.archeight;
     }
 
-    public void setArc(final double w, final double h) {
-        final double oldWidth = roundrect.getArcWidth();
-        final double oldHeight = roundrect.getArcHeight();
-        roundrect.arcwidth = w;
-        roundrect.archeight = h;
+    /** Sets the arc width. */
+    public void setArcWidth(double newValue) {
+        double oldValue = roundrect.arcwidth;
+        roundrect.arcwidth = newValue;
+        firePropertyChange(ARC_WIDTH_PROPERTY, oldValue, newValue);
+    }
+    /** Sets the arc height. */
+    public void setArcHeight(double newValue) {
+        double oldValue = roundrect.archeight;
+        roundrect.archeight = newValue;
+        firePropertyChange(ARC_HEIGHT_PROPERTY, oldValue, newValue);
+    }
+
+    /** Convenience method for setting both the arc width and the arc height. */
+    public void setArc(double width, double height) {
+        setArcWidth(width);
+        setArcHeight(height);
     }
 
     /**
@@ -191,4 +207,5 @@ public class RoundRectangleFigure extends AbstractAttributedFigure {
         out.addAttribute("arcWidth", roundrect.arcwidth);
         out.addAttribute("arcHeight", roundrect.archeight);
     }
+
 }

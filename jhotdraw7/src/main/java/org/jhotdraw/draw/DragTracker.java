@@ -1,5 +1,5 @@
 /*
- * @(#)DragTracker.java  1.0  2009-04-25
+ * @(#)DragTracker.java
  * 
  * Copyright (c) 2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -15,10 +15,29 @@
 package org.jhotdraw.draw;
 
 /**
- * DragTracker.
+ * A <em>drag tracker</em> provides the behavior for dragging selected
+ * figures to the {@link SelectionTool}.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Strategy</em><br>
+ * The different behavior states of the selection tool are implemented by
+ * trackers.<br>
+ * Context: {@link SelectionTool}; State: {@link DragTracker},
+ * {@link HandleTracker}, {@link SelectAreaTracker}.
+ *
+ * <p><em>Chain of responsibility</em><br>
+ * Mouse and keyboard events of the user occur on a drawing view, and are
+ * preprocessed by the {@code DragTracker} of a {@code SelectionTool}. {@code
+ * DragTracker} invokes "track" methods on a {@code Handle} which in turn
+ * changes an aspect of a figure.
+ * Client: {@link SelectionTool}; Handler: {@link DragTracker}, {@link Handle}.
+ * <hr>
+ *
  *
  * @author Werner Randelshofer
- * @version 1.0 2009-04-25 Created.
+ * @version $Id$
  */
 public interface DragTracker extends Tool {
 

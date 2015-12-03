@@ -1,5 +1,5 @@
 /*
- * @(#)BoxHandleKit.java  2.0  2008-05-11
+ * @(#)BoxHandleKit.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -18,16 +18,14 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.awt.event.*;
 import org.jhotdraw.util.ResourceBundleUtil;
+import static org.jhotdraw.draw.AttributeKeys.*;
 
 /**
  * A set of utility methods to create handles which resize a Figure by
  * using its <code>setBounds</code> method, if the Figure is transformable.
  * 
  * @author Werner Randelshofer
- * @version 2.0 2008-05-11 Added keyboard support. 
- * Handle attributes are now read from DrawingEditor.
- * <br>1.1 2008-02-28 Only resize a figure, if it is transformable. 
- * <br>1.0 2007-04-14 Created.
+ * @version $Id$
  */
 public class ResizeHandleKit {
 
@@ -154,9 +152,9 @@ public class ResizeHandleKit {
                 Point2D.Double p = view.viewToDrawing(new Point(lead.x + dx, lead.y + dy));
                 view.getConstrainer().constrainPoint(p);
 
-                if (AttributeKeys.TRANSFORM.get(getOwner()) != null) {
+                if (getOwner().get(TRANSFORM) != null) {
                     try {
-                        AttributeKeys.TRANSFORM.get(getOwner()).inverseTransform(p, p);
+                        getOwner().get(TRANSFORM).inverseTransform(p, p);
                     } catch (NoninvertibleTransformException ex) {
                         if (DEBUG) {
                             ex.printStackTrace();
@@ -171,7 +169,7 @@ public class ResizeHandleKit {
         public void trackEnd(Point anchor, Point lead, int modifiersEx) {
             if (getOwner().isTransformable()) {
                 fireUndoableEditHappened(
-                        new GeometryEdit(getOwner(), geometry, getOwner().getTransformRestoreData()));
+                        new TransformRestoreEdit(getOwner(), geometry, getOwner().getTransformRestoreData()));
             }
         }
 

@@ -1,5 +1,5 @@
 /*
- * @(#)ImageHolderFigure.java  2.0  2008-05-24
+ * @(#)ImageHolderFigure.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -18,11 +18,28 @@ import java.awt.image.*;
 import java.io.*;
 
 /**
- * The interface of a figure that has some editable image contents.
+ * The interface of a {@link Figure} which has some editable image contents.
+ * <p>
+ * The {@link ImageTool} can be used to create figures which implement this
+ * interface.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Framework</em><br>
+ * The {@code ImageTool} and the {@code ImageHolderFigure} define the
+ * contracts of a smaller framework inside of the JHotDraw framework for
+ * structured drawing editors.<br>
+ * Contract: {@link ImageHolderFigure}, {@link ImageTool}.
+ *
+ * <p><em>Prototype</em><br>
+ * The {@code ImageTool} creates new figures by cloning a prototype
+ * {@code ImageHolderFigure} object.<br>
+ * Prototype: {@link ImageHolderFigure}; Client: {@link ImageTool}.
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 2.0 2008-05-24 Added setImage and getImageData methods. 
- * <br>1.0 December 14, 2006 Created.
+ * @version $Id$
  */
 public interface ImageHolderFigure extends Figure {
     /**

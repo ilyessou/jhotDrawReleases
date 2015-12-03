@@ -1,5 +1,5 @@
 /*
- * @(#)BezierPath.java  1.4  2008-05-23
+ * @(#)BezierPath.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -22,21 +22,13 @@ import java.util.*;
  * BezierPath allows the construction of paths consisting of straight lines,
  * quadratic curves and cubic curves.
  * <p>
- * A BezierPath represents a geometric path constructed by vertices.
- * Each Node has three control points: C0, C1, C2.
- * A mask defines which control points are in use. The path passes through
- * C0. C1 controls the curve going towards C0. C2 controls the curve going
- * away from C0.
+ * A BezierPath is defined by its nodes. Each node has three control points:
+ * C0, C1, C2. A mask defines which control points are in use. The path passes
+ * through C0. C1 controls the curve going towards C0. C2 controls the curve
+ * going away from C0.
  *
  * @author Werner Randelshofer
- * @version 1.4 2008-05-23 Method findSegment uses now double precision for
- * the tolerance paremeters. 
- * <br>1.3 BezierPath has now its own BezierPathIterator.
- * <br>1.2.1 Issue #1628647: Method splitSegment created incorrect control
- * point masks.
- * <br>1.2 2006-12-09 Method setWindingRule added.
- * <br>1.1 2006-03-22 Methods moveTo, lineTo and quadTo  added.
- * <br>1.0 January 20, 2006 Created.
+ * @version $Id$
  */
 public class BezierPath extends ArrayList<BezierPath.Node>
         implements Shape, Serializable {

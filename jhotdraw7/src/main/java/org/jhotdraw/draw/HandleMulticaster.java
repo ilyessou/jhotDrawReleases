@@ -1,5 +1,5 @@
 /*
- * @(#)HandleMulticaster.java  1.0  2003-12-01
+ * @(#)HandleMulticaster.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -24,11 +24,10 @@ import java.util.*;
  * Forwards events to one or many handles.
  *
  * @author Werner Randelshofer
- * @version 1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public class HandleMulticaster {
     LinkedList<Handle> handles;
-    CompositeEdit edit;
     
     /** Creates a new instance. */
     public HandleMulticaster(Handle handle) {
@@ -68,12 +67,9 @@ public class HandleMulticaster {
         for (Handle h : new ReversedList<Handle>(handles)) {
             h.trackEnd(current, anchor, modifiersEx);
         }
-        view.getDrawing().fireUndoableEditHappened(edit);
     }
     
     public void trackStart(Point anchor, int modifiersEx, DrawingView view) {
-        view.getDrawing().fireUndoableEditHappened(edit = new CompositeEdit());
-        
         for (Handle h : handles) {
             h.trackStart(anchor, modifiersEx);
         }

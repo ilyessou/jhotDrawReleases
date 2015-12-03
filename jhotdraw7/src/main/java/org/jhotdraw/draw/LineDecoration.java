@@ -1,5 +1,5 @@
 /*
- * @(#)LineDecoration.java  2.1  2007-05-20
+ * @(#)LineDecoration.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -17,16 +17,28 @@ package org.jhotdraw.draw;
 
 import java.awt.*;
 import java.awt.geom.*;
-import java.util.*;
 import java.io.*;
+
 /**
- * Decorate the start or end Point2D.Double of a line or poly line figure.
- * LineDecoration is the base class for the different line decorations.
+ * A <em>line decoration</em> can be used to draw a decoration at the start or
+ * end of a line.
+ * <p>
+ * Typically a line decoration is set as an attribute value to a
+ * {@link BezierFigure} using the attribute keys 
+ * {@code AttributeKeys.START_DECORATION} and
+ * {@code AttributeKeys.END_DECORATION}.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Strategy</em><br>
+ * {@code LineDecoration} encapsulates a strategy for drawing line decorations
+ * of a {@code BezierFigure}.<br>
+ * Strategy: {@link LineDecoration}; Context: {@link BezierFigure}.
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 2.1 2007-05-20 Renamed getDrawBounds to getDrawingArea.
- * <br>2.0 2006-01-14 Changed to support double precison coordinates.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public interface LineDecoration
 extends Cloneable, Serializable {

@@ -1,5 +1,5 @@
 /*
- * @(#)BezierControlPointHandle.java  2.0  2008-05-12
+ * @(#)BezierControlPointHandle.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -18,19 +18,17 @@ import org.jhotdraw.undo.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-import java.util.*;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import org.jhotdraw.geom.*;
-import static org.jhotdraw.samples.svg.SVGAttributeKeys.*;
+import static org.jhotdraw.draw.AttributeKeys.*;
 
 /**
- * BezierControlPointHandle.
+ * A {@link Handle} which allows to interactively change a control point
+ * of a bezier path.
  *
  * @author Werner Randelshofer
- * @version 2.0 2008-05-11 Handle attributes are now retrieved from
- * DrawingEditor. Added keyPressed method.
- * <br>1.0 23. Januar 2006 Created.
+ * @version $Id$
  */
 public class BezierControlPointHandle extends AbstractHandle {
 
@@ -69,8 +67,8 @@ public class BezierControlPointHandle extends AbstractHandle {
     protected Point getLocation() {
         if (getBezierFigure().getNodeCount() > index) {
             Point2D.Double p = getBezierFigure().getPoint(index, controlPointIndex);
-            if (TRANSFORM.get(getTransformOwner()) != null) {
-                TRANSFORM.get(getTransformOwner()).transform(p, p);
+            if (getTransformOwner().get(TRANSFORM) != null) {
+                getTransformOwner().get(TRANSFORM).transform(p, p);
             }
             return view.drawingToView(p);
         } else {
@@ -91,9 +89,10 @@ public class BezierControlPointHandle extends AbstractHandle {
             BezierPath.Node v = f.getNode(index);
             Point2D.Double p0 = new Point2D.Double(v.x[0], v.y[0]);
             Point2D.Double pc = new Point2D.Double(v.x[controlPointIndex], v.y[controlPointIndex]);
-            if (TRANSFORM.get(getTransformOwner()) != null) {
-                TRANSFORM.get(getTransformOwner()).transform(p0, p0);
-                TRANSFORM.get(getTransformOwner()).transform(pc, pc);
+            Figure tOwner = getTransformOwner();
+            if (tOwner.get(TRANSFORM) != null) {
+                tOwner.get(TRANSFORM).transform(p0, p0);
+                tOwner.get(TRANSFORM).transform(pc, pc);
             }
 
             Color handleFillColor;
@@ -164,10 +163,10 @@ public class BezierControlPointHandle extends AbstractHandle {
         BezierPath.Node v = figure.getNode(index);
         fireAreaInvalidated(v);
         figure.willChange();
-
-        if (TRANSFORM.get(getTransformOwner()) != null) {
+        Figure tOwner = getTransformOwner();
+        if (tOwner.get(TRANSFORM) != null) {
             try {
-                TRANSFORM.get(getTransformOwner()).inverseTransform(p, p);
+                tOwner.get(TRANSFORM).inverseTransform(p, p);
             } catch (NoninvertibleTransformException ex) {
                 ex.printStackTrace();
             }

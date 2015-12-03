@@ -1,5 +1,5 @@
 /*
- * @(#)Constrainer.java  5.0  2007-12-17
+ * @(#)Constrainer.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -18,18 +18,25 @@ import java.awt.geom.*;
 import javax.swing.event.ChangeListener;
 
 /**
- * Interface to constrain points and figures on a Drawing.
- * This can be used to implement different kinds of grids.
+ * A <em>constrainer</em> constrains editing operations performed by
+ * {@link Tool}s and {@link Handle}s on a {@link DrawingView}.
+ * <p>
+ * {@code Constrainer} objects are associated to {@code DrawingView}'s.
+ * <p>
+ * Constrainers can draw themselves onto the drawing view to visualize the
+ * constraints that they impose. Typically by drawing a grid of some kind.
+ * 
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Strategy</em><br>
+ * Editing can be constrained by a constrainer which is associated to a
+ * drawing view.<br>
+ * Context: {@link DrawingView}; Strategy: {@link Constrainer}.
+ * <hr>
  *
  * @author  Werner Randelshofer
- * @version 5.0 2007-04-29 Werner Randelshofer: Refactored interface.
- * Huw Jones: Added constrainAngle() method. 
- * <br>4.0 2007-07-31 Werner Randelshofer: Redesigned to support the 
- * constrainement of rectangles.
- * <br>3.0 2007-04-29 Werner Randelshofer: Method constrainPoint(Point2D.Double, Direction) added.
- * <br>2.1 2006-07-03 Werner Randelshofer: Method isVisible() added.
- * <br>2.0 2006-01-17 Werner Randelshofer: Changed to support double precision coordinates.
- * <br>1.0 2004-03-14 Werner Randelshofer: Created.
+ * @version $Id$
  */
 public interface Constrainer {
 

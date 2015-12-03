@@ -1,5 +1,5 @@
 /*
- * @(#)TextAreaEditingTool.java  1.0  2009-04-16
+ * @(#)TextAreaEditingTool.java
  *
  * Copyright (c) 2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -36,9 +36,21 @@ import org.jhotdraw.util.ResourceBundleUtil;
  * implements the TextHolderFigure interface and that is editable. Then it overlays
  * a text area over the drawing where the user can enter the text for the Figure.
  * </p>
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Framework</em><br>
+ * The text creation and editing tools and the {@code TextHolderFigure}
+ * interface define together the contracts of a smaller framework inside of the
+ * JHotDraw framework for  structured drawing editors.<br>
+ * Contract: {@link TextHolderFigure}, {@link TextCreationTool},
+ * {@link TextAreaCreationTool}, {@link TextEditingTool},
+ * {@link TextAreaEditingTool}, {@link FloatingTextField},
+ * {@link FloatingTextArea}.
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 1.0 2009-04-16 Refactored from TextAreaTool.
+ * @version $Id$
  *
  * @see TextHolderFigure
  * @see FloatingTextArea
@@ -52,7 +64,6 @@ public class TextAreaEditingTool extends AbstractTool implements ActionListener 
     public TextAreaEditingTool(TextHolderFigure typingTarget) {
         this.typingTarget = typingTarget;
     }
-
 
     @Override
     public void deactivate(DrawingEditor editor) {
@@ -71,7 +82,6 @@ public class TextAreaEditingTool extends AbstractTool implements ActionListener 
             updateCursor(getView(), e.getPoint());
         }
     }
-
 
     @Override
     public void draw(Graphics2D g) {
@@ -116,11 +126,13 @@ public class TextAreaEditingTool extends AbstractTool implements ActionListener 
             final String oldText = typingTarget.getText();
             final String newText = textArea.getText();
 
+            typingTarget.willChange();
             if (newText.length() > 0) {
                 typingTarget.setText(newText);
             } else {
-                    typingTarget.setText("");
+                typingTarget.setText("");
             }
+            typingTarget.changed();
 
             UndoableEdit edit = new AbstractUndoableEdit() {
 
@@ -158,7 +170,7 @@ public class TextAreaEditingTool extends AbstractTool implements ActionListener 
 
     public void actionPerformed(ActionEvent event) {
         endEdit();
-            fireToolDone();
+        fireToolDone();
     }
 
     public void mouseDragged(MouseEvent e) {

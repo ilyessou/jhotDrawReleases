@@ -1,5 +1,5 @@
 /*
- * @(#)SelectAreaTracker.java  1.0  2009-04-25
+ * @(#)SelectAreaTracker.java
  * 
  * Copyright (c) 2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -15,10 +15,21 @@
 package org.jhotdraw.draw;
 
 /**
- * SelectAreaTracker.
+ * A <em>select area tracker</em> provides the behavior for selecting figures
+ * in a drawing area to the {@link SelectionTool}.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Strategy</em><br>
+ * The different behavior states of the selection tool are implemented by
+ * trackers.<br>
+ * Context: {@link SelectionTool}; State: {@link DragTracker},
+ * {@link HandleTracker}, {@link SelectAreaTracker}.
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 1.0 2009-04-25 Created.
+ * @version $Id$
  */
 public interface SelectAreaTracker extends Tool {
 

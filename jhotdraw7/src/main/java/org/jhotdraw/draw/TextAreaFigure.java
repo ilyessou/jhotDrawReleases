@@ -1,5 +1,5 @@
 /*
- * @(#)TextAreaFigure.java  2.1.1  2009-03-29
+ * @(#)TextAreaFigure.java
  *
  * Copyright (c) 1996-2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -26,7 +26,9 @@ import org.jhotdraw.xml.DOMInput;
 import org.jhotdraw.xml.DOMOutput;
 
 /**
- * A TextAreaFigure contains formatted text.<br>
+ * A {@code TextHolderFigure} which holds multiple lines of text in a
+ * rectangular area.
+ * <p>
  * It automatically rearranges the text to fit its allocated display area,
  * breaking the lines at word boundaries whenever possible.<br>
  * The text can contain either LF or CRLF sequences to separate paragraphs,
@@ -51,14 +53,7 @@ import org.jhotdraw.xml.DOMOutput;
  *
  * @author    Eduardo Francos - InContext (original version),
  *            Werner Randelshofer (this derived version)
- * @version 2.1.1 2009-03-29 Two consecutive tab-characters in text caused
- * ArrayIndexOutOfBoundsException.
- * <br>2.1 2008-05-28 Added method getPreferredTextBounds.
- * <br>2.0.3 2007-04-05 Made all instance variables protected instead of private.
- * <br>2.0.2 2006-12-11 Implemented more efficient clipping.
- * <br>2.0.1 2006-02-27 Draw UNDERLINE_LOW_ONE_PIXEL instead of UNDERLINE_ON.
- * <br>2.0 2006-01-14 Changed to support double precison coordinates.
- * <br>1.0 5. March 2004  Created.
+ * @version $Id$
  */
 public class TextAreaFigure extends AbstractAttributedDecoratedFigure implements TextHolderFigure {
 
@@ -85,7 +80,7 @@ public class TextAreaFigure extends AbstractAttributedDecoratedFigure implements
     protected void drawText(Graphics2D g) {
         if (getText() != null || isEditable()) {
             Font font = getFont();
-            boolean isUnderlined = FONT_UNDERLINE.get(this);
+            boolean isUnderlined = get(FONT_UNDERLINE);
             Insets2D.Double insets = getInsets();
             Rectangle2D.Double textRect = new Rectangle2D.Double(
                     bounds.x + insets.left,
@@ -237,7 +232,7 @@ public class TextAreaFigure extends AbstractAttributedDecoratedFigure implements
             // If there is only one layout element on the line, and we are
             // drawing, then honor alignemnt
             if (first == layouts.size() - 1 && g != null) {
-                switch (TEXT_ALIGNMENT.get(this)) {
+                switch (get(TEXT_ALIGNMENT)) {
                     case TRAILING:
                         penPositions.set(first, rightMargin - layouts.get(first).getVisibleAdvance() - 1);
                         break;
@@ -329,14 +324,14 @@ public class TextAreaFigure extends AbstractAttributedDecoratedFigure implements
      * Gets the text shown by the text figure.
      */
     public String getText() {
-        return (String) getAttribute(TEXT);
+        return (String) get(TEXT);
     }
 
     /**
      * Returns the insets used to draw text.
      */
     public Insets2D.Double getInsets() {
-        double sw = Math.ceil(STROKE_WIDTH.get(this) / 2);
+        double sw = Math.ceil(get(STROKE_WIDTH) / 2);
         Insets2D.Double insets = new Insets2D.Double(4, 4, 4, 4);
         return new Insets2D.Double(insets.top + sw, insets.left + sw, insets.bottom + sw, insets.right + sw);
     }
@@ -353,7 +348,7 @@ public class TextAreaFigure extends AbstractAttributedDecoratedFigure implements
      * Sets the text shown by the text figure.
      */
     public void setText(String newText) {
-        TEXT.set(this, newText);
+        set(TEXT, newText);
     }
 
     public int getTextColumns() {
@@ -365,19 +360,19 @@ public class TextAreaFigure extends AbstractAttributedDecoratedFigure implements
     }
 
     public Color getTextColor() {
-        return TEXT_COLOR.get(this);
+        return get(TEXT_COLOR);
     }
 
     public Color getFillColor() {
-        return FILL_COLOR.get(this);
+        return get(FILL_COLOR);
     }
 
     public void setFontSize(float size) {
-        FONT_SIZE.set(this, new Double(size));
+        set(FONT_SIZE, new Double(size));
     }
 
     public float getFontSize() {
-        return FONT_SIZE.get(this).floatValue();
+        return get(FONT_SIZE).floatValue();
     }
 
     // EDITING
@@ -475,7 +470,7 @@ public class TextAreaFigure extends AbstractAttributedDecoratedFigure implements
         Rectangle2D.Double textRect = new Rectangle2D.Double();
         if (getText() != null) {
             Font font = getFont();
-            boolean isUnderlined = FONT_UNDERLINE.get(this);
+            boolean isUnderlined = get(FONT_UNDERLINE);
             float leftMargin = 0;
             float rightMargin = (float) maxWidth - 1;
             float verticalPos = 0;

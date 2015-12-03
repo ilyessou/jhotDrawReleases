@@ -1,5 +1,5 @@
 /*
- * @(#)ApplicationModel.java  1.0  June 10, 2006
+ * @(#)ApplicationModel.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -17,10 +17,20 @@ package org.jhotdraw.app;
 import java.util.*;
 import javax.swing.*;
 /**
- * ApplicationModel.
+ * {@code ApplicationModel} provides meta-data for an {@link Application},
+ * actions and factory methods for creating {@link View}s and toolbars.
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Framework</em><br>
+ * The interfaces and classes listed below together with the {@code Action}
+ * classes in the org.jhotddraw.app.action package define the contracts of a
+ * framework for document oriented applications:<br>
+ * Contract: {@link Application}, {@link ApplicationModel}, {@link View}.
+ * <hr>
  *
  * @author Werner Randelshofer.
- * @version 1.0 June 10, 2006 Created.
+ * @version $Id$
  */
 public interface ApplicationModel {
     /**
@@ -40,9 +50,19 @@ public interface ApplicationModel {
      * Creates a new view for the application.
      */
     public View createView();
-    
+
+    /** Inits the supplied view for the application. */
     public void initView(Application a, View v);
-    
+
+    /** Inits the application model.
+     * <p>
+     * Typically, the application model creates a number of
+     * {@link org.jhotdraw.app.action.AbstractApplicationAction}
+     * objects, which can later be retrieved using getAction, and
+     * which are linked to menu items and toolbars created by the
+     * application model.
+     * <p>
+     */
     public void initApplication(Application a);
     /**
      * Puts an action with the specified id.
@@ -60,7 +80,7 @@ public interface ApplicationModel {
      * <p>
      * @param a Application.
      * @param v The view for which the toolbars need to be created, or null
-     * if the toolbar needs to be shared with multiple views.
+     * if the toolbars are shared by multiple views.
      */
     public List<JToolBar> createToolBars(Application a, View v);
     
@@ -72,7 +92,7 @@ public interface ApplicationModel {
      * <p>
      * @param a Application.
      * @param v The view for which the toolbars need to be created, or null
-     * if the toolbar needs to be shared with multiple views.
+     * if the menus are shared by multiple views.
      */
     public List<JMenu> createMenus(Application a, View v);
 }

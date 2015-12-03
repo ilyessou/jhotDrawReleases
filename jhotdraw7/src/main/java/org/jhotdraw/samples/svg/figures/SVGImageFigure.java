@@ -1,5 +1,5 @@
  /*
- * @(#)SVGImage.java  2.1  2008-05-17
+ * @(#)SVGImage.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -31,11 +31,7 @@ import org.jhotdraw.geom.*;
  * SVGImage.
  *
  * @author Werner Randelshofer
- * @version 2.1 2008-05-17 Rendering hints must be copied, when creating
- * a local Graphics2D object. Remove transformation action was not undoable. 
- * <br>2.0.1 2008-04-13 We must catch all throwables when calling ImageIO.read(). 
- * <br>2.0 2007-04-14 Adapted for new AttributeKeys.TRANSFORM support.
- * <br>1.0 July 8, 2006 Created.
+ * @version $Id$
  */
 public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, ImageHolderFigure {
 
@@ -77,7 +73,7 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
     public void draw(Graphics2D g) {
         //super.draw(g);
 
-        double opacity = OPACITY.get(this);
+        double opacity = get(OPACITY);
         opacity = Math.min(Math.max(0d, opacity), 1d);
         if (opacity != 0d) {
             Composite savedComposite = g.getComposite();
@@ -87,15 +83,15 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
 
             BufferedImage image = getBufferedImage();
             if (image != null) {
-                if (TRANSFORM.get(this) != null) {
+                if (get(TRANSFORM) != null) {
                     // FIXME - We should cache the transformed image.
                     //         Drawing a transformed image appears to be very slow.
                     Graphics2D gx = (Graphics2D) g.create();
-                    
+
                     // Use same rendering hints like parent graphics
                     gx.setRenderingHints(g.getRenderingHints());
-                    
-                    gx.transform(TRANSFORM.get(this));
+
+                    gx.transform(get(TRANSFORM));
                     gx.drawImage(image, (int) rectangle.x, (int) rectangle.y, (int) rectangle.width, (int) rectangle.height, null);
                     gx.dispose();
                 } else {
@@ -115,11 +111,9 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
     }
 
     protected void drawFill(Graphics2D g) {
-
     }
 
     protected void drawStroke(Graphics2D g) {
-
     }
 
     // SHAPE AND BOUNDS
@@ -173,8 +167,8 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
     private Shape getTransformedShape() {
         if (cachedTransformedShape == null) {
             cachedTransformedShape = (Shape) rectangle.clone();
-            if (TRANSFORM.get(this) != null) {
-                cachedTransformedShape = TRANSFORM.get(this).createTransformedShape(cachedTransformedShape);
+            if (get(TRANSFORM) != null) {
+                cachedTransformedShape = get(TRANSFORM).createTransformedShape(cachedTransformedShape);
             }
         }
         return cachedTransformedShape;
@@ -195,14 +189,14 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
      */
     public void transform(AffineTransform tx) {
         invalidateTransformedShape();
-        if (TRANSFORM.get(this) != null ||
+        if (get(TRANSFORM) != null ||
                 (tx.getType() & (AffineTransform.TYPE_TRANSLATION | AffineTransform.TYPE_MASK_SCALE)) != tx.getType()) {
-            if (TRANSFORM.get(this) == null) {
-                TRANSFORM.basicSet(this, (AffineTransform) tx.clone());
+            if (get(TRANSFORM) == null) {
+                set(TRANSFORM, (AffineTransform) tx.clone());
             } else {
                 AffineTransform t = TRANSFORM.getClone(this);
                 t.preConcatenate(tx);
-                TRANSFORM.basicSet(this, t);
+                set(TRANSFORM, t);
             }
         } else {
             Point2D.Double anchor = getStartPoint();
@@ -213,22 +207,23 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
         }
     }
     // ATTRIBUTES
+
     public void restoreTransformTo(Object geometry) {
         invalidateTransformedShape();
         Object[] o = (Object[]) geometry;
         rectangle = (Rectangle2D.Double) ((Rectangle2D.Double) o[0]).clone();
         if (o[1] == null) {
-            TRANSFORM.basicSet(this, null);
+            set(TRANSFORM, null);
         } else {
-            TRANSFORM.basicSet(this, (AffineTransform) ((AffineTransform) o[1]).clone());
+            set(TRANSFORM, (AffineTransform) ((AffineTransform) o[1]).clone());
         }
     }
 
     public Object getTransformRestoreData() {
         return new Object[]{
-            rectangle.clone(),
-            TRANSFORM.get(this)
-        };
+                    rectangle.clone(),
+                    get(TRANSFORM)
+                };
     }
 
     // EDITING
@@ -237,8 +232,8 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
         LinkedList<Handle> handles = new LinkedList<Handle>();
 
         switch (detailLevel % 2) {
-            case -1 : // Mouse hover handles
-                handles.add(new BoundsOutlineHandle(this,false,true));
+            case -1: // Mouse hover handles
+                handles.add(new BoundsOutlineHandle(this, false, true));
                 break;
             case 0:
                 ResizeHandleKit.addResizeHandles(this, handles);
@@ -257,21 +252,69 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
     public Collection<Action> getActions(Point2D.Double p) {
         final ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.svg.Labels");
         LinkedList<Action> actions = new LinkedList<Action>();
-        if (TRANSFORM.get(this) != null) {
+        if (get(TRANSFORM) != null) {
             actions.add(new AbstractAction(labels.getString("edit.removeTransform.text")) {
 
                 public void actionPerformed(ActionEvent evt) {
                     willChange();
                     fireUndoableEditHappened(
-                            TRANSFORM.setUndoable(SVGImageFigure.this, null)
-                            );
+                            TRANSFORM.setUndoable(SVGImageFigure.this, null));
                     changed();
                 }
             });
         }
+        if (bufferedImage != null) {
+            if (rectangle.width != bufferedImage.getWidth() ||
+                    rectangle.height != bufferedImage.getHeight()) {
+                actions.add(new AbstractAction(labels.getString("edit.setToImageSize.text")) {
+
+                    public void actionPerformed(ActionEvent evt) {
+                        Object geometry = getTransformRestoreData();
+                        willChange();
+                        rectangle = new Rectangle2D.Double(//
+                                rectangle.x - (bufferedImage.getWidth() - rectangle.width) / 2d,//
+                                rectangle.y - (bufferedImage.getHeight() - rectangle.height) / 2d, //
+                                bufferedImage.getWidth(), //
+                                bufferedImage.getHeight());
+                        fireUndoableEditHappened(
+                                new TransformRestoreEdit(SVGImageFigure.this, geometry, getTransformRestoreData()));
+                        changed();
+                    }
+                });
+            }
+            double imageRatio = bufferedImage.getHeight() / (double) bufferedImage.getWidth();
+            double figureRatio = rectangle.height / rectangle.width;
+            if (Math.abs(imageRatio - figureRatio) > 0.001) {
+                actions.add(new AbstractAction(labels.getString("edit.adjustHeightToImageAspect.text")) {
+
+                    public void actionPerformed(ActionEvent evt) {
+                        Object geometry = getTransformRestoreData();
+                        willChange();
+                        double newHeight = bufferedImage.getHeight() * rectangle.width / bufferedImage.getWidth();
+                        rectangle = new Rectangle2D.Double(rectangle.x, rectangle.y - (newHeight - rectangle.height) / 2d, rectangle.width, newHeight);
+                        fireUndoableEditHappened(
+                                new TransformRestoreEdit(SVGImageFigure.this, geometry, getTransformRestoreData()));
+                        changed();
+                    }
+                });
+                actions.add(new AbstractAction(labels.getString("edit.adjustWidthToImageAspect.text")) {
+
+                    public void actionPerformed(ActionEvent evt) {
+                        Object geometry = getTransformRestoreData();
+                        willChange();
+                        double newWidth = bufferedImage.getWidth() * rectangle.height / bufferedImage.getHeight();
+                        rectangle = new Rectangle2D.Double(rectangle.x - (newWidth - rectangle.width) / 2d, rectangle.y, newWidth, rectangle.height);
+                        fireUndoableEditHappened(
+                                new TransformRestoreEdit(SVGImageFigure.this, geometry, getTransformRestoreData()));
+                        changed();
+                    }
+                });
+            }
+        }
         return actions;
     }
     // CONNECTING
+
     @Override
     public boolean canConnect() {
         return false; // SVG does not support connecting

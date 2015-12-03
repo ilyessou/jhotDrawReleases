@@ -1,5 +1,5 @@
 /*
- * @(#)TextHolderFigure.java  1.1  2007-05-19
+ * @(#)TextHolderFigure.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -16,16 +16,33 @@
 
 package org.jhotdraw.draw;
 
-import org.jhotdraw.util.*;
 import java.awt.*;
 import org.jhotdraw.geom.*;
+
 /**
- * The interface of a figure that has some editable text contents.
+ * The interface of a {@link Figure} that has some editable text contents.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Framework</em><br>
+ * The text creation and editing tools and the {@code TextHolderFigure}
+ * interface define together the contracts of a smaller framework inside of the
+ * JHotDraw framework for  structured drawing editors.<br>
+ * Contract: {@link TextHolderFigure}, {@link TextCreationTool},
+ * {@link TextAreaCreationTool}, {@link TextEditingTool},
+ * {@link TextAreaEditingTool}, {@link FloatingTextField},
+ * {@link FloatingTextArea}.
+ *
+ * <p><em>Prototype</em><br>
+ * The text creation tools create new figures by cloning a prototype
+ * {@code TextHolderFigure} object.<br>
+ * Prototype: {@link TextHolderFigure}; Client: {@link TextCreationTool},
+ * {@link TextAreaCreationTool}.
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 2.1 2007-05-19 Added method isTextOverflow.
- * <br>2.0 2006-01-14 Changed to support double precison coordinates.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public interface TextHolderFigure extends Figure {
     // FIXME - Maybe we can remove method isEditable(), because we already have

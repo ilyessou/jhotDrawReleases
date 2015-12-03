@@ -1,5 +1,5 @@
 /*
- * @(#)FloatingTextField.java  3.0  2008-05-24
+ * @(#)FloatingTextField.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -21,17 +21,29 @@ import java.awt.event.*;
 import static org.jhotdraw.draw.AttributeKeys.*;
 
 /**
- * A text field overlay that is used to edit a TextFigure.
- * A FloatingTextField requires a two step initialization:
+ * A <em>floating text field</em> that is used to edit a {@link TextHolderFigure}.
+ * <p>
+ * {@code FloatingTextField} requires a two step initialization:
  * In a first step the overlay is created and in a
  * second step it can be positioned.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Framework</em><br>
+ * The text creation and editing tools and the {@code TextHolderFigure}
+ * interface define together the contracts of a smaller framework inside of the
+ * JHotDraw framework for  structured drawing editors.<br>
+ * Contract: {@link TextHolderFigure}, {@link TextCreationTool},
+ * {@link TextAreaCreationTool}, {@link TextEditingTool},
+ * {@link TextAreaEditingTool}, {@link FloatingTextField},
+ * {@link FloatingTextArea}.
+ * <hr>
  *
  * @see org.jhotdraw.draw.TextFigure
  *
  * @author Werner Randelshofer
- * @version 3.0 2008-05-24 Update when attributes of the edited figure change. 
- * <br>2.0 2006-01-14 Changed to support double precision coordinates.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public  class FloatingTextField {
     private TextHolderFigure editedFigure;
@@ -84,8 +96,8 @@ public  class FloatingTextField {
 
         Rectangle2D.Double fDrawBounds = editedFigure.getBounds();
         Point2D.Double fDrawLoc = new Point2D.Double(fDrawBounds.getX(), fDrawBounds.getY());
-        if (TRANSFORM.get(editedFigure) != null) {
-        TRANSFORM.get(editedFigure).transform(fDrawLoc, fDrawLoc);
+        if (editedFigure.get(TRANSFORM) != null) {
+        editedFigure.get(TRANSFORM).transform(fDrawLoc, fDrawLoc);
         }
         Point fViewLoc = view.drawingToView(fDrawLoc);
         Rectangle fViewBounds = view.drawingToView(fDrawBounds);

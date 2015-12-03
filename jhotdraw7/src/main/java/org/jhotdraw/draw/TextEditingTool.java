@@ -1,5 +1,5 @@
 /*
- * @(#)TextEditingTool.java  1.0  2009-04-16
+ * @(#)TextEditingTool.java
  *
  * Copyright (c) 2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -24,11 +24,27 @@ import org.jhotdraw.util.ResourceBundleUtil;
  * A tool to edit figures which implement the {@code TextHolderFigure} interface,
  * such as {@code TextFigure}.
  *
- * @see TextHolderFigure
- * @see FloatingTextField
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Framework</em><br>
+ * The text creation and editing tools and the {@code TextHolderFigure}
+ * interface define together the contracts of a smaller framework inside of the
+ * JHotDraw framework for  structured drawing editors.<br>
+ * Contract: {@link TextHolderFigure}, {@link TextCreationTool},
+ * {@link TextAreaCreationTool}, {@link TextEditingTool},
+ * {@link TextAreaEditingTool}, {@link FloatingTextField},
+ * {@link FloatingTextArea}.
+ *
+ * <p><em>Prototype</em><br>
+ * The text creation tools create new figures by cloning a prototype
+ * {@code TextHolderFigure} object.<br>
+ * Prototype: {@link TextHolderFigure}; Client: {@link TextCreationTool},
+ * {@link TextAreaCreationTool}.
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 1.0 2009-04-16 Derived from TextTool.
+ * @version $Id$
  */
 public class TextEditingTool extends AbstractTool implements ActionListener {
 
@@ -85,7 +101,9 @@ public class TextEditingTool extends AbstractTool implements ActionListener {
             final String newText = textField.getText();
 
             if (newText.length() > 0) {
+                typingTarget.willChange();
                 typingTarget.setText(newText);
+                typingTarget.changed();
             }
             UndoableEdit edit = new AbstractUndoableEdit() {
 

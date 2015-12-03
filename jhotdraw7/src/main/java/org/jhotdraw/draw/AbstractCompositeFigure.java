@@ -1,5 +1,5 @@
 /*
- * @(#)AbstractCompositeFigure.java  1.0.2  2009-04-16
+ * @(#)AbstractCompositeFigure.java
  *
  * Copyright (c) 2007-2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -26,12 +26,11 @@ import org.jhotdraw.xml.DOMOutput;
 import static org.jhotdraw.draw.AttributeKeys.*;
 
 /**
+ * This abstract class can be extended to implement a {@link CompositeFigure}.
  * AbstractCompositeFigure.
  *
  * @author Werner Randelshofer
- * @version 1.0.2 2009-04-16 Guard against infinity in method setBounds.
- * <br>1.0.1 2008-03-30 Made basicRemove method non-final.
- * <br>1.0 July 17, 2007 Created.
+ * @version $Id$
  */
 public abstract class AbstractCompositeFigure
         extends AbstractFigure
@@ -71,8 +70,17 @@ public abstract class AbstractCompositeFigure
 
         @Override
         public void figureChanged(FigureEvent e) {
+            Rectangle2D.Double invalidatedArea = getDrawingArea();
+            invalidatedArea.add(e.getInvalidatedArea());
+
+            // We call invalidate/validate here, because we must layout
+            // the figure again.
             invalidate();
-                fireFigureChanged(e.getInvalidatedArea());
+            validate();
+
+            // Forward the figureChanged event to listeners on AbstractCompositeFigure.
+            invalidatedArea.add(getDrawingArea());
+            fireFigureChanged(invalidatedArea);
         }
 
         @Override
@@ -108,7 +116,7 @@ public abstract class AbstractCompositeFigure
     public Collection<Handle> createHandles(int detailLevel) {
         LinkedList<Handle> handles = new LinkedList<Handle>();
         if (detailLevel == 0) {
-        handles.add(new BoundsOutlineHandle(this, true, false));
+            handles.add(new BoundsOutlineHandle(this, true, false));
             TransformHandleKit.addScaleMoveTransformHandles(this, handles);
         }
         return handles;
@@ -256,7 +264,7 @@ public abstract class AbstractCompositeFigure
     }
 
     /**
-     * Sends a figure to the front of the drawing.
+     * Brings a figure to the front of the drawing.
      *
      * @param figure that is part of the drawing
      */
@@ -314,14 +322,14 @@ public abstract class AbstractCompositeFigure
         return children.size() == 0 ? new LinkedList<Figure>() : new ReversedList<Figure>(getChildren());
     }
 
-    public <T> void setAttribute(AttributeKey<T> key, T value) {
+    public <T> void set(AttributeKey<T> key, T value) {
         for (Figure child : getChildren()) {
-            child.setAttribute(key, value);
+            child.set(key, value);
         }
         invalidate();
     }
 
-    public <T> T getAttribute(AttributeKey<T> name) {
+    public <T> T get(AttributeKey<T> name) {
         return null;
     }
 
@@ -350,9 +358,9 @@ public abstract class AbstractCompositeFigure
     }
 
     public boolean contains(Point2D.Double p) {
-        if (TRANSFORM.get(this) != null) {
+        if (get(TRANSFORM) != null) {
             try {
-                p = (Point2D.Double) TRANSFORM.get(this).inverseTransform(p, new Point2D.Double());
+                p = (Point2D.Double) get(TRANSFORM).inverseTransform(p, new Point2D.Double());
             } catch (NoninvertibleTransformException ex) {
                 InternalError error = new InternalError(ex.getMessage());
                 error.initCause(ex);
@@ -516,12 +524,6 @@ public abstract class AbstractCompositeFigure
         return list;
     }
 
-    @Override
-    protected void validate() {
-        super.validate();
-        layout();
-    }
-
     public void basicAdd(int index, Figure figure) {
         children.add(index, figure);
         figure.addFigureListener(eventHandler);
@@ -560,14 +562,38 @@ public abstract class AbstractCompositeFigure
     }
 
     @Override
+    protected void validate() {
+        super.validate();
+        layout();
+    }
+
+    @Override
     protected void invalidate() {
         cachedBounds = null;
         cachedDrawingArea = null;
     }
+    @Override
+    public void willChange() {
+        super.willChange();
+        for (Figure child: children) {
+            child.willChange();
+        }
+    }
+
+    @Override
+    public void changed() {
+        for (Figure child: children) {
+            child.changed();
+        }
+        super.changed();
+    }
+
 
     public int basicRemove(Figure child) {
         int index = children.indexOf(child);
-        if (index != -1) { basicRemoveChild(index); }
+        if (index != -1) {
+            basicRemoveChild(index);
+        }
         return index;
     }
 

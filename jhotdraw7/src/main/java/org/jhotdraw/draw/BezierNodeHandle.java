@@ -1,5 +1,5 @@
 /*
- * @(#)BezierNodeHandle.java  2.1  2008-07-25
+ * @(#)BezierNodeHandle.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -16,7 +16,6 @@ package org.jhotdraw.draw;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
-import org.jhotdraw.geom.BezierPath.Node;
 import org.jhotdraw.util.*;
 import org.jhotdraw.undo.*;
 import java.awt.*;
@@ -24,19 +23,14 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
 import org.jhotdraw.geom.*;
-import static org.jhotdraw.samples.svg.SVGAttributeKeys.*;
+import static org.jhotdraw.draw.AttributeKeys.*;
 
 /**
- * BezierNodeHandle.
+ * A {@link Handle} which allows to interactively change a node of a bezier path.
  *
  *
  * @author Werner Randelshofer
- * @version 2.1 2008-07-25 Handle Delete and Backspace key. 
- * <br>2.0 2008-05-11 Handle attributes are now retrieved from
- * DrawingEditor. Added keyPressed method.
- * <br>1.0.1 2006-04-21 Don't change node type when right mouse button
- * is down.
- * <br>1.0 January 20, 2006 Created.
+ * @version $Id$
  */
 public class BezierNodeHandle extends AbstractHandle {
 
@@ -106,8 +100,8 @@ public class BezierNodeHandle extends AbstractHandle {
     protected Point getLocation() {
         if (getOwner().getNodeCount() > index) {
             Point2D.Double p = getOwner().getPoint(index, 0);
-            if (TRANSFORM.get(getTransformOwner()) != null) {
-                TRANSFORM.get(getTransformOwner()).transform(p, p);
+            if (getTransformOwner().get(TRANSFORM) != null) {
+                getTransformOwner().get(TRANSFORM).transform(p, p);
             }
             return view.drawingToView(p);
         } else {
@@ -146,9 +140,9 @@ public class BezierNodeHandle extends AbstractHandle {
         figure.willChange();
         Point2D.Double p = view.getConstrainer().constrainPoint(view.viewToDrawing(lead));
 
-        if (TRANSFORM.get(getTransformOwner()) != null) {
+        if (getTransformOwner().get(TRANSFORM) != null) {
             try {
-                TRANSFORM.get(getTransformOwner()).inverseTransform(p, p);
+                getTransformOwner().get(TRANSFORM).inverseTransform(p, p);
             } catch (NoninvertibleTransformException ex) {
                 ex.printStackTrace();
             }

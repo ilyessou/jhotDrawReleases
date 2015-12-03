@@ -1,5 +1,5 @@
 /*
- * @(#)RoundRectRadiusHandle.java  3.0  2008-05-11
+ * @(#)RoundRectRadiusHandle.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -19,21 +19,19 @@ import org.jhotdraw.undo.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.geom.*;
+import org.jhotdraw.beans.PropertyChangeEdit;
 
 /**
- * A Handle to manipulate the radius of a round lead rectangle.
+ * A {@link Handle} to manipulate the corner radius of a
+ * {@link RoundRectangleFigure}.
  *
  * @author  Werner Randelshofer
- * @version 3.0 2008-05-11 Added keyboard support. Handle attributes are 
- * now retrieved from DrawingEditor.
- * <br>2.0 2006-01-14 Changed to support double precison coordinates.
- * <br>1.0 2004-03-02 Derived from JHotDraw 6.0b1.
+ * @version $Id$
  */
 public class RoundRectangleRadiusHandle extends AbstractHandle {
 
     private static final int OFFSET = 6;
     private Point originalArc;
-    CompositeEdit edit;
 
     /** Creates a new instance. */
     public RoundRectangleRadiusHandle(Figure owner) {
@@ -101,7 +99,14 @@ public class RoundRectangleRadiusHandle extends AbstractHandle {
                 Geom.range(0, r.height, 2 * (originalArc.y / 2 + dy)));
         Point2D.Double oldArc = view.viewToDrawing(originalArc);
         Point2D.Double newArc = view.viewToDrawing(viewArc);
-        fireUndoableEditHappened(new RoundRectangleRadiusUndoableEdit(owner, oldArc, newArc));
+
+        ResourceBundleUtil labels =
+                ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
+        CompositeFigureEdit edit = new CompositeFigureEdit(owner, labels.getString("attribute.roundRectRadius"));
+        fireUndoableEditHappened(edit);
+        fireUndoableEditHappened(new PropertyChangeEdit(owner, RoundRectangleFigure.ARC_WIDTH_PROPERTY, oldArc.x, newArc.x));
+        fireUndoableEditHappened(new PropertyChangeEdit(owner, RoundRectangleFigure.ARC_HEIGHT_PROPERTY, oldArc.y, newArc.y));
+        fireUndoableEditHappened(edit);
     }
 
     @Override
@@ -133,9 +138,16 @@ public class RoundRectangleRadiusHandle extends AbstractHandle {
         }
         if (!newArc.equals(oldArc)) {
             owner.willChange();
-            owner.setArc(newArc.x, newArc.y);
+            owner.setArcWidth(newArc.x);
+            owner.setArcHeight(newArc.y);
             owner.changed();
-            fireUndoableEditHappened(new RoundRectangleRadiusUndoableEdit(owner, oldArc, newArc));
+            ResourceBundleUtil labels =
+                    ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
+            CompositeFigureEdit edit = new CompositeFigureEdit(owner, labels.getString("attribute.roundRectRadius"));
+            fireUndoableEditHappened(edit);
+            fireUndoableEditHappened(new PropertyChangeEdit(owner, RoundRectangleFigure.ARC_WIDTH_PROPERTY, oldArc.x, newArc.x));
+            fireUndoableEditHappened(new PropertyChangeEdit(owner, RoundRectangleFigure.ARC_HEIGHT_PROPERTY, oldArc.y, newArc.y));
+            fireUndoableEditHappened(edit);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * @(#)CreationTool.java  2.5  2008-05-24
+ * @(#)CreationTool.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -21,11 +21,11 @@ import java.util.*;
 import org.jhotdraw.util.*;
 
 /**
- * A tool to create new figures. The figure to be created is specified by a
- * prototype.
+ * A {@link Tool} to create a new figure by drawing its bounds.
+ * The figure to be created is specified by a prototype.
  * <p>
- * To create a figure using the CreationTool, the user does the following mouse
- * gestures on a DrawingView:
+ * To create a figure using the {@code CreationTool}, the user does the
+ * following mouse gestures on a DrawingView:
  * <ol>
  * <li>Press the mouse button over the DrawingView. This defines the
  * start point of the Figure bounds.</li>
@@ -42,19 +42,19 @@ import org.jhotdraw.util.*;
  * the CreationTool is not suited for the creation of a ConnectionFigure. Use
  * the ConnectionTool for this type of figures instead.
  * <p>
- * Design pattern:<br>
- * Name: Prototype.<br>
- * Role: Client.<br>
- * Partners: {@link Figure} as Prototype.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Prototype</em><br>
+ * The creation tool create new figures by cloning a prototype figure object.
+ * That's the reason why {@code Figure} extends the {@code Cloneable} interface.
+ * <br>
+ * Prototype: {@link Figure}; Client: {@link CreationTool}.
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 2.4 2008-05-24 Made all private variables protected. Use crosshair
- * cursor for creation tool.
- * <br>2.2 2007-08-22 Added property 'toolDoneAfterCreation'.
- * <br>2.1.1 2006-07-20 Minimal size treshold was enforced too eagerly.
- * <br>2.1 2006-07-15 Changed to create prototype creation from class presentationName.
- * <br>2.0 2006-01-14 Changed to support double precision coordinates.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public class CreationTool extends AbstractTool {
 
@@ -267,7 +267,7 @@ public class CreationTool extends AbstractTool {
         getEditor().applyDefaultAttributesTo(f);
         if (prototypeAttributes != null) {
             for (Map.Entry<AttributeKey, Object> entry : prototypeAttributes.entrySet()) {
-                entry.getKey().basicSet(f, entry.getValue());
+                f.set(entry.getKey(), entry.getValue());
             }
         }
         return f;

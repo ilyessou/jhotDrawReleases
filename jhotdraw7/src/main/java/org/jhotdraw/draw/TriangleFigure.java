@@ -1,5 +1,5 @@
 /*
- * @(#)TriangleFigure.java  1.0  2006-03-27
+ * @(#)TriangleFigure.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -17,20 +17,22 @@ package org.jhotdraw.draw;
 
 import java.awt.*;
 import java.awt.geom.*;
-import java.io.*;
 import java.util.*;
-import javax.swing.*;
 import static org.jhotdraw.draw.AttributeKeys.*;
 import org.jhotdraw.geom.*;
+
 /**
- * A triangle with same dimensions as its enclosing rectangle,
- * and apex at any of 8 places
- *
+ * Implements a {@link Figure} with a triangular shape.
+ * <p>
+ * The tip of the triangle points in the direction specified by the attribute
+ * {@link org.jhotdraw.draw.AttributeKeys#ORIENTATION}.
+ * <p>
+ * This figure creates a {@link OrientationHandle} which allows
+ * to interactively change the orientation of the triangle.
  *
  * @author Werner Randelshofer
- * @version 1.0 2006-03-27 Created.
+ * @version $Id$
  */
-
 public class TriangleFigure extends AbstractAttributedFigure {
     
     /**
@@ -51,11 +53,7 @@ public class TriangleFigure extends AbstractAttributedFigure {
     }
     public TriangleFigure(double x, double y, double width, double height, Orientation direction) {
         rectangle = new Rectangle2D.Double(x, y, width, height);
-        /*
-        setFillColor(Color.white);
-        setStrokeColor(Color.black);
-         */
-        ORIENTATION.basicSet(this, direction);
+        set(ORIENTATION, direction);
     }
     
     // DRAWING
@@ -97,7 +95,7 @@ public class TriangleFigure extends AbstractAttributedFigure {
         if (grow != 0d) {
             GrowStroke gs = new GrowStroke((float) grow,
                     (float) (AttributeKeys.getStrokeTotalWidth(this) *
-                    STROKE_MITER_LIMIT.get(this))
+                    get(STROKE_MITER_LIMIT))
                     );
             triangle = gs.createStrokedShape(triangle);
         }
@@ -112,7 +110,7 @@ public class TriangleFigure extends AbstractAttributedFigure {
         if (grow != 0d) {
             GrowStroke gs = new GrowStroke((float) grow,
                     (float) (AttributeKeys.getStrokeTotalWidth(this) *
-                    STROKE_MITER_LIMIT.get(this))
+                    get(STROKE_MITER_LIMIT))
                     );
             triangle = gs.createStrokedShape(triangle);
         }
@@ -122,7 +120,7 @@ public class TriangleFigure extends AbstractAttributedFigure {
     public Collection<Handle> createHandles(int detailLevel) {
         LinkedList<Handle> handles = (LinkedList<Handle>) super.createHandles(detailLevel);
         if (detailLevel == 0) {
-            handles.add(new TriangleRotationHandler(this));
+            handles.add(new OrientationHandle(this));
         }
         return handles;
     }
@@ -131,7 +129,7 @@ public class TriangleFigure extends AbstractAttributedFigure {
         Rectangle2D.Double r = (Rectangle2D.Double) rectangle.clone();
         
         BezierPath triangle = new BezierPath();
-        switch (ORIENTATION.get(this)) {
+        switch (get(ORIENTATION)) {
             case NORTH :
             default :
                 triangle.moveTo((float) (r.x + r.width / 2), (float) r.y);
@@ -187,7 +185,7 @@ public class TriangleFigure extends AbstractAttributedFigure {
         if (grow != 0d) {
             GrowStroke gs = new GrowStroke((float) grow,
                     (float) (AttributeKeys.getStrokeTotalWidth(this) *
-                    STROKE_MITER_LIMIT.get(this))
+                    get(STROKE_MITER_LIMIT))
                     );
             triangle =gs.createStrokedShape(triangle);
         }
@@ -202,21 +200,21 @@ public class TriangleFigure extends AbstractAttributedFigure {
     public Rectangle2D.Double getDrawingArea() {
         double totalStrokeWidth = AttributeKeys.getStrokeTotalWidth(this);
         double width = 0d;
-        if (STROKE_COLOR.get(this) != null) {
-            switch (STROKE_PLACEMENT.get(this)) {
+        if (get(STROKE_COLOR) != null) {
+            switch (get(STROKE_PLACEMENT)) {
                 case INSIDE :
                     width = 0d;
                     break;
                 case OUTSIDE :
-                    if (STROKE_JOIN.get(this) == BasicStroke.JOIN_MITER) {
-                        width = totalStrokeWidth * STROKE_MITER_LIMIT.get(this);
+                    if (get(STROKE_JOIN) == BasicStroke.JOIN_MITER) {
+                        width = totalStrokeWidth * get(STROKE_MITER_LIMIT);
                     } else {
                         width = totalStrokeWidth;
                     }
                     break;
                 case CENTER :
-                    if (STROKE_JOIN.get(this) == BasicStroke.JOIN_MITER) {
-                        width = totalStrokeWidth / 2d * STROKE_MITER_LIMIT.get(this);
+                    if (get(STROKE_JOIN) == BasicStroke.JOIN_MITER) {
+                        width = totalStrokeWidth / 2d * get(STROKE_MITER_LIMIT);
                     } else {
                         width = totalStrokeWidth / 2d;
                     }
@@ -236,7 +234,7 @@ public class TriangleFigure extends AbstractAttributedFigure {
         if (grow != 0d) {
             GrowStroke gs = new GrowStroke((float) grow,
                     (float) (AttributeKeys.getStrokeTotalWidth(this) *
-                    STROKE_MITER_LIMIT.get(this))
+                    get(STROKE_MITER_LIMIT))
                     );
             triangle =gs.createStrokedShape(triangle);
         }

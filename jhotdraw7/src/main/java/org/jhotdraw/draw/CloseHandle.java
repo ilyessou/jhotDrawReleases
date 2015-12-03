@@ -1,5 +1,5 @@
 /*
- * @(#)CloseHandle.java  2.0  2006-01-14
+ * @(#)CloseHandle.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -15,20 +15,23 @@
 package org.jhotdraw.draw;
 
 import java.awt.*;
-import java.awt.geom.*;
+
 /**
- * CloseHandle.
+ * A {@link Handle} which requests to remove its owning figure when clicked.
  *
  * @author  Werner Randelshofer
- * @version 2.0 2006-01-14 Changed to support double precison coordinates.
- * <br>1.0 31. M�rz 2004  Created.
+ * @version $Id$
  */
 public class CloseHandle extends LocatorHandle {
     private boolean pressed;
     
     /** Creates a new instance. */
     public CloseHandle(Figure owner) {
-        super(owner, new RelativeLocator(1.0, 0.0));
+        this(owner, new RelativeLocator(1.0, 0.0));
+    }
+    /** Creates a new instance. */
+    public CloseHandle(Figure owner, Locator locator) {
+        super(owner, locator);
     }
     
     protected int getHandlesize() {

@@ -1,5 +1,5 @@
 /*
- * @(#)DefaultAttributeAction.java  2.0  2006-06-07
+ * @(#)DefaultAttributeAction.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -16,18 +16,17 @@ package org.jhotdraw.draw.action;
 
 import org.jhotdraw.undo.*;
 import javax.swing.*;
-import java.awt.*;
 import java.beans.*;
 import java.util.*;
 import org.jhotdraw.draw.*;
+
 /**
  * DefaultAttributeAction.
  * <p>
  * XXX - should listen to changes in the default attributes of its DrawingEditor.
  *
  * @author  Werner Randelshofer
- * @version 2.0 2006-06-07 Reworked.
- * <br>1.0 26. November 2003  Created.
+ * @version $Id$
  */
 public class DefaultAttributeAction extends AbstractSelectedAction {
     private AttributeKey[] keys;
@@ -92,16 +91,16 @@ public class DefaultAttributeAction extends AbstractSelectedAction {
     public void changeAttribute() {
         CompositeEdit edit = new CompositeEdit("attributes");
         fireUndoableEditHappened(edit);
-        Drawing drawing = getDrawing();
+        DrawingEditor editor = getEditor();
         Iterator i = getView().getSelectedFigures().iterator();
         while (i.hasNext()) {
             Figure figure = (Figure) i.next();
             figure.willChange();
             for (int j=0; j < keys.length; j++) {
-                keys[j].basicSet(figure, getEditor().getDefaultAttribute(keys[j]));
+                figure.set(keys[j], editor.getDefaultAttribute(keys[j]));
             }
             for (Map.Entry<AttributeKey,Object> entry : fixedAttributes.entrySet()) {
-                entry.getKey().basicSet(figure, entry.getValue());
+                figure.set(entry.getKey(), entry.getValue());
                 
             }
             figure.changed();

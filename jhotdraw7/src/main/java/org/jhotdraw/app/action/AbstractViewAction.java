@@ -1,5 +1,5 @@
 /*
- * @(#)AbstractViewAction.java  1.1  2007-03-22
+ * @(#)AbstractViewAction.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -20,8 +20,9 @@ import org.jhotdraw.app.Application;
 import org.jhotdraw.app.View;
 
 /**
- * An Action that acts on on the current document <code>View</code> of an
- * <code>Application</code>.
+ * This abstract class can be extended to implement an {@code Action} that acts
+ * on behalf of a {@link View}.
+ * <p>
  * If the current View object is disabled or is null, the
  * AbstractViewAction is disabled as well.
  * <p>
@@ -30,12 +31,11 @@ import org.jhotdraw.app.View;
  * is invoked.
  * 
  * @author Werner Randelshofer
- * @version 1.0 October 9, 2005 Created.
- * @see org.jhotdraw.app.View
- * @see org.jhotdraw.app.Application
+ * @version $Id$
  */
 public abstract class AbstractViewAction extends AbstractAction {
     private Application app;
+    private View view;
     private String propertyName;
     public final static String VIEW_PROPERTY = "view";
     public final static String ENABLED_PROPERTY = "enabled";
@@ -58,13 +58,18 @@ public abstract class AbstractViewAction extends AbstractAction {
         }
     };
     
-    /** Creates a new instance. */
+    /** Creates a new instance which acts on the active view of the application. */
     public AbstractViewAction(Application app) {
+        this(app, null);
+    }
+    /** Creates a new instance which acts on the specified view of the application. */
+    public AbstractViewAction(Application app, View view) {
         this.app = app;
+        this.view = view;
         this.enabled = true;
         if (app != null) {
             app.addPropertyChangeListener(applicationListener);
-            updateView(null, app.getActiveView());
+            updateView(null, getActiveView());
         }
     }
     
@@ -135,7 +140,7 @@ public abstract class AbstractViewAction extends AbstractAction {
         return app;
     }
     public View getActiveView() {
-        return app.getActiveView();
+        return (view == null) ? app.getActiveView() : view;
     }
     
     /**

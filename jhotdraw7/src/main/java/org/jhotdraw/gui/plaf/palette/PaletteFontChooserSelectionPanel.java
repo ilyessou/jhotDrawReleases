@@ -1,7 +1,15 @@
-/*
- * FontChooserPanel.java
+/**
+ * @(#)PaletteFontChooserSelectionPanel.java
  *
- * Created on May 19, 2008, 10:38 PM
+ * Copyright (c) 1996-2009 by the original authors of JHotDraw
+ * and all its contributors.
+ * All rights reserved.
+ *
+ * The copyright of this software is owned by the authors and
+ * contributors of the JHotDraw project ("the copyright holders").
+ * You may not use, copy or modify this software, except in
+ * accordance with the license agreement you entered into with
+ * the copyright holders. For details see accompanying license terms.
  */
 
 package org.jhotdraw.gui.plaf.palette;
@@ -11,8 +19,10 @@ import javax.swing.*;
 import org.jhotdraw.util.ResourceBundleUtil;
 
 /**
+ * PaletteFontChooserSelectionPanel.
  *
- * @author  werni
+ * @author Werner Randelshofer
+ * @version $Id$
  */
 public class PaletteFontChooserSelectionPanel extends javax.swing.JPanel {
 private ResourceBundleUtil labels;
@@ -67,7 +77,6 @@ private ResourceBundleUtil labels;
         setBorder(javax.swing.BorderFactory.createEmptyBorder(3, 3, 3, 3));
         setLayout(new java.awt.GridBagLayout());
 
-        collectionsPanel.setMinimumSize(new java.awt.Dimension(10, 10));
         collectionsPanel.setPreferredSize(new java.awt.Dimension(80, 200));
         collectionsPanel.setLayout(new java.awt.BorderLayout());
 
@@ -88,12 +97,10 @@ private ResourceBundleUtil labels;
         gridBagConstraints.weighty = 1.0;
         add(collectionsPanel, gridBagConstraints);
 
-        familiesPanel.setMinimumSize(new java.awt.Dimension(10, 10));
-        familiesPanel.setPreferredSize(new java.awt.Dimension(100, 200));
+        familiesPanel.setPreferredSize(new java.awt.Dimension(140, 200));
         familiesPanel.setLayout(new java.awt.BorderLayout());
 
         familiesScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        familiesScrollPane.setPreferredSize(new java.awt.Dimension(130, 240));
 
         familyList.setFont(familyList.getFont().deriveFont((float)11));
         familiesScrollPane.setViewportView(familyList);
@@ -111,7 +118,6 @@ private ResourceBundleUtil labels;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
         add(familiesPanel, gridBagConstraints);
 
-        facesPanel.setMinimumSize(new java.awt.Dimension(10, 10));
         facesPanel.setPreferredSize(new java.awt.Dimension(80, 200));
         facesPanel.setLayout(new java.awt.BorderLayout());
 

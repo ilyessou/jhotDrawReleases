@@ -1,5 +1,5 @@
 /*
- * @(#)CompositeFigureListener.java  2.0  2007-07-17
+ * @(#)CompositeFigureListener.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -16,12 +16,21 @@
 package org.jhotdraw.draw;
 
 import java.util.*;
+
 /**
- * Listener interested in changes in a CompositeFigure.
+ * Interface implemented by observers of {@link CompositeFigure}.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Observer</em><br>
+ * Changes in the composition of a composite figure can be observed.<br>
+ * Subject: {@link CompositeFigure}; Observer:
+ * {@link CompositeFigureListener}; Event: {@link CompositeFigureEvent}.
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 2.0 2007-07-17 Renamed from DrawingListener to CompositeFigureListener. 
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public interface CompositeFigureListener extends EventListener {
     /**

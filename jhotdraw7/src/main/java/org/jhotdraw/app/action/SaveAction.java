@@ -1,5 +1,5 @@
 /*
- * @(#)SaveAction.java  1.3  2008-03-23
+ * @(#)SaveAction.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -11,7 +11,6 @@
  * accordance with the license agreement you entered into with  
  * the copyright holders. For details see accompanying license terms. 
  */
-
 package org.jhotdraw.app.action;
 
 import java.awt.*;
@@ -19,7 +18,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import org.jhotdraw.app.*;
-import org.jhotdraw.gui.Worker;
 import org.jhotdraw.io.*;
 import org.jhotdraw.util.*;
 import org.jhotdraw.gui.*;
@@ -29,22 +27,19 @@ import org.jhotdraw.gui.event.*;
  * SaveAction.
  *
  * @author  Werner Randelshofer
- * @version 1.3 2008-03-23 Added call to view#canSaveTo(File) when determining
- * whether a file chooser needs to be displayed. 
- * <br>1.2.1 2006-07-25 Add saved file to recent file list of application.
- * <br>1.2 2006-05-19 Make filename acceptable by ExtensionFileFilter.
- * <br>1.1 2006-02-23 Support multiple open id.
- * <br>1.0 28. September 2005 Created.
+ * @version $Id$
  */
 public class SaveAction extends AbstractViewAction {
+
     public final static String ID = "file.save";
     private boolean saveAs;
     private Component oldFocusOwner;
-    
+
     /** Creates a new instance. */
     public SaveAction(Application app) {
         this(app, false);
     }
+
     /** Creates a new instance. */
     public SaveAction(Application app, boolean saveAs) {
         super(app);
@@ -52,27 +47,26 @@ public class SaveAction extends AbstractViewAction {
         ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
         labels.configureAction(this, ID);
     }
-    
-    
+
     public void actionPerformed(ActionEvent evt) {
         final View view = getActiveView();
         if (view.isEnabled()) {
             oldFocusOwner = SwingUtilities.getWindowAncestor(view.getComponent()).getFocusOwner();
             view.setEnabled(false);
-            
+
             File saveToFile;
             if (!saveAs && view.getFile() != null && view.canSaveTo(view.getFile())) {
                 saveToFile(view, view.getFile());
             } else {
                 JFileChooser fileChooser = view.getSaveChooser();
-                
+
                 JSheet.showSaveSheet(fileChooser, view.getComponent(), new SheetListener() {
+
                     public void optionSelected(final SheetEvent evt) {
                         if (evt.getOption() == JFileChooser.APPROVE_OPTION) {
                             final File file;
                             if (evt.getFileChooser().getFileFilter() instanceof ExtensionFileFilter) {
-                                file = ((ExtensionFileFilter) evt.getFileChooser().getFileFilter()).
-                                        makeAcceptable(evt.getFileChooser().getSelectedFile());
+                                file = ((ExtensionFileFilter) evt.getFileChooser().getFileFilter()).makeAcceptable(evt.getFileChooser().getSelectedFile());
                             } else {
                                 file = evt.getFileChooser().getSelectedFile();
                             }
@@ -88,57 +82,54 @@ public class SaveAction extends AbstractViewAction {
             }
         }
     }
-    
+
     protected void saveToFile(final View view, final File file) {
         view.execute(new Worker() {
-            public Object construct() {
-                try {
-                    view.write(file);
-                    return null;
-                } catch (IOException e) {
-                    return e;
-                }
+
+            protected Object construct() throws IOException {
+                view.write(file);
+                return null;
             }
-            public void finished(Object value) {
-                fileSaved(view, file, value);
+
+            @Override
+            protected void done(Object value) {
+                view.setFile(file);
+                view.markChangesAsSaved();
+                int multiOpenId = 1;
+                for (View p : view.getApplication().views()) {
+                    if (p != view && p.getFile() != null && p.getFile().equals(file)) {
+                        multiOpenId = Math.max(multiOpenId, p.getMultipleOpenId() + 1);
+                    }
+                }
+                getApplication().addRecentFile(file);
+                view.setMultipleOpenId(multiOpenId);
+            }
+
+            @Override
+            protected void failed(Throwable value) {
+                String message;
+                if ((value instanceof Throwable) && ((Throwable) value).getMessage() != null) {
+                    message = ((Throwable) value).getMessage();
+                } else {
+                    message = value.toString();
+                }
+                ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
+                JSheet.showMessageSheet(getActiveView().getComponent(),
+                        "<html>" + UIManager.getString("OptionPane.css") +
+                        "<b>" + labels.getFormatted("couldntSave", file.getName()) + "</b><br>" +
+                        ((message == null) ? "" : message),
+                        JOptionPane.ERROR_MESSAGE);
+            }
+
+            @Override
+            protected void finished() {
+                view.setEnabled(true);
+                SwingUtilities.getWindowAncestor(view.getComponent()).toFront();
+                if (oldFocusOwner != null) {
+                    oldFocusOwner.requestFocus();
+                }
             }
         });
     }
-    /**
-     * XXX - Change type of value to Throwable
-     *
-     * @param value is either null for success or a Throwable on failure.
-     */
-    protected void fileSaved(final View view, File file, Object value) {
-        if (value == null) {
-            view.setFile(file);
-            view.markChangesAsSaved();
-            int multiOpenId = 1;
-            for (View p : view.getApplication().views()) {
-                if (p != view && p.getFile() != null && p.getFile().equals(file)) {
-                    multiOpenId = Math.max(multiOpenId, p.getMultipleOpenId() + 1);
-                }
-            }
-            getApplication().addRecentFile(file);
-            view.setMultipleOpenId(multiOpenId);
-        } else {
-            String message;
-            if ((value instanceof Throwable) && ((Throwable) value).getMessage() != null) {
-                message = ((Throwable) value).getMessage();
-            } else {
-                message = value.toString();
-            }
-            ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
-            JSheet.showMessageSheet(getActiveView().getComponent(),
-                    "<html>" + UIManager.getString("OptionPane.css") +
-                    "<b>" + labels.getFormatted("couldntSave", file.getName()) + "</b><br>" +
-                    ((message == null) ? "" : message),
-                    JOptionPane.ERROR_MESSAGE);
-        }
-        view.setEnabled(true);
-        SwingUtilities.getWindowAncestor(view.getComponent()).toFront();
-        if (oldFocusOwner != null) {
-            oldFocusOwner.requestFocus();
-        }
-    }
+
 }

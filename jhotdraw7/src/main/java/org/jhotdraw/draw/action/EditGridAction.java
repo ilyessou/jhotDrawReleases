@@ -1,5 +1,5 @@
 /*
- * @(#)EditGridAction.java  2.0  2007-09-15
+ * @(#)EditGridAction.java
  *
  * Copyright (c) 2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -19,8 +19,6 @@ import java.util.prefs.Preferences;
 import javax.swing.*;
 import org.jhotdraw.app.*;
 import org.jhotdraw.draw.*;
-import org.jhotdraw.draw.action.*;
-import org.jhotdraw.draw.action.EditGridPanel;
 import org.jhotdraw.util.*;
 import org.jhotdraw.util.prefs.PreferencesUtil;
 
@@ -31,9 +29,9 @@ import org.jhotdraw.util.prefs.PreferencesUtil;
  * from within the drawing framework.
  *
  * @author Werner Randelshofer
- * @version 1.0 July 31, 2007 Created.
+ * @version $Id$
  */
-public class EditGridAction extends AbstractDrawingEditorAction {
+public class EditGridAction extends AbstractDrawingViewAction {
     public final static String ID = "view.editGrid";
     private JDialog dialog;
     private EditGridPanel settingsPanel;
@@ -71,7 +69,7 @@ public class EditGridAction extends AbstractDrawingEditorAction {
             settingsPanel = new EditGridPanel();
             dialog.add(settingsPanel);
             dialog.pack();
-            Preferences prefs = Preferences.userNodeForPackage(getClass());
+            Preferences prefs = PreferencesUtil.userNodeForPackage(getClass());
             PreferencesUtil.installFramePrefsHandler(prefs, "editGrid", dialog);
             getApplication().addWindow(dialog, null);
         }

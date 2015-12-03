@@ -1,5 +1,5 @@
 /**
- * @(#)HandleAttributeKeys.java  2.1  2009-04-17
+ * @(#)HandleAttributeKeys.java
  *
  * Copyright (c) 2008-2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -16,18 +16,13 @@ package org.jhotdraw.draw;
 import java.awt.*;
 
 /**
- * HandleAttributeKeys defines attribute keys for {@link Handle}'s.
+ * Defines a put of well known {@link Handle} attributes.
  * <p>
- * If you want different attribute values for your own editor, set
+ * If you want different attribute values for your own editor, put
  * the desired values using {@link DrawingEditor#setHandleAttribute(org.jhotdraw.draw.AttributeKey, java.lang.Object)}.
  *
  * @author Werner Randelshofer
- * @version 2.1 2009-04-17 Use semi-transparent colors for disabled handles.
- * <br>2.0 2008-05-22 Added support for hover handles. Assigned better names
- * to attribute keys. Changed default
- * values, to better much the look of well known drawing software, such as
- * Adobe Fireworks and Adobe Illustrator. 
- * <br>1.0 11.05.2008 Created.
+ * @version $Id$
  */
 public class HandleAttributeKeys {
     /** Fill color of disabled handles. */

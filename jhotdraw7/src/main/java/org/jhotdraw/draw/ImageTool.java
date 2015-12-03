@@ -1,5 +1,5 @@
 /*
- * @(#)ImageTool.java  2.1  2008-05-28
+ * @(#)ImageTool.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -13,21 +13,11 @@
  */
 package org.jhotdraw.draw;
 
-import java.awt.image.*;
 import java.io.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.*;
-import java.awt.event.*;
-import javax.swing.event.*;
 import java.util.*;
-import org.jhotdraw.draw.action.*;
 import org.jhotdraw.gui.Worker;
-import org.jhotdraw.util.*;
-import org.jhotdraw.geom.*;
-import org.jhotdraw.undo.*;
 
 /**
  * A tool to create new figures that implement the ImageHolderFigure
@@ -41,13 +31,27 @@ import org.jhotdraw.undo.*;
  * <li>Press the mouse button and drag the mouse over the DrawingView. 
  * This defines the bounds of the created figure.</li>
  * </ol>
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Framework</em><br>
+ * The {@code ImageTool} and the {@code ImageHolderFigure} define the
+ * contracts of a smaller framework inside of the JHotDraw framework for
+ * structured drawing editors.<br>
+ * Contract: {@link ImageHolderFigure}, {@link ImageTool}.
+ *
+ * <p><em>Prototype</em><br>
+ * The {@code ImageTool} creates new figures by cloning a prototype
+ * {@code ImageHolderFigure} object.<br>
+ * Prototype: {@link ImageHolderFigure}; Client: {@link ImageTool}.
+ * <hr>
  * 
  * @author Werner Randelshofer
- * @version 2.0 2008-05-24 Changed behavior of ImageTool. 
- * <br>1.1 2008-05-17 Honor toolDoneAfterCreation property.
- * <br>1.0 December 14, 2006 Created.
+ * @version $Id$
  */
 public class ImageTool extends CreationTool {
+
     protected FileDialog fileDialog;
     protected JFileChooser fileChooser;
     protected boolean useFileDialog;
@@ -59,7 +63,7 @@ public class ImageTool extends CreationTool {
     }
 
     /** Creates a new instance. */
-    public ImageTool(ImageHolderFigure prototype, Map<AttributeKey, Object>  attributes) {
+    public ImageTool(ImageHolderFigure prototype, Map<AttributeKey, Object> attributes) {
         super(prototype, attributes);
     }
 
@@ -108,38 +112,36 @@ public class ImageTool extends CreationTool {
             final ImageHolderFigure loaderFigure = ((ImageHolderFigure) prototype.clone());
             Worker worker = new Worker() {
 
-                public Object construct() {
-                    try {
-                        ((ImageHolderFigure) loaderFigure).loadImage(file);
-                    } catch (Throwable t) {
-                        return t;
-                    }
+                protected Object construct() throws IOException {
+                    ((ImageHolderFigure) loaderFigure).loadImage(file);
                     return null;
                 }
 
-                public void finished(Object value) {
-                    if (value instanceof Throwable) {
-                        Throwable t = (Throwable) value;
+                @Override
+                protected void done(Object value) {
+                    try {
+                        if (createdFigure == null) {
+                            ((ImageHolderFigure) prototype).setImage(loaderFigure.getImageData(), loaderFigure.getBufferedImage());
+                        } else {
+                            ((ImageHolderFigure) createdFigure).setImage(loaderFigure.getImageData(), loaderFigure.getBufferedImage());
+                        }
+                    } catch (IOException ex) {
                         JOptionPane.showMessageDialog(getView().getComponent(),
-                                t.getMessage(),
+                                ex.getMessage(),
                                 null,
                                 JOptionPane.ERROR_MESSAGE);
-                        getDrawing().remove(createdFigure);
-                        fireToolDone();
-                    } else {
-                        try {
-                            if (createdFigure == null) {
-                                ((ImageHolderFigure) prototype).setImage(loaderFigure.getImageData(), loaderFigure.getBufferedImage());
-                            } else {
-                                ((ImageHolderFigure) createdFigure).setImage(loaderFigure.getImageData(), loaderFigure.getBufferedImage());
-                            }
-                        } catch (IOException ex) {
-                            JOptionPane.showMessageDialog(getView().getComponent(),
-                                    ex.getMessage(),
-                                    null,
-                                    JOptionPane.ERROR_MESSAGE);
-                        }
                     }
+                }
+
+                @Override
+                protected void failed(Throwable value) {
+                    Throwable t = (Throwable) value;
+                    JOptionPane.showMessageDialog(getView().getComponent(),
+                            t.getMessage(),
+                            null,
+                            JOptionPane.ERROR_MESSAGE);
+                    getDrawing().remove(createdFigure);
+                    fireToolDone();
                 }
             };
             workerThread = new Thread(worker);

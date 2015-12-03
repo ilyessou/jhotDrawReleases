@@ -1,5 +1,5 @@
 /*
- * @(#)AbstractLayouter.java  2.0  2006-01-14
+ * @(#)AbstractLayouter.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -15,17 +15,18 @@
 package org.jhotdraw.draw;
 
 import org.jhotdraw.geom.*;
+
 /**
- * AbstractLayouter.
+ * This abstract class can be extended to implement a {@link Layouter}
+ * which has its own attribute set.
  *
  * @author  Werner Randelshofer
- * @version 2.0 2006-01-14 Changed to support double precision coordinates.
- * <br>1.0 1. Dezember 2003  Created.
+ * @version $Id$
  */
 public abstract class AbstractLayouter implements Layouter {
     
     public Insets2D.Double getInsets(Figure child) {
-        Insets2D.Double value =  CompositeFigure.LAYOUT_INSETS.get(child);
+        Insets2D.Double value =  child.get(CompositeFigure.LAYOUT_INSETS);
         return (value == null) ? new Insets2D.Double() : (Insets2D.Double) value.clone();
     }
 }

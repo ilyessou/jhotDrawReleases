@@ -1,5 +1,5 @@
 /*
- * @(#)ODGPropertiesPanel.java  1.0 2007-06-24
+ * @(#)ODGPropertiesPanel.java
  *
  * Copyright (c) 2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -14,6 +14,7 @@
 
 package org.jhotdraw.samples.odg;
 
+import org.jhotdraw.gui.event.FigureAttributeEditorHandler;
 import org.jhotdraw.text.JavaNumberFormatter;
 import java.awt.*;
 import javax.swing.*;
@@ -27,7 +28,7 @@ import static org.jhotdraw.samples.svg.SVGAttributeKeys.*;
  * of a ODGFigure.
  * 
  * @author Werner Randelshofer
- * @version 1.0 2007-06-24 Created.
+ * @version $Id$
  */
 public class ODGPropertiesPanel extends javax.swing.JPanel {
     private ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.odg.Labels");

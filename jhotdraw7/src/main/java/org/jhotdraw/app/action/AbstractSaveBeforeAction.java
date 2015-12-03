@@ -1,5 +1,5 @@
 /*
- * @(#)AbstractSaveBeforeAction.java  2.0  2006-06-15
+ * @(#)AbstractSaveBeforeAction.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -13,7 +13,6 @@
  */
 package org.jhotdraw.app.action;
 
-import org.jhotdraw.gui.Worker;
 import org.jhotdraw.io.*;
 import org.jhotdraw.gui.*;
 import org.jhotdraw.gui.event.*;
@@ -26,8 +25,9 @@ import org.jhotdraw.app.Application;
 import org.jhotdraw.app.View;
 
 /**
- * Base class for actions that can only be safely performed when a 
- * {@link org.jhotdraw.app.View} has no unsaved changes.
+ * This abstract class can be extended to implement an {@code Action} that asks
+ * to save unsaved changes of a {@link org.jhotdraw.app.View} before the
+ * the action is performed.
  * <p>
  * If the view has no unsaved changes, method doIt is invoked immediately.
  * If unsaved changes are present, a dialog is shown asking whether the user
@@ -38,10 +38,7 @@ import org.jhotdraw.app.View;
  * is only invoked after the view was successfully saved.
  *
  * @author  Werner Randelshofer
- * @version 2.0 2006-06-15 Reworked. 
- * <br>1.2 2006-05-19 Make filename acceptable by ExtensionFileFilter.
- * <br>1.1 2006-05-03 Localized messages.
- * <br>1.0 27. September 2005 Created.
+ * @version $Id$
  */
 public abstract class AbstractSaveBeforeAction extends AbstractViewAction {
 
@@ -49,7 +46,11 @@ public abstract class AbstractSaveBeforeAction extends AbstractViewAction {
 
     /** Creates a new instance. */
     public AbstractSaveBeforeAction(Application app) {
-        super(app);
+        this(app, null);
+    }
+    /** Creates a new instance. */
+    public AbstractSaveBeforeAction(Application app, View view) {
+        super(app, view);
     }
 
     public void actionPerformed(ActionEvent evt) {
@@ -129,44 +130,42 @@ public abstract class AbstractSaveBeforeAction extends AbstractViewAction {
     protected void saveToFile(final View p, final File file) {
         p.execute(new Worker() {
 
-            public Object construct() {
-                try {
-                    p.write(file);
-                    return null;
-                } catch (IOException e) {
-                    return e;
+            protected Object construct() throws IOException {
+                p.write(file);
+                return null;
+            }
+
+            @Override
+            protected void done(Object value) {
+                p.setFile(file);
+                p.markChangesAsSaved();
+                doIt(p);
+            }
+
+            @Override
+            protected void failed(Throwable value) {
+                String message;
+                if ((value instanceof Throwable) && ((Throwable) value).getMessage() != null) {
+                    message = ((Throwable) value).getMessage();
+                } else {
+                    message = value.toString();
+                }
+                ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
+                JSheet.showMessageSheet(getActiveView().getComponent(),
+                        "<html>" + UIManager.getString("OptionPane.css") +
+                        "<b>" + labels.getFormatted("file.saveBefore.couldntSave.message", file.getName()) + "</b><br>" +
+                        ((message == null) ? "" : message),
+                        JOptionPane.ERROR_MESSAGE);
+            }
+
+            @Override
+            protected void finished() {
+                p.setEnabled(true);
+                if (oldFocusOwner != null) {
+                    oldFocusOwner.requestFocus();
                 }
             }
-
-            public void finished(Object value) {
-                fileSaved(p, file, value);
-            }
         });
-    }
-
-    protected void fileSaved(View p, File file, Object value) {
-        if (value == null) {
-            p.setFile(file);
-            p.markChangesAsSaved();
-            doIt(p);
-        } else {
-            String message;
-            if ((value instanceof Throwable) && ((Throwable) value).getMessage() != null) {
-                message = ((Throwable) value).getMessage();
-            } else {
-                message = value.toString();
-            }
-            ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
-            JSheet.showMessageSheet(getActiveView().getComponent(),
-                    "<html>" + UIManager.getString("OptionPane.css") +
-                    "<b>" + labels.getFormatted("file.saveBefore.couldntSave.message", file.getName()) + "</b><br>" +
-                    ((message == null) ? "" : message),
-                    JOptionPane.ERROR_MESSAGE);
-        }
-        p.setEnabled(true);
-        if (oldFocusOwner != null) {
-            oldFocusOwner.requestFocus();
-        }
     }
 
     protected abstract void doIt(View p);

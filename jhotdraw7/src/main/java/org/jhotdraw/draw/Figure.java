@@ -1,5 +1,5 @@
 /*
- * @(#)Figure.java  8.0  2009-04-19
+ * @(#)Figure.java
  *
  * Copyright (c) 1996-2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -23,67 +23,79 @@ import org.jhotdraw.geom.*;
 import org.jhotdraw.xml.DOMStorable;
 
 /**
- * A Figure knows its bounds and it can draw itself. A figure is an element of a
- * {@link Drawing}. 
+ * A <em>figure</em> is a graphical element of a {@link Drawing}. A figure
+ * can be only in one drawing at a time.
  * <p>
- * A figure has a set of {@link Handle}s to manipulate its shape or attributes. A figure
- * has one or more {@link Connector}s that define how to locate a connection point.
- * <p>
- * Figures can have an open ended set of attributes. An attribute is identified
- * by an {@link AttributeKey}.
- * <p>
- * Specialized subinterfaces of Figure allow to compose a figure from
+ * {@code Figure} provides the following functionality:
+ * <ul>
+ * <li>{@code Figure} knows its bounds and it can draw itself.</li>
+ * 
+ * <li>Figures can have an open ended set of attributes. An attribute is
+ * identified by an {@link AttributeKey}.</li>
+ * 
+ * <li>A figure can have {@link Connector}s that define how to locate a
+ * connection point on the figure.</li>
+ * 
+ * <li>A figure can create a set of {@link Handle}s which can interactively
+ * manipulate aspects of the figure.</li>
+ *
+ * <li>A figure can return a set of actions associated with a specific
+ * point on the figure.</li>
+ *
+ * <li>A figure can be composed of other figures. If this is the case,
+ * the object implementing the {@code Figure} interface usually also
+ * implements the {@link CompositeFigure} interface.</li>
+ * </ul>
+ * 
+ * Specialized subinterfaces of {@code Figure} allow to compose a figure from
  * several figures, to connect a figure to other figures, to hold text or
  * an image, and to layout a figure.
- * <p>
- * Design pattern:<br>
- * Name: Composite.<br>
- * Role: Component.<br>
- * Partners: {@link CompositeFigure} as Composite. 
- * <p>
- * Design pattern:<br>
- * Name: Decorator.<br>
- * Role: Decorator.<br>
- * Partners: {@link DecoratedFigure} as Component. 
- * <p>
- * Design pattern:<br>
- * Name: Model-View-Controller.<br>
- * Role: Model.<br>
- * Partners: {@link DrawingView} as View, {@link Tool} as Controller.
- * <p>
- * Design pattern:<br>
- * Name: Observer.<br>
- * Role: Subject.<br>
- * Partners: {@link FigureListener} as Observer.
- * <p>
- * Design pattern:<br>
- * Name: Prototype.<br>
- * Role: Prototype.<br>
- * Partners: {@link CreationTool} as Client.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
  * 
+ * <p><em>Framework</em><br>
+ * The following interfaces define the contracts of a framework for structured
+ * drawing editors:<br>
+ * Contract: {@link Drawing}, {@link Figure}, {@link CompositeFigure},
+ * {@link ConnectionFigure}, {@link Connector}, {@link DrawingView},
+ * {@link DrawingEditor}, {@link Handle} and {@link Tool}.
+ *
+ * <p><em>Composite</em><br>
+ * Composite figures can be composed of other figures.<br>
+ * Component: {@link Figure}; Composite: {@link CompositeFigure}.
+ *
+ * <p><em>Decorator</em><br>
+ * Decorated figures can be adorned with another figure.<br>
+ * Component: {@link DecoratedFigure}; Decorator: {@link Figure}.
+ * 
+ * <p><em>Observer</em><br>
+ * State changes of figures can be observed by other objects. Specifically
+ * {@code CompositeFigure} observes area invalidations of its child figures. And
+ * {@code DrawingView} observers area invalidations of its drawing object.<br>
+ * Subject: {@link Figure}; Observer:
+ * {@link FigureListener}; Event: {@link FigureEvent}; Concrete Observer:
+ * {@link CompositeFigure}, {@link DrawingView}.
+ *
+ * <p><em>Prototype</em><br>
+ * The creation tool create new figures by cloning a prototype figure object.
+ * That's the reason why {@code Figure} extends the {@code Cloneable} interface.
+ * <br>
+ * Prototype: {@link Figure}; Client: {@link CreationTool}.
+ *
+ * <p><em>Strategy</em><br>
+ * The location of the start and end points of a connection figure are determined
+ * by {@code Connector}s which are owned by the connected figures.<br>
+ * Context: {@link Figure}, {@link ConnectionFigure}; Strategy: {@link Connector}.
+ *
+ * <p><em>Strategy</em><br>
+ * {@code Locator} encapsulates a strategy for locating a point on a
+ * {@code Figure}.<br>
+ * Strategy: {@link Locator}; Context: {@link Figure}.
+ * <hr>
  * 
  * @author Werner Randelshofer
- * @version 8.0 2009-04-18 Made set/getAttribute methods type safe.
- * <br>7.1 2008-05-17 Added support for mouse hover handles.
- * <br>7.0.1 2008-02-13 Fixed comments on
- * setAttribute and getAttribute methods.
- * <br>7.0 2008-02-13 Huw Jones: Added method isTransformable.
- * <br>6.0 2007-12-19 Removed method invalidate. 
- * <br>5.0 2007-07-24 Removed method isSelectable and added
- * isSelectable and isRemovable instead.
- * <br>4.2 2007-05-19 Removed setConnectorsVisible, isConnectorsVisible
- * method due to changes in Connector interface. 
- * <br>4.1 2007-05-18 Removed addUndoableEditListener, 
- * removeUndoableEditListener methods. They are not needed anymore, due to
- * the removal of the basicSet methods for undoable attributes. 
- * <br>4.0 2007-05-12 Replaced set.../basicSet... design for undoable attributes 
- * by setAttribute/getAttributesRestoreData/restoreAttributesTo design.
- * <br>3.1 2007-04-14 Method handleMouseClick is now required to consume
- * an event, if it returns true. 
- * <br>3.0 2006-01-20 Reworked for J2SE 1.5.
- * @see Drawing
- * @see Handle
- * @see Connector
+ * @version $Id$
  */
 public interface Figure extends Cloneable, Serializable, DOMStorable {
     // DRAWING
@@ -225,18 +237,19 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
 
     // ATTRIBUTES
     /**
-     * Sets an attribute of the figure and calls attributeChanged on all
-     * registered FigureListener's.
+     * Sets an attribute on the figure and calls {@code attributeChanged}
+     * on all registered {@code FigureListener}s if the attribute value
+     * has changed.
      * <p>
      * For efficiency reasons, the drawing is not automatically repainted.
      * If you want the drawing to be repainted when the attribute is changed,
      * you can either use {@code key.set(figure, value); } or
-     * {@code figure.willChange(); figure.setAttribute(key, value);
+     * {@code figure.willChange(); figure.set(key, value);
      * figure.changed(); }.
      * 
      * @see AttributeKey#set
      */
-    public <T> void setAttribute(AttributeKey<T> key, T value);
+    public <T> void set(AttributeKey<T> key, T value);
 
     /**
      * Gets an attribute from the Figure.
@@ -246,7 +259,7 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
      * @return Returns the attribute value. If the Figure does not have an
      * attribute with the specified key, returns key.getDefaultValue().
      */
-    public <T> T getAttribute(AttributeKey<T> key);
+    public <T> T get(AttributeKey<T> key);
 
     /**
      * Returns a view to all attributes of this figure.
@@ -256,7 +269,7 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
 
     /**
      * Gets data which can be used to restore the attributes of the figure 
-     * after a setAttribute has been applied to it.
+     * after a set has been applied to it.
      */
     public Object getAttributesRestoreData();
 
@@ -391,7 +404,20 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
     public boolean includes(Figure figure);
 
     /**
-     * Returns the figure that contains the given point.
+     * Finds the innermost figure at the specified location.
+     * <p>
+     * In case of a {@code CompositeFigure}, this method descends into its
+     * children and into its children's children until the innermost figure is
+     * found.
+     * <p>
+     * This functionality is implemented using the <em>Chain of
+     * Responsibility</em> design pattern. A figure which is not composed
+     * of other figures returns itself if the point is contained by the figure.
+     * Composed figures pass the method call down to their children.
+     *
+     * @param p A location on the drawing.
+     * @return Returns the innermost figure at the location, or null if the
+     * location is not contained in a figure.
      */
     public Figure findFigureInside(Point2D.Double p);
 
@@ -404,7 +430,7 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
     // CLONING
     /**
      * Returns a clone of the figure, with clones of all aggregated figures,
-     * such as chilrend and decorators. The cloned figure does not clone
+     * such as children and decorators. The cloned figure does not clone
      * the list of FigureListeners from its original. 
      */
     public Object clone();
@@ -433,20 +459,29 @@ public interface Figure extends Cloneable, Serializable, DOMStorable {
     public void removeNotify(Drawing d);
 
     /**
-     * Informs that a Figure is about to change its shape.
+     * Informs that the figure is about to change its visual representation
+     * (for example, its shape, or its color).
      * <p>
-     * <code>willChange</code> and <code>changed</code> are typically used 
+     * Note: <code>willChange</code> and <code>changed</code> are typically used
      * as pairs before and after invoking one or multiple basic-methods on
      * the Figure.
+     *
+     * @see #changed
      */
     public void willChange();
 
     /**
-     * Informs that a Figure changed its shape. 
+     * Informs that a Figure changed its visual representation and needs to
+     * be redrawn.
+     * <p>
      * This fires a <code>FigureListener.figureChanged</code>
      * event for the current display bounds of the figure.
+     * <p>
+     * Note: <code>willChange</code> and <code>changed</code> are typically used
+     * as pairs before and after invoking one or multiple basic-methods on
+     * the Figure.
      * 
-     * @see #willChange()
+     * @see #willChange
      */
     public void changed();
 

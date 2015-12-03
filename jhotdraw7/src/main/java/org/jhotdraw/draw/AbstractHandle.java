@@ -1,5 +1,5 @@
 /*
- * @(#)AbstractHandle.java  2.0  2008-05-11
+ * @(#)AbstractHandle.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -22,17 +22,17 @@ import javax.swing.undo.*;
 import java.util.*;
 
 /**
- * AbstractHandle.
+ * This abstract class can be extended to implement a {@link Handle}.
  *
  * @author Werner Randelshofer
- * @version 2.0 2008-05-11 Handle attributes are now retrieved from
- * DrawingEditor. 
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public abstract class AbstractHandle implements Handle, FigureListener {
 
     final private Figure owner;
     protected DrawingView view;
+    /** Holds the tool tip text. By default a handle has no tool tip text. */
+    private String toolTipText;
     protected EventListenerList listenerList = new EventListenerList();
     /**
      * The bounds of the abstract handle.
@@ -367,8 +367,19 @@ public abstract class AbstractHandle implements Handle, FigureListener {
         return Collections.emptyList();
     }
 
+    /**
+     * Returns a tooltip for the specified location.
+     * By default, AbstractHandle returns null.
+     */
     public String getToolTipText(Point p) {
-        return null;
+        return toolTipText;
+    }
+
+    /**
+     * Changes the default tool tip text returned by AbstractHandle.
+     */
+    public void setToolTipText(String newValue) {
+         toolTipText = newValue;
     }
 
     public void figureHandlesChanged(FigureEvent e) {

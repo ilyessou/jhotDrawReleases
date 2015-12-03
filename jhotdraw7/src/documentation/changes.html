@@ -19,8 +19,32 @@
 <!-- InstanceEndEditable --></h1>
 </div>
 <div class="article"><!-- InstanceBeginEditable name="articleRegion" -->
+  <h3>JHotDraw&nbsp;7.3<br />
+    <font size="-1">2009-10</font> </h3>
+  <p>Substantial changes and enhancements have been made to fix shortcomings and bugs of the frameworks
+    and to improve the usability of drawing editors. </p>
+  <p>Please take a look at the <a href="http://www.randelshofer.ch/oop/jhotdraw/changes/jhotdraw_7.2_vs_7.3/changes.html">JDiff report</a> for a detailed description of all API changes between JHotDraw 7.2 and 7.3.</p>
+  <p>Notable changes are:</p>
+  <p>General:</p>
+  <ul>
+    <li>The documentation of framework interfaces and classes shows now the design patterns being used(like JHotDraw 6 did).</li>
+  </ul>
+  <p>Drawing Framework:</p>
+  <ul>
+    <li>The method names for setting and getting an attribute from a Figure have been shortened to get(AttributeKey), set(AttributeKey,Object). The sample code uses now these methods instead of the setter and getter methods in class AttributeKey.</li>
+    <li>DefaultDrawingView uses now double buffering to improve editing performance.</li>
+  </ul>
+  <p> Application Framework: </p>
+  <ul>
+    <li>The Worker class has been redesigned, to better support the common use cases of a Worker.</li>
+    <li>Support for weak event listeners has been added to class AbstractBean. Weak event listeners help to prevent memory leaks in applications.</li>
+  </ul>
+  <p>Sample applications:</p>
+  <ul>
+    <li>SVG Sample: SVG Tiny 1.2 compliance has been improved. The SVGDrawingPanel can now more easily integrated as a component into an application.    </li>
+  </ul>
   <h3>JHotDraw&nbsp;7.2<br />
-    <font size="-1">2009-04</font> </h3>
+    <font size="-1">2009-05</font> </h3>
   <p>Substantial changes and enhancements have been made to fix shortcomings and bugs of the frameworks
   and to improve the usability of drawing editors. </p>
   <p>Please take a look at the <a href="http://www.randelshofer.ch/oop/jhotdraw/changes/jhotdraw_7.1_vs_7.2/changes.html">JDiff report</a> for a detailed description of all API changes between JHotDraw 7.1 and 7.2.</p>
@@ -38,7 +62,7 @@
   </ul>
   <p>Application Framework: </p>
   <ul>
-    <li>The resource support has been reimplemented to be close to JSR-296.
+    <li>The resource support has been reimplemented to be closer to JSR-296.
     Resource bundles can now use place holders in their values. The resource
     keys used by JHotDraw match now with the correspoinding JavaBeans property names.</li>
   </ul>

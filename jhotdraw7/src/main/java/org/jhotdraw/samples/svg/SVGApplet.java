@@ -1,5 +1,5 @@
 /*
- * @(#)SVGApplet.java  1.1  2008-05-22
+ * @(#)SVGApplet.java
  *
  * Copyright (c) 2006-2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -46,10 +46,7 @@ import org.jhotdraw.samples.svg.gui.*;
  * navigated out of the page and back again, without saving the changes.
  * 
  * @author Werner Randelshofer
- * @version 1.1 2008-05-22 Added Locale parameter.
- * <br>1.0.1 2008-03-26 Fixed ClassCastException when attempting to
- * display an error message in method save(). 
- * <br>1.0 2006-07-08 Created.
+ * @version $Id$
  */
 public class SVGApplet extends JApplet {
 
@@ -63,9 +60,9 @@ public class SVGApplet extends JApplet {
     public SVGApplet() {
         setBackground(Color.WHITE);
         start = System.currentTimeMillis();
-        setName("JHotDraw SVG Applet");
-        ((JComponent) getContentPane()).setBorder(new MatteBorder(new Insets(1,1,1,1), new Color(0xa5a5a5)));
-    //ResourceBundleUtil.setVerbose(true);
+        setName("JHotDraw SVG Applet " + getClass().getPackage().getImplementationVersion());
+        ((JComponent) getContentPane()).setBorder(new MatteBorder(new Insets(1, 1, 1, 1), new Color(0xa5a5a5)));
+        //ResourceBundleUtil.setVerbose(true);
     }
 
     /**
@@ -96,8 +93,8 @@ public class SVGApplet extends JApplet {
 
     /**
      * Displays a progress indicator and then invokes <code>loadDrawing</code>
-     * on a worker thread. Displays the drawing panel when finished successfully.
-     * Displays an error message when finished unsuccessfully.
+     * on a worker thread. Displays the drawing panel when done successfully.
+     * Displays an error message when done unsuccessfully.
      *
      * @see #loadDrawing
      */
@@ -121,6 +118,15 @@ public class SVGApplet extends JApplet {
             // automaticaly the right thing for us.
         }
 
+        // Set our own popup factory, because the one that comes with Mac OS X
+        // creates translucent popups which is not useful for color selection
+        // using pop menus.
+        try {
+            PopupFactory.setSharedInstance(new PopupFactory());
+        } catch (Throwable e) {
+            // If we can't set the popup factory, we have to use what is there.
+        }
+
         // Display a progress indicator while we are loading the drawing
         // ----------------------------------------------------------
         Container c = getContentPane();
@@ -133,61 +139,64 @@ public class SVGApplet extends JApplet {
         // --------------------------------------
         new Worker() {
 
-            public Object construct() {
-                try {
-                    Thread t = new Thread() {
+            protected Object construct() throws Exception {
+                Thread t = new Thread() {
 
-                        @Override
-                        public void run() {
-                            drawingComponent = createDrawingComponent();
-                        }
-                    };
-                    t.start();
-                    progress.setNote(labels.getString("progressLoading"));
-                    Object drawing = loadDrawing(progress);
-                    progress.setNote(labels.getString("progressOpeningEditor"));
-                    progress.setIndeterminate(true);
-                    t.join();
-                    return drawing;
-                } catch (Throwable t) {
-                    return t;
-                }
+                    @Override
+                    public void run() {
+                        drawingComponent = createDrawingComponent();
+                    }
+                };
+                t.start();
+                progress.setNote(labels.getString("progressLoading"));
+                Object drawing = loadDrawing(progress);
+                progress.setNote(labels.getString("progressOpeningEditor"));
+                progress.setIndeterminate(true);
+                t.join();
+                return drawing;
             }
 
-            public void finished(Object result) {
+            protected void done(Object result) {
                 Container c = getContentPane();
                 c.setLayout(new BorderLayout());
                 c.removeAll();
-                if (result instanceof Throwable) {
-                    Throwable error = (Throwable) result;
-                    error.printStackTrace();
-                    String message = (error.getMessage() == null) ? error.toString() : error.getMessage();
-                    MessagePanel mp = new MessagePanel(
-                            UIManager.getIcon("OptionPane.errorIcon"),
-                            labels.getFormatted("messageLoadFailed", htmlencode(getParameter("DrawingURL")), htmlencode(message)));
-                    c.add(mp);
-                    mp.addActionListener(new ActionListener() {
-
-                        public void actionPerformed(ActionEvent evt) {
-                            if (evt.getActionCommand().equals("close")) {
-                                close();
-                            }
-                        }
-                    });
-                } else {
-                    c.add(drawingComponent.getComponent());
-                    initComponents();
-                    if (result != null) {
-                        if (result instanceof Drawing) {
-                            setDrawing((Drawing) result);
-                        } else if (result instanceof Throwable) {
-                            setDrawing(createDrawing());
-                            getDrawing().add(new SVGTextFigure(result.toString()));
-                            ((Throwable) result).printStackTrace();
-                        }
+                c.add(drawingComponent.getComponent());
+                initComponents();
+                if (result != null) {
+                    if (result instanceof Drawing) {
+                        setDrawing((Drawing) result);
+                    } else if (result instanceof Throwable) {
+                        setDrawing(createDrawing());
+                        getDrawing().add(new SVGTextFigure(result.toString()));
+                        ((Throwable) result).printStackTrace();
                     }
                 }
-                c.validate();
+                drawingComponent.revalidate();
+            }
+
+            protected void failed(Throwable result) {
+                Container c = getContentPane();
+                c.setLayout(new BorderLayout());
+                c.removeAll();
+                Throwable error = (Throwable) result;
+                error.printStackTrace();
+                String message = (error.getMessage() == null) ? error.toString() : error.getMessage();
+                MessagePanel mp = new MessagePanel(
+                        UIManager.getIcon("OptionPane.errorIcon"),
+                        labels.getFormatted("messageLoadFailed", htmlencode(getParameter("DrawingURL")), htmlencode(message)));
+                c.add(mp);
+                mp.addActionListener(new ActionListener() {
+
+                    public void actionPerformed(ActionEvent evt) {
+                        if (evt.getActionCommand().equals("close")) {
+                            close();
+                        }
+                    }
+                });
+                mp.revalidate();
+            }
+
+            protected void finished() {
                 long end = System.currentTimeMillis();
                 System.out.println("AbstractDrawingApplet startup latency:" + (end - start));
             }
@@ -255,17 +264,13 @@ public class SVGApplet extends JApplet {
      */
     protected Drawing createDrawing() {
         DefaultDrawing drawing = new DefaultDrawing();
-        LinkedList<InputFormat> inputFormats = new LinkedList<InputFormat>();
-        inputFormats.add(new SVGZInputFormat());
-        inputFormats.add(new ImageInputFormat(new SVGImageFigure()));
-        LinkedList<OutputFormat> outputFormats = new LinkedList<OutputFormat>();
-        outputFormats.add(new SVGOutputFormat());
-        outputFormats.add(new SVGZOutputFormat());
-        outputFormats.add(new ImageOutputFormat());
-        outputFormats.add(new ImageOutputFormat("JPG", "Joint Photographics Experts Group (JPEG)", "jpg", BufferedImage.TYPE_INT_RGB));
-        outputFormats.add(new ImageOutputFormat("BMP", "Windows Bitmap (BMP)", "bmp", BufferedImage.TYPE_BYTE_INDEXED));
-        drawing.setInputFormats(inputFormats);
-        drawing.setOutputFormats(outputFormats);
+        drawing.addInputFormat(new SVGZInputFormat());
+        drawing.addInputFormat(new ImageInputFormat(new SVGImageFigure()));
+        drawing.addOutputFormat(new SVGOutputFormat());
+        drawing.addOutputFormat(new SVGZOutputFormat());
+        drawing.addOutputFormat(new ImageOutputFormat());
+        drawing.addOutputFormat(new ImageOutputFormat("JPG", "Joint Photographics Experts Group (JPEG)", "jpg", BufferedImage.TYPE_INT_RGB));
+        drawing.addOutputFormat(new ImageOutputFormat("BMP", "Windows Bitmap (BMP)", "bmp", BufferedImage.TYPE_BYTE_INDEXED));
         return drawing;
     }
 
@@ -273,7 +278,11 @@ public class SVGApplet extends JApplet {
      * Creates the drawing component.
      */
     protected SVGDrawingPanel createDrawingComponent() {
-        return new SVGDrawingPanel();
+        SVGDrawingPanel p = new SVGDrawingPanel();
+        DefaultDrawingEditor editor = new DefaultDrawingEditor();
+        p.setEditor(new DefaultDrawingEditor());
+
+        return p;
     }
 
     protected SVGDrawingPanel getDrawingComponent() {

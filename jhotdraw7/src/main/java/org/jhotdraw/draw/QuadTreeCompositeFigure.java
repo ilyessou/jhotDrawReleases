@@ -1,5 +1,5 @@
 /*
- * @(#)QuadTreeCompositeFigure.java  1.0  July 17, 2007
+ * @(#)QuadTreeCompositeFigure.java
  *
  * Copyright (c) 2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -23,12 +23,13 @@ import javax.swing.*;
 import javax.swing.event.*;
 import org.jhotdraw.util.*;
 import java.util.*;
+import static org.jhotdraw.draw.AttributeKeys.*;
 /**
  * QuadTreeCompositeFigure.
  * 
  * 
  * @author Werner Randelshofer
- * @version 1.0 July 17, 2007 Created.
+ * @version $Id$
  */
 public abstract class QuadTreeCompositeFigure 
         extends AbstractCompositeFigure {
@@ -226,8 +227,8 @@ public abstract class QuadTreeCompositeFigure
         LinkedList<Figure> contained = new LinkedList<Figure>();
         for (Figure f : children) {
             Rectangle2D r = f.getBounds();
-            if (AttributeKeys.TRANSFORM.get(f) != null) {
-                r = AttributeKeys.TRANSFORM.get(f).createTransformedShape(r).getBounds2D();
+            if (f.get(TRANSFORM) != null) {
+                r = f.get(TRANSFORM).createTransformedShape(r).getBounds2D();
             }
             if (f.isVisible() && bounds.contains(r)) {
                 contained.add(f);

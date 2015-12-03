@@ -1,5 +1,5 @@
 /*
- * @(#)TextOverflowHandle.java  1.0  19. Mai 2007
+ * @(#)TextOverflowHandle.java
  *
  * Copyright (c) 2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -24,7 +24,7 @@ import org.jhotdraw.util.ResourceBundleUtil;
  * bounds of a TextAreaFigure.
  *
  * @author Werner Randelshofer
- * @version 1.0 19. Mai 2007 Created.
+ * @version $Id$
  */
 public class TextOverflowHandle extends AbstractHandle {
     
@@ -60,8 +60,9 @@ public class TextOverflowHandle extends AbstractHandle {
     @Override protected Rectangle basicGetBounds() {
         Rectangle2D.Double b = getOwner().getBounds();
         Point2D.Double p = new Point2D.Double(b.x + b.width, b.y  + b.height);
-        if (TRANSFORM.get(getOwner()) != null) {
-            TRANSFORM.get(getOwner()).transform(p, p);
+        Figure o = getOwner();
+        if (o.get(TRANSFORM) != null) {
+            o.get(TRANSFORM).transform(p, p);
         }
         Rectangle r = new Rectangle(view.drawingToView(p));
         int h = getHandlesize();

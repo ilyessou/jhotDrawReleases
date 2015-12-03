@@ -1,5 +1,5 @@
 /*
- * @(#)SVGBezierFigure.java  1.0.2  2008-05-23
+ * @(#)SVGBezierFigure.java
  *
  * Copyright (c) 2007-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -28,10 +28,7 @@ import static org.jhotdraw.samples.svg.SVGAttributeKeys.*;
  * represent a single BezierPath segment within an SVG path.
  *
  * @author Werner Randelshofer
- * @version 1.0.2 2008-05-23 Operations on segments and handleMouseClick must
- * take transform into account. 
- * <br>1.0.1 2008-03-20 Fixed computation of clip bounds. 
- * <br>1.0 April 14, 2007 Created.
+ * @version $Id$
  */
 public class SVGBezierFigure extends BezierFigure {
 
@@ -44,7 +41,7 @@ public class SVGBezierFigure extends BezierFigure {
 
     public SVGBezierFigure(boolean isClosed) {
         super(isClosed);
-        FILL_OPEN_PATH.basicSet(this, true);
+        set(FILL_OPEN_PATH, true);
     }
 
     public Collection<Handle> createHandles(SVGPathFigure pathFigure, int detailLevel) {
@@ -70,9 +67,9 @@ public class SVGBezierFigure extends BezierFigure {
             willChange();
 
             // Apply inverse of transform to point
-            if (TRANSFORM.get(this) != null) {
+            if (get(TRANSFORM) != null) {
                 try {
-                    p = (Point2D.Double) TRANSFORM.get(this).inverseTransform(p, new Point2D.Double());
+                    p = (Point2D.Double) get(TRANSFORM).inverseTransform(p, new Point2D.Double());
                 } catch (NoninvertibleTransformException ex) {
                     System.err.println("Warning: SVGBezierFigure.handleMouseClick. Figure has noninvertible Transform.");
                 }
@@ -113,14 +110,14 @@ public class SVGBezierFigure extends BezierFigure {
     }
 
     public void transform(AffineTransform tx) {
-        if (TRANSFORM.get(this) != null ||
+        if (get(TRANSFORM) != null ||
                 (tx.getType() & (AffineTransform.TYPE_TRANSLATION)) != tx.getType()) {
-            if (TRANSFORM.get(this) == null) {
-                TRANSFORM.basicSetClone(this, tx);
+            if (get(TRANSFORM) == null) {
+                TRANSFORM.setClone(this, tx);
             } else {
                 AffineTransform t = TRANSFORM.getClone(this);
                 t.preConcatenate(tx);
-                TRANSFORM.basicSet(this, t);
+                set(TRANSFORM, t);
             }
         } else {
             super.transform(tx);
@@ -129,18 +126,18 @@ public class SVGBezierFigure extends BezierFigure {
 
     public Rectangle2D.Double getDrawingArea() {
         if (cachedDrawingArea == null) {
-            if (TRANSFORM.get(this) == null) {
+            if (get(TRANSFORM) == null) {
                 cachedDrawingArea = path.getBounds2D();
             } else {
                 BezierPath p2 = (BezierPath) path.clone();
-                p2.transform(TRANSFORM.get(this));
+                p2.transform(get(TRANSFORM));
                 cachedDrawingArea = p2.getBounds2D();
             }
             double strokeTotalWidth = AttributeKeys.getStrokeTotalWidth(this);
             double width = strokeTotalWidth / 2d;
-            if (STROKE_JOIN.get(this) == BasicStroke.JOIN_MITER) {
-                width *= STROKE_MITER_LIMIT.get(this);
-            } else if (STROKE_CAP.get(this) != BasicStroke.CAP_BUTT) {
+            if (get(STROKE_JOIN) == BasicStroke.JOIN_MITER) {
+                width *= get(STROKE_MITER_LIMIT);
+            } else if (get(STROKE_CAP) != BasicStroke.CAP_BUTT) {
                 width += strokeTotalWidth * 2;
             }
             Geom.grow(cachedDrawingArea, width, width);
@@ -156,9 +153,9 @@ public class SVGBezierFigure extends BezierFigure {
     @Override
     public int findSegment(Point2D.Double find, double tolerance) {
         // Apply inverse of transform to point
-        if (TRANSFORM.get(this) != null) {
+        if (get(TRANSFORM) != null) {
             try {
-                find = (Point2D.Double) TRANSFORM.get(this).inverseTransform(find, new Point2D.Double());
+                find = (Point2D.Double) get(TRANSFORM).inverseTransform(find, new Point2D.Double());
             } catch (NoninvertibleTransformException ex) {
                 System.err.println("Warning: SVGBezierFigure.findSegment. Figure has noninvertible Transform.");
             }
@@ -179,9 +176,9 @@ public class SVGBezierFigure extends BezierFigure {
     @Override
     public boolean joinSegments(Point2D.Double join, double tolerance) {
         // Apply inverse of transform to point
-        if (TRANSFORM.get(this) != null) {
+        if (get(TRANSFORM) != null) {
             try {
-                join = (Point2D.Double) TRANSFORM.get(this).inverseTransform(join, new Point2D.Double());
+                join = (Point2D.Double) get(TRANSFORM).inverseTransform(join, new Point2D.Double());
             } catch (NoninvertibleTransformException ex) {
                 System.err.println("Warning: SVGBezierFigure.findSegment. Figure has noninvertible Transform.");
             }
@@ -207,9 +204,9 @@ public class SVGBezierFigure extends BezierFigure {
     @Override
     public int splitSegment(Point2D.Double split, double tolerance) {
         // Apply inverse of transform to point
-        if (TRANSFORM.get(this) != null) {
+        if (get(TRANSFORM) != null) {
             try {
-                split = (Point2D.Double) TRANSFORM.get(this).inverseTransform(split, new Point2D.Double());
+                split = (Point2D.Double) get(TRANSFORM).inverseTransform(split, new Point2D.Double());
             } catch (NoninvertibleTransformException ex) {
                 System.err.println("Warning: SVGBezierFigure.findSegment. Figure has noninvertible Transform.");
             }
@@ -228,9 +225,9 @@ public class SVGBezierFigure extends BezierFigure {
      * and then sets the TRANSFORM attribute to null.
      */
     public void flattenTransform() {
-        if (TRANSFORM.get(this) != null) {
-            path.transform(TRANSFORM.get(this));
-            TRANSFORM.basicSet(this, null);
+        if (get(TRANSFORM) != null) {
+            path.transform(get(TRANSFORM));
+            set(TRANSFORM, null);
         }
         invalidate();
     }

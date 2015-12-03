@@ -1,5 +1,5 @@
 /*
- * @(#)ChopDiamondConnector.java  1.0  27. M�rz 2006
+ * @(#)ChopDiamondConnector.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -19,12 +19,12 @@ import java.awt.geom.*;
 import static org.jhotdraw.draw.AttributeKeys.*;
 import org.jhotdraw.geom.*;
 /**
- * A ChopDiamondConnector locates connection points by choping the
- * connection between the centers of the two figures at the edge of
- * a diamond figure.
+ * A {@link Connector} which locates a connection point at the bounds
+ * of any figure which has a diamond shape, such as {@link DiamondFigure}.
+ * <p>
  *
  * @author Werner Randelshofer
- * @version 1.0 27. March 2006 Created.
+ * @version $Id$
  */
 public class ChopDiamondConnector extends ChopRectangleConnector {
     
@@ -43,7 +43,7 @@ public class ChopDiamondConnector extends ChopRectangleConnector {
         target = getConnectorTarget(target);
         Rectangle2D.Double r = target.getBounds();
         
-        if (DiamondFigure.IS_QUADRATIC.get(target)) {
+        if (target.get(DiamondFigure.IS_QUADRATIC)) {
             double side = Math.max(r.width, r.height);
             r.x -= (side - r.width) / 2;
             r.y -= (side - r.height) / 2;
@@ -52,7 +52,7 @@ public class ChopDiamondConnector extends ChopRectangleConnector {
         double growx;
         double growy;
         // FIXME - This code is wrong. Copy correct code from DiamondFigure.
-        switch (STROKE_PLACEMENT.get(target)) {
+        switch (target.get(STROKE_PLACEMENT)) {
             case INSIDE : {
                 growx = growy = 0f;
                 break;

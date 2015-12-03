@@ -1,5 +1,5 @@
 /*
- * @(#)SVGRect.java  2.1  2009-04-17
+ * @(#)SVGRect.java
  *
  * Copyright (c) 1996-2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -25,12 +25,13 @@ import org.jhotdraw.geom.*;
  * SVGRect.
  *
  * @author Werner Randelshofer
- * @version 2.1 2009-04-17 Method contains() takes now into account
- * whether the figure is filled.
- * <br>2.0 2007-04-14 Adapted for new AttributeKeys.TRANSFORM support.
- * <br>1.0 July 8, 2006 Created.
+ * @version $Id$
  */
 public class SVGRectFigure extends SVGAttributedFigure implements SVGFigure {
+    /** Identifies the {@code arcWidth} JavaBeans property. */
+    public final static String ARC_WIDTH_PROPERTY = "arcWidth";
+    /** Identifies the {@code arcHeight} JavaBeans property. */
+    public final static String ARC_HEIGHT_PROPERTY = "arcHeight";
 
     /** The variable acv is used for generating the locations of the control
      * points for the rounded rectangle using path.curveTo. */
@@ -129,14 +130,36 @@ public class SVGRectFigure extends SVGAttributedFigure implements SVGFigure {
     public double getHeight() {
         return roundrect.height;
     }
-
+    /** Gets the arc width. */
     public double getArcWidth() {
-        return roundrect.arcwidth / 2d;
+        return roundrect.arcwidth;
     }
 
+    /** Gets the arc height. */
     public double getArcHeight() {
-        return roundrect.archeight / 2d;
+        return roundrect.archeight;
     }
+
+
+    /** Sets the arc width. */
+    public void setArcWidth(double newValue) {
+        double oldValue = roundrect.arcwidth;
+        roundrect.arcwidth = newValue;
+        firePropertyChange(ARC_WIDTH_PROPERTY, oldValue, newValue);
+    }
+    /** Sets the arc height. */
+    public void setArcHeight(double newValue) {
+        double oldValue = roundrect.archeight;
+        roundrect.archeight = newValue;
+        firePropertyChange(ARC_HEIGHT_PROPERTY, oldValue, newValue);
+    }
+
+    /** Convenience method for setting both the arc width and the arc height. */
+    public void setArc(double width, double height) {
+        setArcWidth(width);
+        setArcHeight(height);
+    }
+
 
     public Rectangle2D.Double getBounds() {
         return (Rectangle2D.Double) roundrect.getBounds2D();
@@ -146,16 +169,16 @@ public class SVGRectFigure extends SVGAttributedFigure implements SVGFigure {
     public Rectangle2D.Double getDrawingArea() {
         Rectangle2D rx = getTransformedShape().getBounds2D();
         Rectangle2D.Double r = (rx instanceof Rectangle2D.Double) ? (Rectangle2D.Double) rx : new Rectangle2D.Double(rx.getX(), rx.getY(), rx.getWidth(), rx.getHeight());
-        if (TRANSFORM.get(this) == null) {
+        if (get(TRANSFORM) == null) {
             double g = SVGAttributeKeys.getPerpendicularHitGrowth(this) * 2d + 1d;
             Geom.grow(r, g, g);
         } else {
             double strokeTotalWidth = AttributeKeys.getStrokeTotalWidth(this);
             double width = strokeTotalWidth / 2d;
-            if (STROKE_JOIN.get(this) == BasicStroke.JOIN_MITER) {
-                width *= STROKE_MITER_LIMIT.get(this);
+            if (get(STROKE_JOIN) == BasicStroke.JOIN_MITER) {
+                width *= get(STROKE_MITER_LIMIT);
             }
-            if (STROKE_CAP.get(this) != BasicStroke.CAP_BUTT) {
+            if (get(STROKE_CAP) != BasicStroke.CAP_BUTT) {
                 width += strokeTotalWidth * 2;
             }
             width++;
@@ -193,8 +216,8 @@ public class SVGRectFigure extends SVGAttributedFigure implements SVGFigure {
             } else {
                 cachedTransformedShape = (Shape) roundrect.clone();
             }
-            if (TRANSFORM.get(this) != null) {
-                cachedTransformedShape = TRANSFORM.get(this).createTransformedShape(cachedTransformedShape);
+            if (get(TRANSFORM) != null) {
+                cachedTransformedShape = get(TRANSFORM).createTransformedShape(cachedTransformedShape);
             }
         }
         return cachedTransformedShape;
@@ -202,7 +225,7 @@ public class SVGRectFigure extends SVGAttributedFigure implements SVGFigure {
 
     private Shape getHitShape() {
         if (cachedHitShape == null) {
-            if (FILL_COLOR.get(this) != null || FILL_GRADIENT.get(this) != null) {
+            if (get(FILL_COLOR) != null || get(FILL_GRADIENT) != null) {
                 cachedHitShape = new GrowStroke(
                         (float) SVGAttributeKeys.getStrokeTotalWidth(this) / 2f,
                         (float) SVGAttributeKeys.getStrokeTotalMiterLimit(this)).createStrokedShape(getTransformedShape());
@@ -219,15 +242,15 @@ public class SVGRectFigure extends SVGAttributedFigure implements SVGFigure {
      */
     public void transform(AffineTransform tx) {
         invalidateTransformedShape();
-        if (TRANSFORM.get(this) != null ||
+        if (get(TRANSFORM) != null ||
                 //              (tx.getType() & (AffineTransform.TYPE_TRANSLATION | AffineTransform.TYPE_MASK_SCALE)) != tx.getType()) {
                 (tx.getType() & (AffineTransform.TYPE_TRANSLATION)) != tx.getType()) {
-            if (TRANSFORM.get(this) == null) {
-                TRANSFORM.basicSet(this, (AffineTransform) tx.clone());
+            if (get(TRANSFORM) == null) {
+                set(TRANSFORM,  (AffineTransform) tx.clone());
             } else {
                 AffineTransform t = TRANSFORM.getClone(this);
                 t.preConcatenate(tx);
-                TRANSFORM.basicSet(this, t);
+                set(TRANSFORM,  t);
             }
         } else {
             Point2D.Double anchor = getStartPoint();
@@ -235,45 +258,28 @@ public class SVGRectFigure extends SVGAttributedFigure implements SVGFigure {
             setBounds(
                     (Point2D.Double) tx.transform(anchor, anchor),
                     (Point2D.Double) tx.transform(lead, lead));
-            if (FILL_GRADIENT.get(this) != null &&
-                    !FILL_GRADIENT.get(this).isRelativeToFigureBounds()) {
+            if (get(FILL_GRADIENT) != null &&
+                    !get(FILL_GRADIENT).isRelativeToFigureBounds()) {
                 Gradient g = FILL_GRADIENT.getClone(this);
                 g.transform(tx);
-                FILL_GRADIENT.basicSet(this, g);
+                set(FILL_GRADIENT,  g);
             }
-            if (STROKE_GRADIENT.get(this) != null &&
-                    !STROKE_GRADIENT.get(this).isRelativeToFigureBounds()) {
+            if (get(STROKE_GRADIENT) != null &&
+                    !get(STROKE_GRADIENT).isRelativeToFigureBounds()) {
                 Gradient g = STROKE_GRADIENT.getClone(this);
                 g.transform(tx);
-                STROKE_GRADIENT.basicSet(this, g);
+                set(STROKE_GRADIENT,  g);
             }
         }
-    }
-    // ATTRIBUTES
-
-    public void setArc(double w, double h) {
-        roundrect.arcwidth = Math.max(0d, Math.min(roundrect.width, w * 2d));
-        roundrect.archeight = Math.max(0d, Math.min(roundrect.height, h * 2d));
-    }
-
-    public void setArc(Dimension2DDouble arc) {
-        roundrect.arcwidth = Math.max(0d, Math.min(roundrect.width, arc.width * 2d));
-        roundrect.archeight = Math.max(0d, Math.min(roundrect.height, arc.height * 2d));
-    }
-
-    public Dimension2DDouble getArc() {
-        return new Dimension2DDouble(
-                roundrect.arcwidth / 2d,
-                roundrect.archeight / 2d);
     }
 
     public void restoreTransformTo(Object geometry) {
         invalidateTransformedShape();
         Object[] restoreData = (Object[]) geometry;
         roundrect = (RoundRectangle2D.Double) ((RoundRectangle2D.Double) restoreData[0]).clone();
-        TRANSFORM.basicSetClone(this, (AffineTransform) restoreData[1]);
-        FILL_GRADIENT.basicSetClone(this, (Gradient) restoreData[2]);
-        STROKE_GRADIENT.basicSetClone(this, (Gradient) restoreData[3]);
+        TRANSFORM.setClone(this, (AffineTransform) restoreData[1]);
+        FILL_GRADIENT.setClone(this, (Gradient) restoreData[2]);
+        STROKE_GRADIENT.setClone(this, (Gradient) restoreData[3]);
     }
 
     public Object getTransformRestoreData() {

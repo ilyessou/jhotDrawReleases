@@ -1,5 +1,5 @@
 /*
- * @(#)HandleTracker.java  1.0  2009-04-25
+ * @(#)HandleTracker.java
  * 
  * Copyright (c) 2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -17,10 +17,22 @@ package org.jhotdraw.draw;
 import java.util.Collection;
 
 /**
- * HandleTracker.
+ * A <em>handle tracker</em> provides the behavior for manipulating a
+ * {@link Handle} of a figure to the {@link SelectionTool}.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Strategy</em><br>
+ * The different behavior states of the selection tool are implemented by
+ * trackers.<br>
+ * Context: {@link SelectionTool}; State: {@link DragTracker},
+ * {@link HandleTracker}, {@link SelectAreaTracker}.
+ * <hr>
+ *
  *
  * @author Werner Randelshofer
- * @version 1.0 2009-04-25 Created.
+ * @version $Id$
  */
 public interface HandleTracker extends Tool {
 

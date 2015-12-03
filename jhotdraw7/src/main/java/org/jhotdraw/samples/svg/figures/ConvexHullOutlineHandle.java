@@ -1,5 +1,5 @@
 /*
- * @(#)BoundsOutlineHandle.java  3.0  2008-05-22
+ * @(#)BoundsOutlineHandle.java
  *
  * Copyright (c) 2007-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -16,19 +16,13 @@ package org.jhotdraw.samples.svg.figures;
 import org.jhotdraw.draw.*;
 import java.awt.*;
 import org.jhotdraw.geom.ConvexHull;
+import static org.jhotdraw.draw.AttributeKeys.*;
 
 /**
  * Draws the outline of the Figure bounds to make adjustment easier.
  *
  * @author Werner Randelshofer
- * @version 3.0 2008-05-22 Added support for hover handle. 
- * <br>2.0 2008-05-11 Handle attributes are now retrieved from
- * DrawingEditor.
- * <br>1.2 2008-04-15 Distinguish between bounds handle for resizing
- * and for transforming. 
- * <br>1.1 2008-04-12 Improve visibility of the outline, by drawing it
- * using two differently colored strokes. 
- * <br>1.0 April 15, 2007 Created.
+ * @version $Id$
  */
 public class ConvexHullOutlineHandle extends AbstractHandle {
     private Shape outline;
@@ -117,8 +111,8 @@ public class ConvexHullOutlineHandle extends AbstractHandle {
     @Override
     protected Rectangle basicGetBounds() {
         Shape bounds = getOwner().getBounds();
-        if (AttributeKeys.TRANSFORM.get(getOwner()) != null) {
-            bounds = AttributeKeys.TRANSFORM.get(getOwner()).createTransformedShape(bounds);
+        if (getOwner().get(TRANSFORM) != null) {
+            bounds = getOwner().get(TRANSFORM).createTransformedShape(bounds);
         }
         bounds = view.getDrawingToViewTransform().createTransformedShape(bounds);
 
@@ -149,8 +143,8 @@ public class ConvexHullOutlineHandle extends AbstractHandle {
     public void draw(Graphics2D g) {
         if (outline==null) {
         Shape bounds = getOwner().getPath();
-        if (AttributeKeys.TRANSFORM.get(getOwner()) != null) {
-            bounds = AttributeKeys.TRANSFORM.get(getOwner()).createTransformedShape(bounds);
+        if (getOwner().get(TRANSFORM) != null) {
+            bounds = getOwner().get(TRANSFORM).createTransformedShape(bounds);
         }
         bounds = view.getDrawingToViewTransform().createTransformedShape(bounds);
         outline = ConvexHull.getConvexHullPath2D(bounds);

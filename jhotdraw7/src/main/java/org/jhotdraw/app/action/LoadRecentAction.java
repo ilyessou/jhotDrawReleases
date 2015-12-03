@@ -1,5 +1,5 @@
 /*
- * @(#)LoadRecentAction.java  1.0  June 15, 2006
+ * @(#)LoadRecentAction.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -11,43 +11,38 @@
  * accordance with the license agreement you entered into with  
  * the copyright holders. For details see accompanying license terms. 
  */
-
 package org.jhotdraw.app.action;
 
-import org.jhotdraw.gui.Worker;
-import org.jhotdraw.util.*;
 import org.jhotdraw.gui.*;
 import org.jhotdraw.gui.event.*;
-
 import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.util.prefs.*;
 import javax.swing.*;
 import java.io.*;
 import org.jhotdraw.app.Application;
 import org.jhotdraw.app.View;
+
 /**
  * LoadRecentAction.
  *
  * @author Werner Randelshofer.
- * @version 1.0 June 15, 2006 Created.
+ * @version $Id$
  */
 public class LoadRecentAction extends AbstractSaveBeforeAction {
+
     public final static String ID = "file.loadRecent";
     private File file;
-    
+
     /** Creates a new instance. */
     public LoadRecentAction(Application app, File file) {
         super(app);
         this.file = file;
         putValue(Action.NAME, file.getName());
     }
-    
+
     public void doIt(final View view) {
         final Application app = getApplication();
         app.setEnabled(true);
-        
+
         // If there is another view with we set the multiple open
         // id of our view to max(multiple open id) + 1.
         int multipleOpenId = 1;
@@ -59,50 +54,47 @@ public class LoadRecentAction extends AbstractSaveBeforeAction {
             }
         }
         view.setMultipleOpenId(multipleOpenId);
-        
+
         // Open the file
         view.execute(new Worker() {
-            public Object construct() {
-                try {
-                    view.read(file);
-                    return null;
-                } catch (Throwable e) {
-                    return e;
+
+            protected Object construct() throws IOException {
+                view.read(file);
+                return null;
+            }
+
+            @Override
+            protected void done(Object value) {
+                final Application app = getApplication();
+                view.setFile(file);
+                view.setEnabled(true);
+                Frame w = (Frame) SwingUtilities.getWindowAncestor(view.getComponent());
+                if (w != null) {
+                    w.setExtendedState(w.getExtendedState() & ~Frame.ICONIFIED);
+                    w.toFront();
+                }
+                view.getComponent().requestFocus();
+                if (app != null) {
+                    app.setEnabled(true);
                 }
             }
-            public void finished(Object value) {
-                fileOpened(view, file, value);
+
+            @Override
+            protected void failed(Throwable value) {
+                final Application app = getApplication();
+                ((Throwable) value).printStackTrace();
+
+                JSheet.showMessageSheet(view.getComponent(),
+                        "<html>" + UIManager.getString("OptionPane.css") +
+                        "<b>Couldn't open the file \"" + file + "\".</b><br>" +
+                        value,
+                        JOptionPane.ERROR_MESSAGE, new SheetListener() {
+
+                    public void optionSelected(SheetEvent evt) {
+                        // app.dispose(view);
+                    }
+                });
             }
         });
-    }
-    protected void fileOpened(final View view, File file, Object value) {
-        final Application app = getApplication();
-        if (value == null) {
-            view.setFile(file);
-            view.setEnabled(true);
-            Frame w = (Frame) SwingUtilities.getWindowAncestor(view.getComponent());
-            if (w != null) {
-                w.setExtendedState(w.getExtendedState() & ~Frame.ICONIFIED);
-                w.toFront();
-            }
-            view.getComponent().requestFocus();
-            if (app != null) {
-                app.setEnabled(true);
-            }
-        } else {
-            if (value instanceof Throwable) {
-                ((Throwable) value).printStackTrace();
-            }
-            JSheet.showMessageSheet(view.getComponent(),
-                    "<html>"+UIManager.getString("OptionPane.css")+
-                    "<b>Couldn't open the file \""+file+"\".</b><br>"+
-                    value,
-                    JOptionPane.ERROR_MESSAGE, new SheetListener() {
-                public void optionSelected(SheetEvent evt) {
-                    // app.dispose(view);
-                }
-            }
-            );
-        }
     }
 }

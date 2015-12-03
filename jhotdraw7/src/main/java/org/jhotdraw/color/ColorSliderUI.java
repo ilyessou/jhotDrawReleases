@@ -1,5 +1,5 @@
 /*
- * @(#)ColorSliderUI.java  1.1  2007-12-02
+ * @(#)ColorSliderUI.java
  *
  * Copyright (c) 2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -14,27 +14,23 @@
 
 package org.jhotdraw.color;
 
+import org.jhotdraw.util.Images;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 import org.jhotdraw.gui.plaf.palette.*;
+
 /**
  * A UI delegate for color sliders. The track of the slider visualizes how
  * changing the value of the slider affects the color.
  *
  *
  * @author  Werner Randelshofer
- * @version 1.1 2007-12-01 Streamlined UIManager properties. 
- * <br>1.0.3 2005-09-11 Tweaked layout and drawing code.
- * <br>1.0.2 2005-08-28 Color track must always be regenerated if the
- * snapToTicks property changes.
- * <br>1.0.1 2005-04-18 Fixed an undesired shift of the track on the x-axis.
- * <br>1.0  29 March 2005  Created.
+ * @version $Id$
  */
 public class ColorSliderUI extends BasicSliderUI {
     private final static Color foreground = new Color(0x949494);
@@ -55,14 +51,14 @@ public class ColorSliderUI extends BasicSliderUI {
         if (null == UIManager.getIcon("Slider.northThumb.small")) {
             UIManager.put("Slider.northThumb.small",
                     new SliderThumbIcon(Images.createImage(
-                    ColorSliderUI.class.getResource("/org/jhotdraw/color/images/Slider.northThumbs.small.png"))
+                    ColorSliderUI.class, "/org/jhotdraw/color/images/Slider.northThumbs.small.png")
                     , 6, true)
                     );
         }
         if (null ==  UIManager.getIcon("Slider.westThumb.small")) {
             UIManager.put("Slider.westThumb.small",
                     new SliderThumbIcon(Images.createImage(
-                    ColorSliderUI.class.getResource("/org/jhotdraw/color/images/Slider.westThumbs.small.png"))
+                    ColorSliderUI.class, "/org/jhotdraw/color/images/Slider.westThumbs.small.png")
                     , 6, true)
                     );
         }

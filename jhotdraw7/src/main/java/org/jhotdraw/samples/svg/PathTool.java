@@ -1,5 +1,5 @@
 /*
- * @(#)PathTool.java  1.0  2006-07-12
+ * @(#)PathTool.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -28,7 +28,7 @@ import org.jhotdraw.geom.*;
  * Tool to scribble a SVGPath
  *
  * @author  Werner Randelshofer
- * @version 1.0 2006-07-12 Created.
+ * @version $Id$
  */
 public class PathTool extends BezierTool {
 
@@ -58,7 +58,7 @@ public class PathTool extends BezierTool {
         getEditor().applyDefaultAttributesTo(f);
         if (attributes != null) {
             for (Map.Entry<AttributeKey, Object> entry : attributes.entrySet()) {
-                entry.getKey().basicSet(f, entry.getValue());
+                f.set(entry.getKey(), entry.getValue());
             }
         }
         return f;

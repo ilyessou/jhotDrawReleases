@@ -1,5 +1,5 @@
 /*
- *  @(#)FloatingTextArea.java  3.0  2008-05-24
+ *  @(#)FloatingTextArea.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -20,12 +20,23 @@ import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 
 /**
- * A FloatingTextArea overlays an editor on top of an area in a drawing.
+ * A <em>floating text area</em> that is used to edit a {@link TextHolderFigure}.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Framework</em><br>
+ * The text creation and editing tools and the {@code TextHolderFigure}
+ * interface define together the contracts of a smaller framework inside of the
+ * JHotDraw framework for  structured drawing editors.<br>
+ * Contract: {@link TextHolderFigure}, {@link TextCreationTool},
+ * {@link TextAreaCreationTool}, {@link TextEditingTool},
+ * {@link TextAreaEditingTool}, {@link FloatingTextField},
+ * {@link FloatingTextArea}.
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 3.0 2008-05-24 Update text area when attributes of the edited figure change. 
- * <br>2.0 2006-01-14 Changed to support double precision coordinates.
- * <br>1.0 2006-02-27 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public class FloatingTextArea {
 

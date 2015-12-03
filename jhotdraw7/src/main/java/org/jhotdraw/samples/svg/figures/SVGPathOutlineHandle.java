@@ -1,5 +1,5 @@
 /*
- * @(#)SVGPathOutlineHandle.java  2.0  2008-05-22
+ * @(#)SVGPathOutlineHandle.java
  *
  * Copyright (c) 2007-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -18,14 +18,11 @@ import java.awt.*;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.*;
 
 /**
- * SVGPathOutlineHandle.
+ * A non-interactive {@link Handle} which draws the outline of a 
+ * {@link SVGPathFigure} to make adjustments easier.
  *
  * @author Werner Randelshofer
- * @version 2.0 2008-05-22 Handle can be used to mark figure over which mouse is
- * hovering.
- * <br>1.1 2008-04-12 Improve visibility of the outline, by drawing it
- * using two differently colored strokes. 
- * <br>1.0 13. Mai 2007 Created.
+ * @version $Id$
  */
 public class SVGPathOutlineHandle extends AbstractHandle {
 
@@ -70,32 +67,34 @@ public class SVGPathOutlineHandle extends AbstractHandle {
 
     @Override
     public void draw(Graphics2D g) {
-        Shape bounds = getOwner().getPath();
-        if (TRANSFORM.get(getOwner()) != null) {
-            bounds = TRANSFORM.get(getOwner()).createTransformedShape(bounds);
+        SVGPathFigure o = getOwner();
+        Shape bounds = o.getPath();
+        if (o.get(TRANSFORM) != null) {
+            bounds = o.get(TRANSFORM).createTransformedShape(bounds);
         }
         bounds = view.getDrawingToViewTransform().createTransformedShape(bounds);
         Stroke stroke1;
         Color strokeColor1;
         Stroke stroke2;
         Color strokeColor2;
-        if (getEditor().getTool().supportsHandleInteraction()) {
+        DrawingEditor e = getEditor();
+        if (e.getTool().supportsHandleInteraction()) {
             if (isHoverHandle) {
-                stroke1 = (Stroke) getEditor().getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_STROKE_1_HOVER);
-                strokeColor1 = (Color) getEditor().getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_COLOR_1_HOVER);
-                stroke2 = (Stroke) getEditor().getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_STROKE_2_HOVER);
-                strokeColor2 = (Color) getEditor().getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_COLOR_2_HOVER);
+                stroke1 = (Stroke) e.getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_STROKE_1_HOVER);
+                strokeColor1 = (Color) e.getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_COLOR_1_HOVER);
+                stroke2 = (Stroke) e.getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_STROKE_2_HOVER);
+                strokeColor2 = (Color) e.getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_COLOR_2_HOVER);
             } else {
-                stroke1 = (Stroke) getEditor().getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_STROKE_1);
-                strokeColor1 = (Color) getEditor().getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_COLOR_1);
-                stroke2 = (Stroke) getEditor().getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_STROKE_2);
-                strokeColor2 = (Color) getEditor().getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_COLOR_2);
+                stroke1 = (Stroke) e.getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_STROKE_1);
+                strokeColor1 = (Color) e.getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_COLOR_1);
+                stroke2 = (Stroke) e.getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_STROKE_2);
+                strokeColor2 = (Color) e.getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_COLOR_2);
             }
         } else {
-            stroke1 = (Stroke) getEditor().getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_STROKE_1_DISABLED);
-            strokeColor1 = (Color) getEditor().getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_COLOR_1_DISABLED);
-            stroke2 = (Stroke) getEditor().getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_STROKE_2_DISABLED);
-            strokeColor2 = (Color) getEditor().getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_COLOR_2_DISABLED);
+            stroke1 = (Stroke) e.getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_STROKE_1_DISABLED);
+            strokeColor1 = (Color) e.getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_COLOR_1_DISABLED);
+            stroke2 = (Stroke) e.getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_STROKE_2_DISABLED);
+            strokeColor2 = (Color) e.getHandleAttribute(HandleAttributeKeys.BEZIER_PATH_COLOR_2_DISABLED);
         }
         if (stroke1 != null && strokeColor1 != null) {
             g.setStroke(stroke1);

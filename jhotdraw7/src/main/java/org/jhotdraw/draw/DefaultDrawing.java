@@ -1,5 +1,5 @@
 /*
- * @(#)DefaultDrawing.java  2.2.2  2009-04-04
+ * @(#)DefaultDrawing.java
  *
  * Copyright (c) 1996-2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -13,35 +13,30 @@
  */
 package org.jhotdraw.draw;
 
-import org.jhotdraw.geom.Dimension2DDouble;
 import java.awt.*;
 import java.awt.geom.*;
 import org.jhotdraw.util.*;
 import java.util.*;
 import org.jhotdraw.geom.Geom;
+import static org.jhotdraw.draw.AttributeKeys.*;
 
 /**
- * DefaultDrawing to be used for drawings that contain only a few children.
- * For larger drawings, {@link QuadTreeDrawing} should be used.
+ * A default implementation of {@link Drawing} useful for drawings which
+ * contain only a few figures.
+ * <p>
+ * For larger drawings, {@link QuadTreeDrawing} is recommended.
  * <p>
  * FIXME - Maybe we should rename this class to SimpleDrawing or we should
  * get rid of this class altogether.
  *
  *
  * @author Werner Randelshofer
- * @version 2.2.2 2009-04-04 Adding figures did not invalidate sort order.
- * <br>2.2.1 Fixed NullPointerException when setting canvas size.
- * <br>2.2 2007-04-09 Methods setCanvasSize, getCanvasSize added.
- * <br>2.1 2007-02-09 Moved FigureListener and UndoableEditListener into
- * inner class.
- * <br>2.0 2006-01-14 Changed to support double precision coordinates.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public class DefaultDrawing
         extends AbstractDrawing {
 
     private boolean needsSorting = false;
-    private Dimension2DDouble canvasSize;
 
     /** Creates a new instance. */
     public DefaultDrawing() {
@@ -175,8 +170,8 @@ public class DefaultDrawing
         LinkedList<Figure> contained = new LinkedList<Figure>();
         for (Figure f : getChildren()) {
             Rectangle2D.Double r = f.getBounds();
-            if (AttributeKeys.TRANSFORM.get(f) != null) {
-                Rectangle2D rt = AttributeKeys.TRANSFORM.get(f).createTransformedShape(r).getBounds2D();
+            if (f.get(TRANSFORM) != null) {
+                Rectangle2D rt = f.get(TRANSFORM).createTransformedShape(r).getBounds2D();
                 r = (rt instanceof Rectangle2D.Double) ? (Rectangle2D.Double) rt : new Rectangle2D.Double(rt.getX(), rt.getY(), rt.getWidth(), rt.getHeight());
             }
             if (f.isVisible() && Geom.contains(bounds, r)) {
@@ -224,26 +219,9 @@ public class DefaultDrawing
         // empty
     }
 
-    public void setCanvasSize(Dimension2DDouble newValue) {
-        Dimension2DDouble oldValue = canvasSize;
-        canvasSize = (newValue == null) ? null : (Dimension2DDouble) newValue.clone();
-        firePropertyChange(CANVAS_SIZE_PROPERTY, oldValue, newValue);
-    }
-
-    public Dimension2DDouble getCanvasSize() {
-        return (canvasSize == null) ? null : (Dimension2DDouble) canvasSize.clone();
-    }
-
     @Override
     public int indexOf(Figure figure) {
         return children.indexOf(figure);
-    }
-
-    @Override
-    public DefaultDrawing clone() {
-        DefaultDrawing that = (DefaultDrawing) super.clone();
-        that.canvasSize = (this.canvasSize == null) ? null : (Dimension2DDouble) this.canvasSize.clone();
-        return that;
     }
 
     @Override

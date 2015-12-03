@@ -1,5 +1,5 @@
 /*
- * @(#)Connector.java  2.0  2007-05-19
+ * @(#)Connector.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -21,18 +21,34 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.io.*;
 /**
- * A {@code Connector} knows how to locate a connection point on a figure.
- * A Connector knows its owning figure and can determine either
- * the start point or the end point of a given ConnectionFigure. A connector
- * has bounds which describe the area of a figure it is
- * responsible for. A connector can be drawn, but it doesn't have
- * to be.<br>
+ * A <em>connector</em> knows how to locate the start point or the end point
+ * of a {@link ConnectionFigure} on a connected figure.
+ * <p>
+ * A connector is owned by a {@link Figure}.
+ * <p>
+ * A connector knows its owning figure. A connector has bounds which describe
+ * the area of the figure it is responsible for. A connector can be drawn, so
+ * that users can see the bounds of the connector.<br>
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Framework</em><br>
+ * The following interfaces define the contracts of a framework for structured
+ * drawing editors:<br>
+ * Contract: {@link Drawing}, {@link Figure}, {@link CompositeFigure},
+ * {@link ConnectionFigure}, {@link Connector}, {@link DrawingView},
+ * {@link DrawingEditor}, {@link Handle} and {@link Tool}.
+ *
+ * <p><em>Strategy</em><br>
+ * The location of the start and end points of a connection figure are determined
+ * by {@code Connector}s which are owned by the connected figures.<br>
+ * Context: {@link Figure}, {@link ConnectionFigure}; Strategy: {@link Connector}.
+ * <hr>
+ *
  *
  * @author Werner Randelshofer
- * @version 2.0 2007-05-19 Connectors don't have the ability to draw themselves
- * anymore. Its the responsibility of the tools and handles to draw the
- * connectors they can connect with.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public interface Connector extends Cloneable, Serializable, DOMStorable {
     

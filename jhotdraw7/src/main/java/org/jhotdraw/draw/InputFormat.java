@@ -1,5 +1,5 @@
 /*
- * @(#)InputFormat.java  3.0  2008-05-24
+ * @(#)InputFormat.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -16,31 +16,36 @@ package org.jhotdraw.draw;
 
 import java.awt.datatransfer.*;
 import java.io.*;
-import java.net.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.filechooser.*;
 
 /**
- * Interface to define an input format for a Drawing. An InputFormat is a 
- * strategy that knows how to restore a Drawing according to a specific encoding.
- * Typically it can be recognized by a Mime type or by a file extension. 
- * To identify a valid file format for a Drawing an appropriate FileFilter for a
- * javax.swing.JFileChooser component can be requested.
+ * An <em>input format</em> implements a strategy for reading a {@link Drawing}
+ * which is encoded in an {@code InputStream}, a {@code File} or a
+ * {@code Transferable}.
+ * <p>
+ * Typically an encoding can be recognized by a Mime type or by a file extension.
+ * To identify the encoding used by a file, an appropriate {@code FileFilter}
+ * for a javax.swing.JFileChooser component can be requested from {@code InputFormat}.
  * <p>
  * This interface intentionally contains many identical operations like
  * OutputFormat to make it easy, to write classes that implement both interfaces.
  *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Strategy</em><br>
+ * {@code InputFormat} encapsulates a strategy for reading drawings from
+ * input streams.<br>
+ * Strategy: {@link InputFormat}; Context: {@link Drawing}.
+ * <hr>
+ *
  * @author Werner Randelshofer
- * @version 3.0 2008-05-24 Added parameter isReplaceDrawing. 
- * <br>2.0 2007-12-07 Method readFigures(Transferable) replaced by
- * read(Transferable, Drawing). 
- * <br>1.0 December 12, 2006 Created.
+ * @version $Id$
  */
 public interface InputFormat {
     /**
-     * Return a FileFilter that can be used to identify files which can be restored
-     * with this Storage Format. Typically, each input format has its own 
+     * Return a FileFilter that can be used to identify files which can be read
+     * with this input format. Typically, each input format has its own
      * recognizable file naming convention.
      *
      * @return FileFilter to be used with a javax.swing.JFileChooser

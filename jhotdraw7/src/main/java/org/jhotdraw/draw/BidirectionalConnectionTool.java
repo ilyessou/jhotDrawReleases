@@ -1,5 +1,5 @@
 /*
- * @(#)BidirectionalConnectionTool.java  2.1  2007-05-18
+ * @(#)BidirectionalConnectionTool.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -14,13 +14,12 @@
 
 package org.jhotdraw.draw;
 
-import org.jhotdraw.util.*;
 import org.jhotdraw.undo.*;
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.event.*;
 import java.util.*;
-import java.awt.dnd.*;
+
 /**
  * A tool that can be used to connect figures, to split
  * connections, and to join two segments of a connection.
@@ -29,12 +28,11 @@ import java.awt.dnd.*;
  * The connection object to be created is specified by a prototype.
  * <p>
  * FIXME: Use a Tracker instance for each state of this tool.
+ * <p>
+ * XXX - This tool is not needed anywhere. We should get rid of it.
  *
  * @author Werner Randelshofer
- * @version 2.1 2007-05-18 Changed due to changes in the canConnect methods
- * of the ConnectionFigure interface.
- * <br>2.0 2006-01-14 Changed to support double precision coordinates.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public class BidirectionalConnectionTool extends AbstractTool implements FigureListener {
     private Map<AttributeKey, Object> attributes;
@@ -183,7 +181,7 @@ public class BidirectionalConnectionTool extends AbstractTool implements FigureL
         getEditor().applyDefaultAttributesTo(f);
         if (attributes != null) {
             for (Map.Entry<AttributeKey, Object> entry : attributes.entrySet()) {
-                entry.getKey().basicSet(f, entry.getValue());
+                f.set(entry.getKey(), entry.getValue());
             }
         }
         return f;

@@ -1,5 +1,5 @@
 /*
- * @(#)PolyLineDecorationLocator.java  1.0  3. Februar 2004
+ * @(#)PolyLineDecorationLocator.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -15,19 +15,20 @@
 package org.jhotdraw.draw;
 
 import org.jhotdraw.geom.*;
-import org.jhotdraw.util.*;
-import java.awt.*;
 import java.awt.geom.*;
 import org.jhotdraw.xml.*;
 
 /**
- * This locator locates a position relative to a polyline.
- * The position is chosen in a way, which is suitable for labeling the polyline.
- * The preferredSize of the label is used to determine its location.
+ * A {@link Locator} which can be used to place a label on the path of
+ * a {@link BezierFigure}.
+ * <p>
+ * The point is located at a distance and an angle relative to the total length
+ * of the bezier path.
+ * <p>
+ * XXX - The angle should be perpendicular to the path.
  *
  * @author  Werner Randelshofer
- * @version 2.0 2006-01-14 Changed to support double precison coordinates.
- * <br>1.0 3. Februar 2004  Created.
+ * @version $Id$
  */
 public class BezierLabelLocator implements Locator, DOMStorable {
     private double relativePosition;
@@ -43,9 +44,9 @@ public class BezierLabelLocator implements Locator, DOMStorable {
     /** Creates a new locator.
      *
      * @param relativePosition The relative position of the label on the polyline.
-     * 0.0 specifies the start of the polyline, 1.0 the
+     * 0.0 specifies the start of the bezier path, 1.0 the
      * end of the polyline. Values between 0.0 and 1.0 are relative positions
-     * on the polyline.
+     * on the bezier path.
      * @param angle The angle of the distance vector.
      * @param distance The length of the distance vector.
      */
@@ -64,7 +65,8 @@ public class BezierLabelLocator implements Locator, DOMStorable {
     }
     
     /**
-     * Returns a Point2D.Double on the polyline that is at the provided relative position.
+     * Returns the coordinates of the relative point on the path
+     * of the specified bezier figure.
      */
     public Point2D.Double getRelativePoint(BezierFigure owner) {
         Point2D.Double point = owner.getPointOnPath((float) relativePosition, 3);

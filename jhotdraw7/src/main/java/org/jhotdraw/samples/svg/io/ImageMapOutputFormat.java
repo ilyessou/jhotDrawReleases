@@ -1,5 +1,5 @@
 /*
- * @(#)ImageMapOutputFormat.java  1.2  2009-04-17
+ * @(#)ImageMapOutputFormat.java
  *
  * Copyright (c) 2007-2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -35,9 +35,7 @@ import org.jhotdraw.util.*;
  *
  *
  * @author Werner Randelshofer
- * @version 1.2 2009-04-17 Added support for link target.
- * <br>1.1 2007-12-16 Adapted to changes in OutputFormat.
- * <br>1.0 22. April 2007 Created.
+ * @version $Id$
  */
 public class ImageMapOutputFormat implements OutputFormat {
 
@@ -303,12 +301,14 @@ public class ImageMapOutputFormat implements OutputFormat {
     }
 
     private void writeHrefAttribute(IXMLElement elem, SVGFigure f) {
-        if (LINK.get(f) != null && LINK.get(f).trim().length() > 0) {
-            elem.setAttribute("href", LINK.get(f));
-            elem.setAttribute("title", LINK.get(f));
-            elem.setAttribute("alt", LINK.get(f));
-            if (LINK_TARGET.get(f) != null && LINK_TARGET.get(f).trim().length() > 0) {
-                elem.setAttribute("target", LINK_TARGET.get(f));
+        String link = f.get(LINK);
+        if (link != null && link.trim().length() > 0) {
+            elem.setAttribute("href", link);
+            elem.setAttribute("title", link);
+            elem.setAttribute("alt", link);
+            String linkTarget = f.get(LINK_TARGET);
+            if (linkTarget != null && linkTarget.trim().length() > 0) {
+                elem.setAttribute("target", linkTarget);
             }
         } else {
             elem.setAttribute("nohref", "true");

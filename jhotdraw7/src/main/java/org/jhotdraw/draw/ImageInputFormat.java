@@ -1,5 +1,5 @@
 /*
- * @(#)ImageInputFormat.java  2.1  2008-05-24
+ * @(#)ImageInputFormat.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -21,25 +21,24 @@ import java.io.*;
 import java.util.*;
 import javax.imageio.*;
 import javax.swing.*;
-import javax.swing.filechooser.*;
 import org.jhotdraw.gui.datatransfer.*;
 import org.jhotdraw.io.*;
 import org.jhotdraw.util.Images;
+import static org.jhotdraw.draw.AttributeKeys.*;
 
 /**
  * An input format for importing drawings using one of the image formats 
  * supported by javax.imageio.
  * <p>
- * This class uses the prototype design pattern. A ImageHolderFigure figure is used
- * as a prototype for creating a figure that holds the imported image.
+ * This class uses the prototype design pattern. A ImageHolderFigure figure is 
+ * used as a prototype for creating a figure that holds the imported image.
+ * <p>
+ * If the drawing is replaced using the loaded image, the size of the
+ * drawing is set to match the size of the image using the attributes
+ * {@code AttributeKeys.CANVAS_WIDTH} and {@code AttributeKeys.CANVAS_HEIGHT}.
  * 
  * @author Werner Randelshor 
- * @version 2.1 2008-05-24 Adapted to changes in InputFormat. 
- * <br>2.0 2008-03-20 Added workaround for image clipboard issues on 
- * Mac OS X 10.5.2. 
- * <br>1.1 2007-12-16 Adapted to changes in InputFormat.
- * <br>1.0 January 3, 2007 Created.
- * @see org.jhotdraw.draw.ImageHolderFigure
+ * @version $Id$
  */
 public class ImageInputFormat implements InputFormat {
 
@@ -109,6 +108,8 @@ public class ImageInputFormat implements InputFormat {
                 figure.getBufferedImage().getHeight()));
         if (replace) {
             drawing.removeAllChildren();
+            drawing.set(CANVAS_WIDTH, figure.getBounds().width);
+            drawing.set(CANVAS_HEIGHT, figure.getBounds().height);
         }
         drawing.basicAdd(figure);
     }
@@ -118,10 +119,13 @@ public class ImageInputFormat implements InputFormat {
     }
 
     public void read(InputStream in, Drawing drawing, boolean replace) throws IOException {
+        ImageHolderFigure figure = createImageHolder(in);
         if (replace) {
             drawing.removeAllChildren();
+            drawing.set(CANVAS_WIDTH, figure.getBounds().width);
+            drawing.set(CANVAS_HEIGHT, figure.getBounds().height);
         }
-        drawing.basicAdd(createImageHolder(in));
+        drawing.basicAdd(figure);
     }
 
     public ImageHolderFigure createImageHolder(InputStream in) throws IOException {
@@ -158,6 +162,8 @@ public class ImageInputFormat implements InputFormat {
                 list.add(figure);
                 if (replace) {
                     drawing.removeAllChildren();
+                    drawing.set(CANVAS_WIDTH, figure.getBounds().width);
+                    drawing.set(CANVAS_HEIGHT, figure.getBounds().height);
                 }
                 drawing.addAll(list);
                 return;
@@ -184,6 +190,8 @@ public class ImageInputFormat implements InputFormat {
                 list.add(figure);
                 if (replace) {
                     drawing.removeAllChildren();
+                    drawing.set(CANVAS_WIDTH, figure.getBounds().width);
+                    drawing.set(CANVAS_HEIGHT, figure.getBounds().height);
                 }
                 drawing.addAll(list);
             } catch (Throwable e) {

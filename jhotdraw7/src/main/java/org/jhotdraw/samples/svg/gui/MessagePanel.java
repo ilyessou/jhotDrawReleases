@@ -1,5 +1,5 @@
 /*
- * @(#)MessagePanel.java  1.0  April 9, 2007
+ * @(#)MessagePanel.java
  *
  * Copyright (c) 2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -28,7 +28,7 @@ import org.jhotdraw.util.*;
  * commands.
  * 
  * @author Werner Randelshofer
- * @version 1.0 April 9, 2007 Created.
+ * @version $Id$
  */
 public class MessagePanel extends javax.swing.JPanel {
     private EventListenerList listeners;
@@ -40,7 +40,7 @@ public class MessagePanel extends javax.swing.JPanel {
     }
     
     public MessagePanel(Icon icon, String message) {
-        labels = ResourceBundleUtil.getBundle("org.anywikidraw.any.Labels");
+        labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.svg.Labels");
         initComponents();
         setIcon(icon);
         setMessage(message);
@@ -92,7 +92,7 @@ public class MessagePanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         add(messageLabel, gridBagConstraints);
 
-        closeButton.setText("null");
+        closeButton.setText(labels.getString("messagePanel.close.text")); // NOI18N
         closeButton.setActionCommand("close");
         closeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

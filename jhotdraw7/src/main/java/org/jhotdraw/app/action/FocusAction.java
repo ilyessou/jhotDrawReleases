@@ -1,5 +1,5 @@
 /*
- * @(#)FocusAction.java  2.0  2006-05-05
+ * @(#)FocusAction.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -22,16 +22,17 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import org.jhotdraw.app.View;
+
 /**
  * Requests focus for a Frame.
  *
  * @author  Werner Randelshofer
- * @version 2.0 2006-05-05 Reworked.
- * <br>1.0  2005-06-10 Created.
+ * @version $Id$
  */
 public class FocusAction extends AbstractAction {
     public final static String ID = "window.focus";
     private View view;
+    private PropertyChangeListener ppc;
     
     /** Creates a new instance. */
     public FocusAction(View view) {
@@ -41,7 +42,7 @@ public class FocusAction extends AbstractAction {
         //setEnabled(false);
         setEnabled(view != null);
         
-        view.addPropertyChangeListener(new PropertyChangeListener() {
+        view.addPropertyChangeListener(ppc = new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
                 String name = evt.getPropertyName();
@@ -55,7 +56,21 @@ public class FocusAction extends AbstractAction {
             }
         });
     }
-    
+
+    public void dispose() {
+        setView(null);
+    }
+
+    public void setView(View newValue) {
+        if (view != null) {
+            view.removePropertyChangeListener(ppc);
+        }
+        view = newValue;
+        if (view != null) {
+            view.addPropertyChangeListener(ppc);
+        }
+    }
+
     public Object getValue(String key) {
         if (key == Action.NAME && view != null) {
             return getTitle();

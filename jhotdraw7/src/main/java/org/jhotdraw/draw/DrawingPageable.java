@@ -1,5 +1,5 @@
 /*
- * @(#)DrawingPageable.java  1.0  January 1, 2007
+ * @(#)DrawingPageable.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -19,7 +19,7 @@ import java.awt.geom.*;
 import java.awt.image.*;
 import java.awt.print.*;
 /**
- * DrawingPageable can be used to print a Drawing using the
+ * {@code DrawingPageable} can be used to print a {@link Drawing} using the
  * java.awt.print API.
  * <p>
  * Usage:
@@ -37,7 +37,7 @@ import java.awt.print.*;
  * </pre>
  * 
  * @author Werner Randelshofer
- * @version 1.0 January 1, 2007 Created.
+ * @version $Id$
  * @see org.jhotdraw.app.action.PrintAction
  */
 public class DrawingPageable implements Pageable {

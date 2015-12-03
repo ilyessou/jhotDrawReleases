@@ -1,5 +1,5 @@
 /*
- * @(#)Drawing.java  3.2  2009-05-05
+ * @(#)Drawing.java
  *
  * Copyright (c) 1996-2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -17,7 +17,6 @@ package org.jhotdraw.draw;
 
 import org.jhotdraw.xml.*;
 
-import java.awt.Graphics2D;
 import java.awt.font.*;
 import java.awt.geom.*;
 import java.util.*;
@@ -25,36 +24,66 @@ import javax.swing.undo.*;
 import javax.swing.event.*;
 import java.io.*;
 /**
- * A drawing holds figures. It can draw its figures, and it can find
- * them on its drawing area.
- * <br>
- * A drawing notifies listeners when a figure is added or removed,
- * and when its drawing area needs to be repainted.
+ * A <em>drawing</em> is a container for {@link Figure}s. A drawing can hold
+ * multiple figures, but a figure can only be in one drawing at a time.
+ * A drawing can be in one or multiple {@link DrawingView}s.
  * <p>
- * The drawing object is used by figure handles and editing tools
- * to fire undoable edit events. This way, undoable edit listeners only need to 
- * register on a drawing in order to receive all undoable edit
- * events related to a drawing.
- * <p>
- * A drawing can have a number of input formats and output formats,
- * allowing to load and save the drawing, and to copy and paste figures
- * into the clipboard.
+ * {@code Drawing} is essentially a {@link CompositeFigure} with a number of
+ * additional functionality:
+ * <ul>
+ * <li>A drawing notifies a figure and its {@code CompositeFigureListener}'s when
+ * the figure is added or removed from it. Like with {@code CompositeFigure}
+ * basic add and remove methods are supplied for use cases where this is not
+ * desired - for example when figures need to be temporarily removed in order to
+ * group or ungroup them.</li>
+ * 
+ * <li>A drawing can find contained figures given a point or a rectangular
+ * region.
+ * Specialized implementations of the {@code Drawing} interface can use
+ * optimized strategies and data structures to find figures faster.</li>
+ * 
+ * <li>The drawing object is used by {@code Figure}, {@code Tool} and
+ * {@code Handle} as a mediator for undoable edit events. This way, undoable
+ * edit listeners only need to register on the drawing object in order to
+ * receive all undoable edit events related to changes made in the drawing.</li>
+ *
+ * <li>Drawing can hold a number of {@link InputFormat}s and
+ * {@link OutputFormat}s, allowing to read and write a drawing from/to a
+ * stream, a file or the clipboard.</li>
+ * </ul>
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Framework</em><br>
+ * The following interfaces define the contracts of a framework for structured
+ * drawing editors:<br>
+ * Contract: {@link Drawing}, {@link Figure}, {@link CompositeFigure},
+ * {@link ConnectionFigure}, {@link Connector}, {@link DrawingView},
+ * {@link DrawingEditor}, {@link Handle} and {@link Tool}.
+ *
+ * <p><em>Model-View-Controller</em><br>
+ * The following classes implement together the Model-View-Controller design
+ * pattern:<br>
+ * Model: {@link Drawing}; View: {@link DrawingView}; Controller:
+ * {@link DrawingEditor}.
+ *
+ * <p><em>Strategy</em><br>
+ * {@code OutputFormat} encapsulates a strategy for writing drawings to
+ * output streams.<br>
+ * Strategy: {@link OutputFormat}; Context: {@link Drawing}.
+ *
+ * <p><em>Strategy</em><br>
+ * {@code InputFormat} encapsulates a strategy for reading drawings from input
+ * streams.<br>
+ * Strategy: {@link InputFormat}; Context: {@link Drawing}.
+ * <hr>
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 3.2 2009-05-15 Methods taking figure collections as parameters
- * now take collections of any extensions of figures as parameters.
- * <br>3.1 2009-04-15 Factored canvasSize out into an attribute.
- * <br>3.0 2007-07-17 Refactored Drawing from an independent interface
- * into an interface that extends from CompositeFigure. 
- * <br>2.4 2007-05-21 Added add-methods with index to the interface.
- * <br>2.3 2007-05-16 Added method findFigureBehind. 
- * <br>2.2 2007-04-09 Methods setCanvasSize, getCanvasSize added.
- * <br>2.1 2006-12-31 Changed to return lists instead of collections.
- * <br>2.0 2006-01-14 Changed to support double precision coordinates.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public interface Drawing extends CompositeFigure, Serializable, DOMStorable {
-    public final static String CANVAS_SIZE_PROPERTY="canvasSize";
     /**
      * Adds a figure to the drawing.
      * The drawing sends an {@code addNotify} message to the figure
@@ -97,7 +126,7 @@ public interface Drawing extends CompositeFigure, Serializable, DOMStorable {
      * @param figures to be added to the drawing
      */
     void addAll(int index, Collection<? extends Figure> figures);
-    
+
     /**
      * Removes a figure from the drawing.
      * The drawing sends a {@code removeNotify} message to the figure
@@ -119,7 +148,7 @@ public interface Drawing extends CompositeFigure, Serializable, DOMStorable {
      * and should be removed
      */
     void removeAll(Collection<? extends Figure> figures);
-    
+
     /**
      * Removes a figure temporarily from the drawing.
      *
@@ -155,14 +184,6 @@ public interface Drawing extends CompositeFigure, Serializable, DOMStorable {
     void basicAdd(int index, Figure figure);
     
     /**
-     * Returns the index of the specified figure.
-     *
-     * Returns -1 if the Figure is not directly contained in this Drawing, for
-     * example if the Figure is a child of a CompositeFigure.
-     */
-    int indexOf(Figure figure);
-    
-    /**
      * Reinserts the specified figures which were temporarily removed from
      * the drawing.
      * 
@@ -175,17 +196,6 @@ public interface Drawing extends CompositeFigure, Serializable, DOMStorable {
     void basicAddAll(int index, Collection<? extends Figure> figures);
     
     /**
-     * Draws all the figures from back to front.
-     */
-    void draw(Graphics2D g);
-    
-    /**
-     * Draws only the figures in the supplied set.
-     * /
-     * void draw(Graphics2D g, ArrayList figures);
-     */
-    
-    /**
      * Returns all figures that lie within or intersect the specified
      * bounds. The figures are returned in Z-order from back to front.
      */
@@ -196,19 +206,11 @@ public interface Drawing extends CompositeFigure, Serializable, DOMStorable {
      */
     List<Figure> findFiguresWithin(Rectangle2D.Double bounds);
     /**
-     * Returns the figures of the drawing.
-     * @return A Collection of Figure's.
-     */
-    List<Figure> getChildren();
-    
-    /**
-     * Returns the number of figures in this drawing.
-     */
-    int getChildCount();
-    
-    /**
      * Finds a top level Figure. Use this call for hit detection that
-     * should not descend into the figure's children.
+     * should not descend into children of composite figures.
+     * <p>
+     * Use {@link #findFigureInside} If you need to descend into children of
+     * composite figures.
      */
     Figure findFigure(Point2D.Double p);
     
@@ -236,11 +238,23 @@ public interface Drawing extends CompositeFigure, Serializable, DOMStorable {
      * Returns a list of the figures in Z-Order from front to back.
      */
     List<Figure> getFiguresFrontToBack();
+
     /**
-     * Finds a figure but descends into a figure's
-     * children. Use this method to implement <i>click-through</i>
-     * hit detection, that is, you want to detect the inner most
-     * figure containing the given point.
+     * Finds the innermost figure at the specified location.
+     * <p>
+     * In case a {@code CompositeFigure} is at the specified location, this
+     * method descends into its children and into its children's children until
+     * the innermost figure is found.
+     * <p>
+     * This functionality is implemented using the <em>Chain of
+     * Responsibility</em> design pattern in the {@code Figure} interface.
+     * Since it is often used from a drawing object as the starting point,
+     * and since {@code Drawing} defines other find methods as well, it is
+     * defined here again for clarity.
+     *
+     * @param p A location on the drawing.
+     * @return Returns the innermost figure at the location, or null if the
+     * location is not contained in a figure.
      */
     Figure findFigureInside(Point2D.Double p);
     
@@ -325,45 +339,5 @@ public interface Drawing extends CompositeFigure, Serializable, DOMStorable {
      * Gets output formats for the Drawing in order of preferred formats.
      */
     List<OutputFormat> getOutputFormats();
-    
-    // ATTRIBUTES
-    /**
-     * Sets an attribute of the Drawing without firing events.
-     * AttributeKey name and semantics are defined by the class implementing
-     * the Drawing interface.
-     * <p>
-     * Use <code>AttributeKey.set</code> for typesafe access to this 
-     * method.
-     * /
-    public void setAttribute(AttributeKey key, Object value);
-    /**
-     * Gets an attribute from the Drawing.
-     * <p>
-     * Use <code>AttributeKey.get()</code> for typesafe access to this method.
-     * 
-     * @see AttributeKey#get
-     *
-     * @return Returns the attribute value. If the Drawing does not have an
-     * attribute with the specified key, returns key.getDefaultValue().
-     * / 
-    public Object getAttribute(AttributeKey key);
-    /**
-     * Returns a view to all attributes of this drawing.
-     * By convention, an unmodifiable map is returned.
-     * /
-    public Map<AttributeKey, Object> getAttributes();
-    
-    /**
-     * Gets data which can be used to restore the attributes of the drawing 
-     * after a setAttribute has been applied to it.
-     * 
-     * @see #basicSetAttribue(AttributeKey,Object)
-     * /
-    public Object getAttributesRestoreData();
-    /**
-     * Restores the attributes of the drawing to a previously stored state.
-     * /
-    public void restoreAttributesTo(Object restoreData);
-    */
 }
 

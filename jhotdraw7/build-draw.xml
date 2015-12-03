@@ -90,6 +90,10 @@
         <copy tofile="${distdir}/signed/jhotdraw_draw.jar">
             <fileset file="${distdir}/unsigned/jhotdraw_draw.jar"/>
         </copy>
+        <exec executable="pack200">
+            <arg value="-r"/>
+            <arg value="${distdir}/signed/jhotdraw_draw.jar"/>
+        </exec>
           <signjar alias="${keystore.alias}" 
                 storepass="${keystore.storepass}"
                 keystore="${keystore.file}" 
@@ -177,6 +181,10 @@
                <attribute name="Implementation-Version" value="${version}"/>
              </manifest>
         </jar>
+        <exec executable="pack200">
+            <arg value="-r"/>
+            <arg value="${distdir}/signed/JHotDraw Draw.jar"/>
+        </exec>
         <signjar alias="${keystore.alias}" 
                 storepass="${keystore.storepass}"
                 keystore="${keystore.file}" 
@@ -237,7 +245,7 @@
         </java>
     </target>
     <target name="applet.run-jar" depends="init">
-        <java fork="true" jar="${distdir}/jhotdraw_draw.jar">
+        <java fork="true" jar="${distdir}/unsigned/jhotdraw_draw.jar">
         </java>
     </target>
     <target name="applet.appletviewer" depends="init">
@@ -245,6 +253,8 @@
         <arg value="${classdir}/DrawLiveConnectApplet.html"/>
         </exec>
     </target>
-    <target name="dist" depends="init,applet.jarsigned,application.jarsigned">
+    <target name="dist" depends="init,applet.jar,application.jar">
+    </target>
+    <target name="distsigned" depends="init,applet.jarsigned,application.jarsigned">
     </target>
 </project>

@@ -1,5 +1,5 @@
 /*
- * @(#)DependencyFigure.java  1.0  18. Juni 2006
+ * @(#)DependencyFigure.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -15,24 +15,21 @@
 package org.jhotdraw.samples.pert.figures;
 
 import java.awt.*;
-import java.awt.geom.Point2D;
-import java.beans.*;
 import static org.jhotdraw.draw.AttributeKeys.*;
 import org.jhotdraw.draw.*;
-import org.jhotdraw.xml.*;
 
 /**
  * DependencyFigure.
  *
  * @author Werner Randelshofer.
- * @version 1.0 18. Juni 2006 Created.
+ * @version $Id$
  */
 public class DependencyFigure extends LineConnectionFigure {
     /** Creates a new instance. */
     public DependencyFigure() {
-        STROKE_COLOR.basicSet(this, new Color(0x000099));
-        STROKE_WIDTH.basicSet(this, 1d);
-        END_DECORATION.basicSet(this, new ArrowTip());
+        set(STROKE_COLOR, new Color(0x000099));
+        set(STROKE_WIDTH, 1d);
+        set(END_DECORATION, new ArrowTip());
         
         setAttributeEnabled(END_DECORATION, false);
         setAttributeEnabled(START_DECORATION, false);

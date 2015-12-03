@@ -1,5 +1,5 @@
 /*
- * @(#)ODGPathOutlineHandle.java  1.0  2007-07-28
+ * @(#)ODGPathOutlineHandle.java
  *
  * Copyright (c) 2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -19,10 +19,11 @@ import java.awt.*;
 import static org.jhotdraw.samples.odg.ODGAttributeKeys.*;
 
 /**
- * ODGPathOutlineHandle.
+ * A non-interactive {@link Handle} which draws the outline of a
+ * {@link ODGPathFigure} to make adjustments easier.
  * 
  * @author Werner Randelshofer
- * @version 1.0 2007-07-28 Created.
+ * @version $Id$
  */
 public class ODGPathOutlineHandle extends AbstractHandle {
     private final static Color HANDLE_FILL_COLOR = new Color(0x00a8ff);
@@ -55,8 +56,8 @@ public class ODGPathOutlineHandle extends AbstractHandle {
     
     @Override public void draw(Graphics2D g) {
         Shape bounds = getOwner().getPath();
-        if (TRANSFORM.get(getOwner()) != null) {
-            bounds = TRANSFORM.get(getOwner()).createTransformedShape(bounds);
+        if (getOwner().get(TRANSFORM) != null) {
+            bounds = getOwner().get(TRANSFORM).createTransformedShape(bounds);
         }
         bounds = view.getDrawingToViewTransform().createTransformedShape(bounds);
         g.setColor(HANDLE_FILL_COLOR);

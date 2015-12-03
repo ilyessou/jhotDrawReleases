@@ -1,5 +1,5 @@
 /*
- * @(#)CompositeFigure.java  2.0.1  2007-12-20
+ * @(#)CompositeFigure.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -14,39 +14,53 @@
 
 package org.jhotdraw.draw;
 
-import org.jhotdraw.util.*;
-import java.beans.*;
-import java.awt.*;
-import java.awt.geom.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.undo.*;
-import javax.swing.event.*;
-import java.io.*;
 import org.jhotdraw.geom.*;
 
 /**
- * A CompositeFigure is composed of several child Figures.
- * A CompositeFigure can be laid out using a Layouter.
+ * A <em>composite figure</em> is composed of several child {@link Figure}s.
  * <p>
- * Design pattern:<br>
- * Name: Composite.<br>
- * Role: Composite.<br>
- * Partners: {@link Figure} as Component. 
+ * A composite figure can be laid out using a {@link Layouter}.
  * <p>
- * Design pattern:<br>
- * Name: Strategy.<br>
- * Role: Context.<br>
- * Partners: {@link Layouter} as Strategy.
+ * {@code CompositeFigure} listens to {@code requestRemove} events
+ * sent by its child figures, and then removes the child figure which sent
+ * the event.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Framework</em><br>
+ * The following interfaces define the contracts of a framework for structured
+ * drawing editors:<br>
+ * Contract: {@link Drawing}, {@link Figure}, {@link CompositeFigure},
+ * {@link ConnectionFigure}, {@link Connector}, {@link DrawingView},
+ * {@link DrawingEditor}, {@link Handle} and {@link Tool}.
+ *
+ * <p><em>Composite</em><br>
+ * Composite figures can be composed of other figures.<br>
+ * Component: {@link Figure}; Composite: {@link CompositeFigure}.
+ *
+ * <p><em>Observer</em><br>
+ * State changes of figures can be observed by other objects. Specifically
+ * {@code CompositeFigure} observes area invalidations and remove requests
+ * of its child figures. {@link DrawingView} also observes area invalidations
+ * of its drawing object.<br>
+ * Subject: {@link Figure}; Observer:
+ * {@link FigureListener}; Event: {@link FigureEvent}; Concrete Observer:
+ * {@link CompositeFigure}, {@link DrawingView}.
+ *
+ * <p><em>Observer</em><br>
+ * Changes in the composition of a composite figure can be observed.<br>
+ * Subject: {@link CompositeFigure}; Observer:
+ * {@link CompositeFigureListener}; Event: {@link CompositeFigureEvent}.
+ *
+ * <p><em>Strategy</em><br>
+ * Composite figures can be laid out using different layout algorithms which
+ * are implemented by layouters.<br>
+ * Context: {@link CompositeFigure}; Strategy: {@link Layouter}.
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 2.1 2007-12-20 Clarified purpose of basicAdd/basicRemove methods. 
- * Added method indexOf.
- * <br>2.0 2007-07-17 Added support for CompositeFigureListener.
- * CompositeFigure is now streamlined with the java.util.List<Figure>
- * interface. 
- * <br>1.0 27. Januar 2006 Created.
+ * @version $Id$
  */
 public interface CompositeFigure extends Figure {
     /**
@@ -211,7 +225,7 @@ public interface CompositeFigure extends Figure {
      * Set a Layouter object which encapsulated a layout
      * algorithm for this figure. Typically, a Layouter
      * accesses the child components of this figure and arranges
-     * their graphical presentation. It is a good idea to set
+     * their graphical presentation. It is a good idea to put
      * the Layouter in the protected initialize() method
      * so it can be recreated if a GraphicalCompositeFigure is
      * read and restored from a StorableInput stream.

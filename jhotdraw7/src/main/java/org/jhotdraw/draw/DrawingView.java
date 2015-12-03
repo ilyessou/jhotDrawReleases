@@ -1,5 +1,5 @@
 /*
- * @(#)DrawingView.java  6.0  2009-04-18
+ * @(#)DrawingView.java
  *
  * Copyright (c) 1996-2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -21,49 +21,83 @@ import java.beans.*;
 import javax.swing.*;
 
 /**
- * A DrawingView paints a {@link Drawing} on a JComponent.
+ * A <em>drawing view</em> paints a {@link Drawing} on a JComponent. A drawing
+ * view can hold only one drawing at a time, but a drawing can be in multiple
+ * drawing views at the same time.
  * <p>
- * To support editing, a DrawingView can paint {@link Handle}s and
- * the current {@link Tool} of the {@link DrawingEditor} on top of the
- * drawing. It can render a {@link Constrainer} below the drawing.
+ * To support editing, a drawing view needs to be added to a {@link DrawingEditor}.
+ * The current {@link Tool} of the drawing editor can register mouse and key
+ * listeners on all drawing views of the drawing editor.
  * <p>
- * Tools can register mouse and key listeners on the DrawingView.
+ * {@code DrawingView} can paint the drawing with a scale factor. It supports
+ * conversion between view coordinates and drawing coordinates.
+ * A drawing view can paint {@link Handle}s and the current {@link Tool} of the
+ * drawing editor on top of the drawing. It can also paint a {@link Constrainer}
+ * below or on top of the drawing.
  * <p>
- * A DrawingView can paint the drawing with a scale factor. It supports
- * conversion between scaled view coordinates and drawing coordinates.
- * <p>
- * Design pattern:<br>
- * Name: Mediator.<br>
- * Role: Colleague.<br>
- * Partners: {@link DrawingEditor} as Mediator, {@link Tool} as
- * Colleague.
- * <p>
- * Design pattern:<br>
- * Name: Model-View-Controller.<br>
- * Role: View.<br>
- * Partners: {@link Tool} as Controller, {@link Figure} as Model.
- * <p>
- * Design pattern:<br>
- * Name: Observer.<br>
- * Role: Subject.<br>
- * Partners: {@link FigureSelectionListener} as Observer.
+ * DrawingView maintains a selection of the {@link Figure}s contained in the
+ * drawing. The selected figures can be the target of the current tool
+ * of the drawing editor.
  *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Chain of responsibility</em><br>
+ * Mouse and keyboard events of the user occur on the drawing view, and are
+ * preprocessed by the {@code DragTracker} of a {@code SelectionTool}. In
+ * turn {@code DragTracker} invokes "track" methods on a {@code Handle} which in
+ * turn changes an aspect of a figure.<br>
+ * Client: {@link SelectionTool}; Handler: {@link DragTracker}, {@link Handle}.
  * 
+ * <p><em>Framework</em><br>
+ * The following interfaces define the contracts of a framework for structured
+ * drawing editors:<br>
+ * Contract: {@link Drawing}, {@link Figure}, {@link CompositeFigure},
+ * {@link ConnectionFigure}, {@link Connector}, {@link DrawingView},
+ * {@link DrawingEditor}, {@link Handle} and {@link Tool}.
+ *
+ * <p><em>Mediator</em><br>
+ * {@code DrawingEditor} acts as a mediator for coordinating drawing tools
+ * and drawing views:<br>
+ * Mediator: {@link DrawingEditor}; Colleagues: {@link DrawingView}, {@link Tool}.
+ *
+ * <p><em>Model-View-Controller</em><br>
+ * The following classes implement together the Model-View-Controller design
+ * pattern:<br>
+ * Model: {@link Drawing}; View: {@link DrawingView}; Controller:
+ * {@link DrawingEditor}.
+ *
+ * <p><em>Observer</em><br>
+ * Selection changes of {@code DrawingView} are observed by user interface
+ * components which act on selected figures.<br>
+ * Subject: {@link org.jhotdraw.draw.DrawingView}; Observer:
+ * {@link FigureSelectionListener}; Event: {@link FigureSelectionEvent}.
+ * 
+ * <p><em>Observer</em><br>
+ * State changes of figures can be observed by other objects. Specifically
+ * {@code CompositeFigure} observes area invalidations and remove requests
+ * of its child figures. {@link DrawingView} also observes area invalidations
+ * of its drawing object.
+ * Subject: {@link Figure}; Observer:
+ * {@link FigureListener}; Event: {@link FigureEvent}; Concrete Observer:
+ * {@link CompositeFigure}, {@link DrawingView}.
+ *
+ * <p><em>Observer</em><br>
+ * State changes of handles can be observed by other objects. Specifically
+ * {@code DrawingView} observes area invalidations and remove requests of
+ * handles.<br>
+ * Subject: {@link Handle}; Observer: {@link HandleListener}; Event:
+ * {@link HandleEvent}; Concrete Observer: {@link DrawingView}.
+ * <hr>
+ *
+ * <p><em>Strategy</em><br>
+ * Editing can be constrained by a constrainer which is associated to a
+ * drawing view.<br>
+ * Context: {@link DrawingView}; Strategy: {@link Constrainer}.
+ * <hr>
+ *
  * @author Werner Randelshofer
- * @version 6.0 2009-04-18 Added method repaintHandles.
- * <br>5.0 2008-05-11 Added methods setEditor, getEditor and setActiveHandle,
- * getActiveHandle. 
- * <br>4.3 2007-12-25 Renamed property names from PROP_… to …_PROPERTY. 
- * <br>4.2 2007-09-12 The DrawingView is now responsible for
- * holding the Constrainer objects which affect editing on this view.
- * <br>4.1 2007-05-15 getSelectedFigures returns a Set instead of a
- * Collection.
- * <br>4.0 2006-12-03 Replaced operation getContainer by getComponent. 
- * <br>3.1 2006-03-15 Support for enabled state added.
- * <br>3.0 2006-02-20 Changed to share a single DrawingEditor by multiple 
- * views.
- * <br>2.0 2006-01-14 Changed to support double precision coordinates.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public interface DrawingView {
 

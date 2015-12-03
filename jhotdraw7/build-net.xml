@@ -90,6 +90,10 @@
         <copy tofile="${distdir}/signed/jhotdraw_net.jar">
             <fileset file="${distdir}/unsigned/jhotdraw_net.jar"/>
         </copy>
+        <exec executable="pack200">
+            <arg value="-r"/>
+            <arg value="${distdir}/signed/jhotdraw_net.jar"/>
+        </exec>
           <signjar alias="${keystore.alias}" 
                 storepass="${keystore.storepass}"
                 keystore="${keystore.file}" 
@@ -182,6 +186,10 @@
                 <attribute name="Implementation-Version" value="${version}"/>
             </manifest>
         </jar>
+        <exec executable="pack200">
+            <arg value="-r"/>
+            <arg value="${distdir}/signed/JHotDraw Net.jar"/>
+        </exec>
         <signjar alias="${keystore.alias}" 
                 storepass="${keystore.storepass}"
                 keystore="${keystore.file}" 
@@ -248,6 +256,8 @@
         <arg value="${builddir}/NetApplet.html"/>
         </exec>
     </target>
-    <target name="dist" depends="init,applet.jarsigned,application.jarsigned">
+    <target name="dist" depends="init,applet.jar,application.jar">
+    </target>
+    <target name="distsigned" depends="init,applet.jarsigned,application.jarsigned">
     </target>
 </project>

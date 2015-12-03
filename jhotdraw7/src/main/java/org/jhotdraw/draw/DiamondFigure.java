@@ -1,5 +1,5 @@
 /*
- * @(#)DiamondFigure.java  1.1  2007-05-12
+ * @(#)DiamondFigure.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -17,23 +17,20 @@ package org.jhotdraw.draw;
 
 import java.awt.*;
 import java.awt.geom.*;
-import java.io.*;
-import java.util.*;
-import static org.jhotdraw.draw.AttributeKeys.*;
 import org.jhotdraw.geom.Geom;
-import org.omg.CORBA.MARSHAL;
+
 /**
- * A diamond with vertices at the midpoints of its enclosing rectangle.
+ * A {@link Figure} with a diamond shape.
+ * <p>
+ * The diamond vertices are located at the midpoints of its enclosing rectangle.
  *
  *
  * @author Werner Randelshofer
- * @version 1.1 2007-05-12 Removed convenience getters and setters for 
- * IS_QUADRATIC attribute. 
- * <br>1.0 2006-03-27 Created.
+ * @version $Id$
  */
 public class DiamondFigure extends AbstractAttributedFigure {
     /**
-     * If the attribute IS_QUADRATIC is set to true, all sides of the diamond have
+     * If the attribute IS_QUADRATIC is put to true, all sides of the diamond have
      * the same length.
      */
     public final static AttributeKey<Boolean> IS_QUADRATIC = new AttributeKey<Boolean>("isQuadratic", Boolean.class, false);
@@ -59,7 +56,7 @@ public class DiamondFigure extends AbstractAttributedFigure {
     // DRAWING
     protected void drawFill(Graphics2D g) {
         Rectangle2D.Double r = (Rectangle2D.Double) rectangle.clone();
-        if (IS_QUADRATIC.get(this)) {
+        if (get(IS_QUADRATIC)) {
             double side = Math.max(r.width, r.height);
             r.x -= (side - r.width) / 2;
             r.y -= (side - r.height) / 2;
@@ -95,7 +92,7 @@ public class DiamondFigure extends AbstractAttributedFigure {
     
     protected void drawStroke(Graphics2D g) {
         Rectangle2D.Double r = (Rectangle2D.Double) rectangle.clone();
-        if (IS_QUADRATIC.get(this)) {
+        if (get(IS_QUADRATIC)) {
             double side = Math.max(r.width, r.height);
             r.x -= (side - r.width) / 2;
             r.y -= (side - r.height) / 2;
@@ -135,7 +132,7 @@ public class DiamondFigure extends AbstractAttributedFigure {
     }
     public Rectangle2D.Double getDrawingArea() {
         Rectangle2D.Double r = (Rectangle2D.Double) rectangle.clone();
-        if (IS_QUADRATIC.get(this)) {
+        if (get(IS_QUADRATIC)) {
             double side = Math.max(r.width, r.height);
             r.x -= (side - r.width) / 2;
             r.y -= (side - r.height) / 2;
@@ -166,7 +163,7 @@ public class DiamondFigure extends AbstractAttributedFigure {
      */
     public boolean contains(Point2D.Double p) {
         Rectangle2D.Double r = (Rectangle2D.Double) rectangle.clone();
-        if (IS_QUADRATIC.get(this)) {
+        if (get(IS_QUADRATIC)) {
             double side = Math.max(r.width, r.height);
             r.x -= (side - r.width) / 2;
             r.y -= (side - r.height) / 2;

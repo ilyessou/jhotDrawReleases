@@ -1,5 +1,5 @@
 /*
- * @(#)CombinePathsAction.java  2.0.1  2008-06-08
+ * @(#)CombinePathsAction.java
  *
  * Copyright (c) 2006-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -16,21 +16,15 @@ package org.jhotdraw.samples.svg.action;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.action.*;
 import org.jhotdraw.samples.svg.figures.*;
-import org.jhotdraw.undo.*;
 import org.jhotdraw.util.*;
 import java.util.*;
-import javax.swing.*;
 import javax.swing.undo.*;
 
 /**
  * CombinePathsAction.
  *
  * @author  Werner Randelshofer
- * @version 2.0.1 2008-06-08 Fixed combining/splitting of
- * transformed paths.
- * <br>2.0 2007-12-21 Refactored this class, so that it can be used
- * as a base class for SplitAction. 
- * <br>1.0 2006-07-12 Created.
+ * @version $Id$
  */
 public class CombineAction extends AbstractSelectedAction {
 
@@ -56,9 +50,7 @@ public class CombineAction extends AbstractSelectedAction {
         this.prototype = prototype;
         this.isCombineAction = isGroupingAction;
 
-        labels = ResourceBundleUtil.getBundle(
-                "org.jhotdraw.samples.svg.Labels",
-                Locale.getDefault());
+        labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.svg.Labels");
         labels.configureAction(this, ID);
     }
 
@@ -85,8 +77,8 @@ public class CombineAction extends AbstractSelectedAction {
     }
 
     protected boolean canUngroup() {
-        return getView()!=null&&getView().getSelectionCount() == 1 &&
-                prototype!=null&&
+        return getView() != null && getView().getSelectionCount() == 1 &&
+                prototype != null &&
                 getView().getSelectedFigures().iterator().next().getClass().equals(
                 prototype.getClass()) &&
                 ((CompositeFigure) getView().getSelectedFigures().iterator().next()).getChildCount() > 1;
@@ -160,7 +152,7 @@ public class CombineAction extends AbstractSelectedAction {
             for (Figure f : group.getChildren()) {
                 SVGPathFigure path = new SVGPathFigure(true);
                 for (Map.Entry<AttributeKey, Object> entry : group.getAttributes().entrySet()) {
-                    path.setAttribute(entry.getKey(), entry.getValue());
+                    path.set(entry.getKey(), entry.getValue());
                 }
                 ungroupedPaths.add(path);
                 ungroupedPathsIndices[i] = index + i;
@@ -216,7 +208,7 @@ public class CombineAction extends AbstractSelectedAction {
         group.willChange();
         group.basicRemoveAllChildren();
         for (Map.Entry<AttributeKey, Object> entry : figures.iterator().next().getAttributes().entrySet()) {
-            group.setAttribute(entry.getKey(), entry.getValue());
+            group.set(entry.getKey(), entry.getValue());
         }
 
         for (Figure f : figures) {

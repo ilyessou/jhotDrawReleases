@@ -1,5 +1,5 @@
 /*
- * @(#)FigureSelectionEvent.java  2.0  2007-05-14
+ * @(#)FigureSelectionEvent.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -17,11 +17,20 @@ package org.jhotdraw.draw;
 import java.util.*;
 
 /**
- * FigureSelectionEvent.
+ * An {@code EventObject} sent to {@link FigureSelectionListener}s.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Observer</em><br>
+ * Selection changes of {@code DrawingView} are observed by user interface
+ * components which act on selected figures.<br>
+ * Subject: {@link org.jhotdraw.draw.DrawingView}; Observer:
+ * {@link FigureSelectionListener}; Event: {@link FigureSelectionEvent}.
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 2.0 2007-05-14 Added getters for newValue and oldValue. 
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public class FigureSelectionEvent extends java.util.EventObject {
 private Set<Figure> oldValue;

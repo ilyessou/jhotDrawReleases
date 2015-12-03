@@ -1,5 +1,5 @@
 /*
- * @(#)ODGInputFormat.java  1.2  2008-05-24
+ * @(#)ODGInputFormat.java
  *
  * Copyright (c) 2007-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -17,11 +17,9 @@ package org.jhotdraw.samples.odg.io;
 import java.awt.datatransfer.*;
 import java.awt.geom.*;
 import java.io.*;
-import java.net.URL;
 import java.util.*;
 import java.util.zip.*;
 import javax.swing.*;
-import javax.swing.filechooser.*;
 import net.n3.nanoxml.*;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.geom.BezierPath;
@@ -38,9 +36,7 @@ import org.jhotdraw.samples.odg.geom.*;
  * http://docs.oasis-open.org/office/v1.1/OS/OpenDocument-v1.1.pdf
  *
  * @author Werner Randelshofer
- * @version 1.2 2005-05-24 Adapted to changes in InputFormat. 
- * <br>1.1 2007-12-16 Adapted to changes in InputFormat. 
- * <br>1.0 April 11, 2007 Created.
+ * @version $Id$
  */
 public class ODGInputFormat implements InputFormat {
     /**
@@ -759,7 +755,7 @@ public class ODGInputFormat implements InputFormat {
     }
     /**
      * The &lt;draw:polygon&gt; element represents a polygon. A polygon is a
-     * closed set of straight lines.
+     * closed put of straight lines.
      * Some implementations may ignore the size attribute, and instead determine
      * the size of a shape exclusively from the shape data (i.e., polygon vertices).
      * <p>
@@ -1035,7 +1031,7 @@ public class ODGInputFormat implements InputFormat {
                     
                 case 'N' :
                     // endpath
-                    // Ends the current set of sub-paths. The sub-
+                    // Ends the current put of sub-paths. The sub-
                     // paths will be filled by using the “even-odd”
                     // filling rule. Other following subpaths will be
                     // filled independently.
@@ -1043,13 +1039,13 @@ public class ODGInputFormat implements InputFormat {
                     
                 case 'F' :
                     // nofill
-                    // Specifies that the current set of sub-paths
+                    // Specifies that the current put of sub-paths
                     // won't be filled.
                     break;
                     
                 case 'S' :
                     // nostroke
-                    // Specifies that the current set of sub-paths
+                    // Specifies that the current put of sub-paths
                     // won't be stroked.
                     break;
                     
@@ -1220,11 +1216,11 @@ public class ODGInputFormat implements InputFormat {
     }
     private void readCommonDrawingShapeAttributes(IXMLElement elem, HashMap<AttributeKey,Object> a) throws IOException {
         // The attribute draw:name assigns a name to the drawing shape.
-        NAME.set(a, elem.getAttribute("name", DRAWING_NAMESPACE, null));
+        NAME.put(a, elem.getAttribute("name", DRAWING_NAMESPACE, null));
         
         // The draw:transform attribute specifies a list of transformations that
         // can be applied to a drawing shape.
-        TRANSFORM.set(a, toTransform(elem.getAttribute("transform", DRAWING_NAMESPACE, null)));
+        TRANSFORM.put(a, toTransform(elem.getAttribute("transform", DRAWING_NAMESPACE, null)));
     }
     private AffineTransform readViewBoxTransform(IXMLElement elem) throws IOException {
         AffineTransform tx = new AffineTransform();

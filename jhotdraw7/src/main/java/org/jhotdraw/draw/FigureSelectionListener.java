@@ -1,5 +1,5 @@
 /*
- * @(#)FigureSelectionListener.java  1.0  25. November 2003
+ * @(#)FigureSelectionListener.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -16,15 +16,21 @@
 package org.jhotdraw.draw;
 
 /**
- * FigureSelectionListener.
- * <p>
- * Design pattern:<br>
- * Name: Observer.<br>
- * Role: Observer.<br>
- * Partners: {@link DrawingView} as Subject.
+ * Interface implemented by observers of selection changes in {@link DrawingView}
+ * objects.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Observer</em><br>
+ * Selection changes of {@code DrawingView} are observed by user interface
+ * components which act on selected figures.<br>
+ * Subject: {@link org.jhotdraw.draw.DrawingView}; Observer:
+ * {@link FigureSelectionListener}; Event: {@link FigureSelectionEvent}.
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public interface FigureSelectionListener extends java.util.EventListener {
     public void selectionChanged(FigureSelectionEvent evt);

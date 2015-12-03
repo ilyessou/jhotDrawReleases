@@ -1,5 +1,5 @@
 /*
- * @(#)TransformEdit.java  2.0  2006-01-14
+ * @(#)TransformEdit.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -19,25 +19,22 @@ import org.jhotdraw.util.*;
 import javax.swing.undo.*;
 import java.awt.geom.*;
 import java.util.*;
+
 /**
- * TransformEdit.
+ * An {@code UndoableEdit} event which can undo a lossless transform of
+ * {@link Figure}s by applying the inverse of the transform to the figures.
  * <p>
- * FIXME - When we do group moves or moves of a composite figure we fail to
- * coallesce the TransformEdit events. This may exhaust memory!
+ * This object is useful for undoing lossless transformations, such as the
+ * translation of figures.
  * <p>
- * XXX - This edit should use getTransformRestoreData, restoreTransformTo.
- * <p>
- * FIXME - Maybe TransformEdit should be replaced by GeometryEdit?
+ * If a lossy transforms is performed, such as rotation, scaling or shearing,
+ * then undos should be performed with {@link TransformRestoreEdit} instead.
+ *
  *
  * @author Werner Randelshofer
- * @version 2.0 2006-01-14 Changed to support double precision coordinates.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public class TransformEdit extends AbstractUndoableEdit {
-    /**
-     * Implementation note: Owner has package access, because it is accessed
-     * by CompositeMoveEdit.
-     */
     private Collection<Figure> figures;
     private AffineTransform tx;
     
@@ -52,7 +49,7 @@ public class TransformEdit extends AbstractUndoableEdit {
         this.tx = (AffineTransform) tx.clone();
     }
     public String getPresentationName() {
-        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels", Locale.getDefault());
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
         return labels.getString("edit.transform.text");
     }
     

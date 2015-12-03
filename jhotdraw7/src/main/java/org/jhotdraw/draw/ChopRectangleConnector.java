@@ -1,5 +1,5 @@
 /*
- * @(#)ChopRectangleConnector.java  2.2.2  2007-05-14
+ * @(#)ChopRectangleConnector.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -18,9 +18,8 @@ import java.awt.geom.*;
 import static org.jhotdraw.draw.AttributeKeys.*;
 import org.jhotdraw.geom.*;
 /**
- * A ChopRectangleConnector locates connection points by
- * choping the connection between the centers of the
- * two figures at the display box.
+ * A {@link Connector} which locates a connection point at the bounds
+ * of any figure which has a rectangular shape, such as {@link RectangleFigure}.
  * <p>
  * XXX - Replace all Chop...Connectors by a single ChopToCenterConnector and
  * move method chop(Point2D.Double) into Figure interface.
@@ -28,13 +27,7 @@ import org.jhotdraw.geom.*;
  * @see Connector
  *
  * @author Werner Randelshofer
- * @version 2.2.2 2007-05-14 Fixed strange layout behavior while manipulating
- * a connection. 
- * <br>2.2.1 2007-02-01 Added support for self-connecting connections. 
- * <br>2.2 2006-12-23 Renamed from ChopBoxConnector to ChopRectangleConnector.
- * <br>2.1 2006-03-22 Support for total stroke width added.
- * <br>2.0 2006-01-14 Changed to support double precision coordinates.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public class ChopRectangleConnector extends AbstractConnector {
     
@@ -92,9 +85,9 @@ public class ChopRectangleConnector extends AbstractConnector {
     protected Point2D.Double chop(Figure target, Point2D.Double from) {
         target = getConnectorTarget(target);
         Rectangle2D.Double r = target.getBounds();
-        if (STROKE_COLOR.get(target) != null) {
+        if (target.get(STROKE_COLOR) != null) {
             double grow;
-            switch (STROKE_PLACEMENT.get(target)) {
+            switch (target.get(STROKE_PLACEMENT)) {
                 case CENTER:
                 default :
                     grow = AttributeKeys.getStrokeTotalWidth(target) / 2d;

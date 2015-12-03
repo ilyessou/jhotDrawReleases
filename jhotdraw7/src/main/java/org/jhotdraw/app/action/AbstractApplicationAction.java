@@ -1,7 +1,7 @@
 /*
- * @(#)AbstractApplicationAction.java  1.0  June 15, 2006
+ * @(#)AbstractApplicationAction.java
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
+ * Copyright (c) 1996-2009 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
@@ -11,53 +11,67 @@
  * accordance with the license agreement you entered into with  
  * the copyright holders. For details see accompanying license terms. 
  */
-
 package org.jhotdraw.app.action;
 
 import java.beans.*;
-import java.awt.event.*;
 import javax.swing.*;
 import org.jhotdraw.app.Application;
+import org.jhotdraw.beans.Disposable;
+import org.jhotdraw.beans.WeakPropertyChangeListener;
+
 /**
- * An Action that acts on an <code>Application</code> object.
- * If the Application object is disabled, the AbstractApplicationAction is disabled
- * as well.
+ * This abstract class can be extended to implement an {@code Action} that acts
+ * on behalf of an {@link Application}.
+ * <p>
+ * If the {@code Application} object is disabled, the
+ * {@code AbstractApplicationAction} is disabled as well.
+ * <p>
+ * {@code AbstractApplicationAction} listens using a
+ * {@link WeakPropertyChangeListener} on the {@code Application} and thus may
+ * become garbage collected if it is not referenced by any other object.
+ * <p>
+ * Application actions are typically created by an {@link org.jhotdraw.app.ApplicationModel},
+ * and can be retrieved using getAction(String) from the application model.
+ * Application model typically links the actions to menu items and toolbars that
+ * it creates. Applicaton model may also put actions into its {@link org.jhotdraw.app.View}s,
+ * so that they can be linked to components of a view.
+ *
  *
  * @author Werner Randelshofer.
- * @version 1.0 June 15, 2006 Created.
- * @see org.jhotdraw.app.Application
+ * @version $Id$
  */
-public abstract class AbstractApplicationAction extends AbstractAction {
+public abstract class AbstractApplicationAction extends AbstractAction implements Disposable {
+
     private Application app;
-    
     private PropertyChangeListener applicationListener;
-    
+
     /** Creates a new instance. */
     public AbstractApplicationAction(Application app) {
         this.app = app;
         installApplicationListeners(app);
         updateApplicationEnabled();
     }
-    
-    /**
+
+    /*
      * Installs listeners on the application object.
      */
     protected void installApplicationListeners(Application app) {
         if (applicationListener == null) {
             applicationListener = createApplicationListener();
         }
-        app.addPropertyChangeListener(applicationListener);
+        app.addPropertyChangeListener(new WeakPropertyChangeListener(applicationListener));
     }
-    
+
     /**
      * Installs listeners on the application object.
      */
     protected void uninstallApplicationListeners(Application app) {
         app.removePropertyChangeListener(applicationListener);
     }
-    
+
     private PropertyChangeListener createApplicationListener() {
         return new PropertyChangeListener() {
+
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName() == "enabled") { // Strings get interned
                     updateApplicationEnabled();
@@ -65,22 +79,21 @@ public abstract class AbstractApplicationAction extends AbstractAction {
             }
         };
     }
-    
+
     public Application getApplication() {
         return app;
     }
-    
+
     /**
      * Updates the enabled state of this action depending on the new enabled
      * state of the application.
      */
     protected void updateApplicationEnabled() {
         firePropertyChange("enabled",
-                Boolean.valueOf(! isEnabled()),
-                Boolean.valueOf(isEnabled())
-                );
+                Boolean.valueOf(!isEnabled()),
+                Boolean.valueOf(isEnabled()));
     }
-    
+
     /**
      * Returns true if the action is enabled.
      * The enabled state of the action depends on the state that has been set
@@ -89,10 +102,11 @@ public abstract class AbstractApplicationAction extends AbstractAction {
      * @return true if the action is enabled, false otherwise
      * @see Action#isEnabled
      */
-    @Override public boolean isEnabled() {
-        return app.isEnabled() && enabled;
+    @Override
+    public boolean isEnabled() {
+        return app != null && app.isEnabled() && enabled;
     }
-    
+
     /**
      * Enables or disables the action. The enabled state of the action
      * depends on the value that is set here and on the enabled state of
@@ -102,13 +116,20 @@ public abstract class AbstractApplicationAction extends AbstractAction {
      *                  disable it
      * @see Action#setEnabled
      */
-    @Override public void setEnabled(boolean newValue) {
+    @Override
+    public void setEnabled(boolean newValue) {
         boolean oldValue = this.enabled;
         this.enabled = newValue;
-        
+
         firePropertyChange("enabled",
                 Boolean.valueOf(oldValue && app.isEnabled()),
-                Boolean.valueOf(newValue && app.isEnabled())
-                );
+                Boolean.valueOf(newValue && app.isEnabled()));
+    }
+
+    public final void dispose() {
+        if (app != null) {
+            uninstallApplicationListeners(app);
+            app = null;
+        }
     }
 }

@@ -34,7 +34,7 @@ public class FindDialog extends javax.swing.JDialog {
         initComponents();
         buttonPanel.setBorder(new EmptyBorder(0,-5,0,-5));
         setAlwaysOnTop(true);
-        prefs = Preferences.userNodeForPackage(getClass());
+        prefs = PreferencesUtil.userNodeForPackage(getClass());
         
         PreferencesUtil.installFramePrefsHandler(prefs, "find", this);
         
@@ -77,7 +77,7 @@ public class FindDialog extends javax.swing.JDialog {
     
     /** Creates new form FindDialog */
     public FindDialog(Application app) {
-        this(null, false);
+        this((Frame) SwingUtilities.getWindowAncestor(app.getComponent()), false);
         this.app = app;
     }
     

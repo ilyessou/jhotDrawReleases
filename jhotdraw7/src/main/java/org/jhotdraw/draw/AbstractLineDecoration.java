@@ -1,5 +1,5 @@
 /*
- * @(#)AbstractLineDecoration.java  2.0  2006-01-14
+ * @(#)AbstractLineDecoration.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -15,21 +15,16 @@
 
 package org.jhotdraw.draw;
 
-import java.io.*;
 import java.awt.*;
 import java.awt.geom.*;
 import org.jhotdraw.geom.Geom;
-import org.jhotdraw.util.*;
 import static org.jhotdraw.draw.AttributeKeys.*;
 
 /**
- * An standard implementation of a line decoration. It draws a shape which
- * is rotated and moved to the end of the line. The shape is scaled by the
- * stroke width.
+ * This abstract class can be extended to implement a {@link LineDecoration}.
  *
  * @author Werner Randelshofer
- * @version 2.0 2006-01-14 Changed to support double precison coordinates.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public abstract class AbstractLineDecoration implements LineDecoration {
     /**
@@ -65,16 +60,16 @@ public abstract class AbstractLineDecoration implements LineDecoration {
     
     /**
      * Draws the arrow tip in the direction specified by the given two
-     * Points.. (template method)
+     * Points. (template method)
      */
     public void draw(Graphics2D g, Figure f, Point2D.Double p1, Point2D.Double p2) {
         GeneralPath path = getTransformedDecoratorPath(f, p1, p2);
         Color color;
         if (isFilled) {
             if (isSolid) {
-                color = STROKE_COLOR.get(f);
+                color = f.get(STROKE_COLOR);
             } else {
-                color = FILL_COLOR.get(f);
+                color = f.get(FILL_COLOR);
             }
             if (color != null) {
                 g.setColor(color);
@@ -82,7 +77,7 @@ public abstract class AbstractLineDecoration implements LineDecoration {
             }
         }
         if (isStroked) {
-            color = STROKE_COLOR.get(f);
+            color = f.get(STROKE_COLOR);
             if (color != null) {
                 g.setColor(color);
                 g.setStroke(AttributeKeys.getStroke(f));
@@ -100,9 +95,9 @@ public abstract class AbstractLineDecoration implements LineDecoration {
         Rectangle2D.Double area = new Rectangle2D.Double(b.getX(), b.getY(), b.getWidth(), b.getHeight());
         
         if (isStroked) {
-            double strokeWidth = STROKE_WIDTH.get(f);
-            int strokeJoin = STROKE_JOIN.get(f);
-            double miterLimit = (STROKE_MITER_LIMIT.get(f) * strokeWidth);
+            double strokeWidth = f.get(STROKE_WIDTH);
+            int strokeJoin = f.get(STROKE_JOIN);
+            double miterLimit = (f.get(STROKE_MITER_LIMIT) * strokeWidth);
             
             double grow;
             if (strokeJoin == BasicStroke.JOIN_MITER) {
@@ -119,7 +114,7 @@ public abstract class AbstractLineDecoration implements LineDecoration {
     }
     
     public double getDecorationRadius(Figure f) {
-        double strokeWidth = STROKE_WIDTH.get(f);
+        double strokeWidth = f.get(STROKE_WIDTH);
         double scaleFactor;
         if (strokeWidth > 1f) {
             scaleFactor = 1d + (strokeWidth - 1d) / 2d;
@@ -131,7 +126,7 @@ public abstract class AbstractLineDecoration implements LineDecoration {
     
     private GeneralPath getTransformedDecoratorPath(Figure f, Point2D.Double p1, Point2D.Double p2) {
         GeneralPath path = getDecoratorPath(f);
-        double strokeWidth = STROKE_WIDTH.get(f);
+        double strokeWidth = f.get(STROKE_WIDTH);
         
         AffineTransform transform = new AffineTransform();
         transform.translate(p1.x, p1.y);
@@ -156,12 +151,12 @@ public abstract class AbstractLineDecoration implements LineDecoration {
     }
     
     /**
-     * Hook method to calculates the path of the decorator.
+     * Hook method to calculate the path of the decorator.
      */
     protected abstract GeneralPath getDecoratorPath(Figure f);
     
     /**
-     * Hook method to calculates the radius of the decorator path.
+     * Hook method to calculate the radius of the decorator path.
      */
     protected abstract double getDecoratorPathRadius(Figure f);
 }

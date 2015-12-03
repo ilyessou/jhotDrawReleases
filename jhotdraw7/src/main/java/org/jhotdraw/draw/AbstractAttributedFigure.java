@@ -1,5 +1,5 @@
 /*
- * @(#)AbstractAttributedFigure.java  4.1  2007-05-18
+ * @(#)AbstractAttributedFigure.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -22,21 +22,13 @@ import static org.jhotdraw.draw.AttributeKeys.*;
 import org.jhotdraw.geom.*;
 import org.jhotdraw.xml.DOMInput;
 import org.jhotdraw.xml.DOMOutput;
+
 /**
- * A figure that can keep track of an open ended set of attributes.
- * <p>
+ * This abstract class can be extended to implement a {@link Figure}
+ * which has its own attribute put.
  *
  * @author Werner Randelshofer
- * @version 4.1 2007-05-18 Changed due to changes in Figure interface.
- * <br>4.0 2007-01-03 Renamed from AttributedFigure to
- * AbstractAttributedFigure.
- * <br>3.2 2006-12-07 Changed method setAttributes(HashMap)
- * to setAttributes(Map);
- * <br>3.1 2006-06-17 Method chop(Point2D.Double) added.
- * <br>3.0 2006-06-07 Reworked.
- * <br>2.1 2006-02-20 Support for DoubleStroke added.
- * <br>2.0 2006-01-14 Changed to support double precision coordinates.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public abstract class AbstractAttributedFigure extends AbstractFigure {
     /**
@@ -44,8 +36,8 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
      */
     private HashMap<AttributeKey, Object> attributes = new HashMap<AttributeKey,Object>();
     /**
-     * Forbidden attributes can't be set by the setAttribute() operation.
-     * They can only be changed by setAttribute().
+     * Forbidden attributes can't be put by the put() operation.
+     * They can only be changed by put().
      */
     private HashSet<AttributeKey> forbiddenAttributes;
     
@@ -71,7 +63,7 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
     @SuppressWarnings("unchecked")
     public void setAttributes(Map<AttributeKey, Object> map) {
         for (Map.Entry<AttributeKey, Object> entry : map.entrySet()) {
-            setAttribute(entry.getKey(), entry.getValue());
+            set(entry.getKey(), entry.getValue());
         }
     }
     public Map<AttributeKey, Object> getAttributes() {
@@ -90,7 +82,7 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
      * AttributeKey name and semantics are defined by the class implementing
      * the figure interface.
      */
-    public <T> void setAttribute(AttributeKey<T> key, T newValue) {
+    public <T> void set(AttributeKey<T> key, T newValue) {
         if (forbiddenAttributes == null
                 || ! forbiddenAttributes.contains(key)) {
             T oldValue = (T) key.put(attributes, newValue);
@@ -100,32 +92,32 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
     /**
      * Gets an attribute from the figure.
      */
-    public <T> T getAttribute(AttributeKey<T> key) {
-        return hasAttribute(key) ? key.get(attributes) : key.getDefaultValue();
+    public <T> T get(AttributeKey<T> key) {
+        return key.get(attributes);
     }
     
     
     public void draw(Graphics2D g) {
-        if (AttributeKeys.FILL_COLOR.get(this) != null) {
-            g.setColor(AttributeKeys.FILL_COLOR.get(this));
+        if (get(FILL_COLOR) != null) {
+            g.setColor(get(FILL_COLOR));
             drawFill(g);
         }
-        if (STROKE_COLOR.get(this) != null && STROKE_WIDTH.get(this) > 0d) {
+        if (get(STROKE_COLOR) != null && get(STROKE_WIDTH) > 0d) {
             g.setStroke(AttributeKeys.getStroke(this));
-            g.setColor(STROKE_COLOR.get(this));
+            g.setColor(get(STROKE_COLOR));
             
             drawStroke(g);
         }
-        if (TEXT_COLOR.get(this) != null) {
-            if (TEXT_SHADOW_COLOR.get(this) != null &&
-                    TEXT_SHADOW_OFFSET.get(this) != null) {
-                Dimension2DDouble d = TEXT_SHADOW_OFFSET.get(this);
+        if (get(TEXT_COLOR) != null) {
+            if (get(TEXT_SHADOW_COLOR) != null &&
+                    get(TEXT_SHADOW_OFFSET) != null) {
+                Dimension2DDouble d = get(TEXT_SHADOW_OFFSET);
                 g.translate(d.width, d.height);
-                g.setColor(TEXT_SHADOW_COLOR.get(this));
+                g.setColor(get(TEXT_SHADOW_COLOR));
                 drawText(g);
                 g.translate(-d.width,-d.height);
             }
-            g.setColor(TEXT_COLOR.get(this));
+            g.setColor(get(TEXT_COLOR));
             drawText(g);
         }
     }
@@ -135,7 +127,7 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
     }
     
     public double getStrokeMiterLimitFactor() {
-        Number value = (Number) getAttribute(AttributeKeys.STROKE_MITER_LIMIT);
+        Number value = (Number) get(AttributeKeys.STROKE_MITER_LIMIT);
         return (value != null) ? value.doubleValue() : 10f;
     }
     
@@ -143,9 +135,9 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
     public Rectangle2D.Double getDrawingArea() {
         double strokeTotalWidth = AttributeKeys.getStrokeTotalWidth(this);
         double width = strokeTotalWidth / 2d;
-        if (STROKE_JOIN.get(this) == BasicStroke.JOIN_MITER) {
-            width *= STROKE_MITER_LIMIT.get(this);
-        } else if (STROKE_CAP.get(this) != BasicStroke.CAP_BUTT) {
+        if (get(STROKE_JOIN) == BasicStroke.JOIN_MITER) {
+            width *= get(STROKE_MITER_LIMIT);
+        } else if (get(STROKE_CAP) != BasicStroke.CAP_BUTT) {
             width += strokeTotalWidth * 2;
         }
         width++;
@@ -194,8 +186,10 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
             AttributeKey key = entry.getKey();
             if (forbiddenAttributes == null
                     || ! forbiddenAttributes.contains(key)) {
-                Object prototypeValue = key.get(prototype);
-                Object attributeValue = key.get(this);
+                @SuppressWarnings("unchecked")
+                Object prototypeValue = prototype.get(key);
+                @SuppressWarnings("unchecked")
+                Object attributeValue = get(key);
                 if (prototypeValue != attributeValue ||
                         (prototypeValue != null && attributeValue != null &&
                         ! prototypeValue.equals(attributeValue))) {
@@ -225,7 +219,7 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
                 if (key != null && key.isAssignable(value)) {
                     if (forbiddenAttributes == null
                             || ! forbiddenAttributes.contains(key)) {
-                        setAttribute(key, value);
+                        set(key, value);
                     }
                 }
                 in.closeElement();
@@ -245,7 +239,7 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
     @SuppressWarnings("unchecked")
     protected void applyAttributesTo(Figure that) {
         for (Map.Entry<AttributeKey, Object> entry : attributes.entrySet()) {
-            entry.getKey().basicSet(that, entry.getValue());
+            that.set(entry.getKey(), entry.getValue());
         }
     }
     
@@ -270,7 +264,7 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
     
     public <T> void removeAttribute(AttributeKey<T> key) {
         if (hasAttribute(key)) {
-            T oldValue = key.get(this);
+            T oldValue = get(key);
             attributes.remove(key);
             fireAttributeChanged(key, oldValue, key.getDefaultValue());
         }

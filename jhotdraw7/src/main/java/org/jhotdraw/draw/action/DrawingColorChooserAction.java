@@ -1,5 +1,5 @@
 /*
- * @(#)DrawingColorChooserAction.java  1.0.1  2009-04-10
+ * @(#)DrawingColorChooserAction.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -26,8 +26,7 @@ import org.jhotdraw.draw.*;
  * {@link DrawingColorIcon }.
  * 
  * @author Werner Randelshofer
- * @version 1.0.1 2009-04-10 Action did not fire UndoableEdit events.
- * <br>1.0 2008-05-18 Created.
+ * @version $Id$
  */
 public class DrawingColorChooserAction extends EditorColorChooserAction {
     
@@ -75,7 +74,7 @@ public class DrawingColorChooserAction extends EditorColorChooserAction {
         DrawingView v = getEditor().getActiveView();
         if (v != null) {
             Figure f = v.getDrawing();
-            initialColor = key.get(f);
+            initialColor = f.get(key);
         }
         if (initialColor == null) {
             initialColor = super.getInitialColor();

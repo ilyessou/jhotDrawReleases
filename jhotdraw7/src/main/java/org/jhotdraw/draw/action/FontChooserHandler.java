@@ -1,5 +1,5 @@
 /**
- * @(#)FontChooserHandler.java  1.0  22.05.2008
+ * @(#)FontChooserHandler.java
  *
  * Copyright (c) 2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -14,20 +14,18 @@
 package org.jhotdraw.draw.action;
 
 import javax.swing.undo.*;
-import org.jhotdraw.app.action.Actions;
 import javax.swing.*;
 import java.util.*;
 import java.awt.*;
 import java.beans.*;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.gui.JFontChooser;
-import org.jhotdraw.util.ResourceBundleUtil;
 
 /**
  * FontChooserHandler.
  *
  * @author Werner Randelshofer
- * @version 1.0 22.05.2008 Created.
+ * @version $Id$
  */
 public class FontChooserHandler extends AbstractSelectedAction
         implements PropertyChangeListener {
@@ -63,7 +61,9 @@ public class FontChooserHandler extends AbstractSelectedAction
         final ArrayList<Object> restoreData = new ArrayList<Object>(selectedFigures.size());
         for (Figure figure : selectedFigures) {
             restoreData.add(figure.getAttributesRestoreData());
-            key.set(figure, fontChooser.getSelectedFont());
+            figure.willChange();
+            figure.set(key, fontChooser.getSelectedFont());
+            figure.changed();
         }
         getEditor().setDefaultAttribute(key, fontChooser.getSelectedFont());
         final Font undoValue = fontChooser.getSelectedFont();
@@ -72,16 +72,16 @@ public class FontChooserHandler extends AbstractSelectedAction
             @Override
             public String getPresentationName() {
                 return AttributeKeys.FONT_FACE.getPresentationName();
-                /*
-                String name = (String) getValue(Actions.UNDO_PRESENTATION_NAME_KEY);
-                if (name == null) {
-                    name = (String) getValue(AbstractAction.NAME);
-                }
-                if (name == null) {
-                    ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
-                    name = labels.getString("attribute.text");
-                }
-                return name;*/
+            /*
+            String name = (String) getValue(Actions.UNDO_PRESENTATION_NAME_KEY);
+            if (name == null) {
+            name = (String) getValue(AbstractAction.NAME);
+            }
+            if (name == null) {
+            ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
+            name = labels.getString("attribute.text");
+            }
+            return name;*/
             }
 
             @Override
@@ -101,7 +101,7 @@ public class FontChooserHandler extends AbstractSelectedAction
                 for (Figure figure : selectedFigures) {
                     restoreData.add(figure.getAttributesRestoreData());
                     figure.willChange();
-                    key.basicSet(figure, undoValue);
+                    figure.set(key, undoValue);
                     figure.changed();
                 }
             }

@@ -1,5 +1,5 @@
 /*
- * @(#)DrawingOpacityIcon.java  1.0  2008-06-08
+ * @(#)DrawingOpacityIcon.java
  *
  * Copyright (c) 2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -23,7 +23,7 @@ import org.jhotdraw.draw.*;
  * {@code DrawingEditor}.
  * 
  * @author Werner Randelshofer
- * @version 1.0 2008-06-08 Created.
+ * @version $Id$
  */
 public class DrawingOpacityIcon extends javax.swing.ImageIcon {
 
@@ -85,9 +85,10 @@ public class DrawingOpacityIcon extends javax.swing.ImageIcon {
         if (editor != null) {
             DrawingView view = editor.getActiveView();
             if (view != null && view.getDrawing() != null) {
-                opacity = opacityKey.get(view.getDrawing());
-                fillColor = (fillColorKey == null) ? null : fillColorKey.get(view.getDrawing());
-                strokeColor = (strokeColorKey == null) ? null : strokeColorKey.get(view.getDrawing());
+                Drawing d = view.getDrawing();
+                opacity = d.get(opacityKey);
+                fillColor = (fillColorKey == null) ? null : d.get(fillColorKey);
+                strokeColor = (strokeColorKey == null) ? null : d.get(strokeColorKey);
             } else {
                 opacity = opacityKey.get(editor.getDefaultAttributes());
                 fillColor = (fillColorKey == null) ? null : fillColorKey.get(editor.getDefaultAttributes());

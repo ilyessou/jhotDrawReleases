@@ -1,5 +1,5 @@
 /*
- * @(#)SelectionOpacityIcon.java  1.0  2008-05-23
+ * @(#)SelectionOpacityIcon.java
  *
  * Copyright (c) 2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -22,7 +22,7 @@ import org.jhotdraw.draw.*;
  * {@code Figure}(s) in the active {@code DrawingView} of a {@code DrawingEditor}.
  * 
  * @author Werner Randelshofer
- * @version 1.0 2008-05-23 Created.
+ * @version $Id$
  */
 public class SelectionOpacityIcon extends javax.swing.ImageIcon {
 
@@ -78,19 +78,25 @@ public class SelectionOpacityIcon extends javax.swing.ImageIcon {
     public void paintIcon(java.awt.Component c, java.awt.Graphics gr, int x, int y) {
         Graphics2D g = (Graphics2D) gr;
         super.paintIcon(c, g, x, y);
+
         Double opacity;
         Color fillColor;
         Color strokeColor;
-            DrawingView view = editor.getActiveView();
-            if (view != null && view.getSelectedFigures().size() == 1) {
-                opacity = opacityKey.get(view.getSelectedFigures().iterator().next());
-                fillColor = (fillColorKey == null) ? null : fillColorKey.get(view.getSelectedFigures().iterator().next());
-                strokeColor = (strokeColorKey == null) ? null : strokeColorKey.get(view.getSelectedFigures().iterator().next());
-            } else {
-                opacity = opacityKey.get(editor.getDefaultAttributes());
-                fillColor = (fillColorKey == null) ? null : fillColorKey.get(editor.getDefaultAttributes());
-                strokeColor = (strokeColorKey == null) ? null : strokeColorKey.get(editor.getDefaultAttributes());
-            }
+        DrawingView view = (editor == null) ? null : editor.getActiveView();
+        if (view != null && view.getSelectedFigures().size() == 1) {
+            Figure f = view.getSelectedFigures().iterator().next();
+            opacity = f.get(opacityKey);
+            fillColor = (fillColorKey == null) ? null : f.get(fillColorKey);
+            strokeColor = (strokeColorKey == null) ? null : f.get(strokeColorKey);
+        } else if (editor != null) {
+            opacity = opacityKey.get(editor.getDefaultAttributes());
+            fillColor = (fillColorKey == null) ? null : fillColorKey.get(editor.getDefaultAttributes());
+            strokeColor = (strokeColorKey == null) ? null : strokeColorKey.get(editor.getDefaultAttributes());
+        } else {
+            opacity = opacityKey.getDefaultValue();
+            fillColor = (fillColorKey == null) ? null : fillColorKey.getDefaultValue();
+            strokeColor = (strokeColorKey == null) ? null : strokeColorKey.getDefaultValue();
+        }
 
         if (fillColorKey != null && fillShape != null) {
             if (opacity != null) {
@@ -102,7 +108,7 @@ public class SelectionOpacityIcon extends javax.swing.ImageIcon {
                 g.fill(fillShape);
                 g.translate(-x, -y);
             }
-            }
+        }
         if (strokeColorKey != null && strokeShape != null) {
             if (opacity != null) {
                 if (strokeColor == null) {

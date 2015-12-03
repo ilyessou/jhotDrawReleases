@@ -1,5 +1,5 @@
 /*
- * @(#)CutAction.java  2.0  2007-04-13
+ * @(#)CutAction.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -17,16 +17,16 @@ package org.jhotdraw.app.action;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import org.jhotdraw.gui.datatransfer.ClipboardUtil;
 import org.jhotdraw.util.*;
+
 /**
  * Cuts the selected region and places its contents into the system clipboard.
  * Acts on the EditableComponent or JTextComponent which had the focus when
  * the ActionEvent was generated.
  *
  * @author Werner Randelshofer
- * @version 2.0 2007-04-13 Use javax.swing.TransferHandler instead of 
- * interface EditableComponent. 
- * <br>1.0 October 9, 2005 Created.
+ * @version $Id$
  */
 public class CutAction extends AbstractAction {
     public final static String ID = "edit.cut";
@@ -45,7 +45,7 @@ public class CutAction extends AbstractAction {
             JComponent component = (JComponent) focusOwner;
             component.getTransferHandler().exportToClipboard(
                     component,
-                    component.getToolkit().getSystemClipboard(),
+                    ClipboardUtil.getClipboard(),
                     TransferHandler.MOVE
                     );
         }

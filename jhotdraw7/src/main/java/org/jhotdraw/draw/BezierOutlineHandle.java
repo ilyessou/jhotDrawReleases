@@ -1,5 +1,5 @@
 /*
- * @(#)BezierOutlineHandle.java  3.0  2008-05-22
+ * @(#)BezierOutlineHandle.java
  *
  * Copyright (c) 2007-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -14,18 +14,14 @@
 package org.jhotdraw.draw;
 
 import java.awt.*;
+import static org.jhotdraw.draw.AttributeKeys.*;
 
 /**
- * Draws the outlines of a BezierFigure to make adjustment easier.
+ * A non-interactive {@link Handle} which draws the outline of a 
+ * {@link BezierFigure} to make adjustments easier.
  *
  * @author Werner Randelshofer
- * @version 2008-05-22 Handle can be used to mark figure over which mouse is
- * hovering.
- * <br>2008-05-11 Handle attributes are now retrieved from
- * DrawingEditor. 
- * <br>1.1 2008-04-12 Improve visibility of the outline, by drawing it
- * using two differently colored strokes. 
- * <br>1.0 April 14, 2007 Created.
+ * @version $Id$
  */
 public class BezierOutlineHandle extends AbstractHandle {
 
@@ -69,9 +65,10 @@ public class BezierOutlineHandle extends AbstractHandle {
 
     @Override
     public void draw(Graphics2D g) {
-        Shape bounds = getOwner().getBezierPath();
-        if (AttributeKeys.TRANSFORM.get(getOwner()) != null) {
-            bounds = AttributeKeys.TRANSFORM.get(getOwner()).createTransformedShape(bounds);
+        BezierFigure owner = getOwner();
+        Shape bounds = owner.getBezierPath();
+        if (owner.get(TRANSFORM) != null) {
+            bounds = owner.get(TRANSFORM).createTransformedShape(bounds);
         }
         bounds = view.getDrawingToViewTransform().createTransformedShape(bounds);
         Stroke stroke1;

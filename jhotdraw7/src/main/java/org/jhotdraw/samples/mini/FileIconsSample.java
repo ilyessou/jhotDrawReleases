@@ -1,5 +1,5 @@
 /*
- * @(#)FileIconsSample.java   1.0  2008-05-28
+ * @(#)FileIconsSample.java
  *
  * Copyright (c) 2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -27,7 +27,7 @@ import static org.jhotdraw.draw.AttributeKeys.*;
  * Example showing how to lay out composite figures.
  *
  * @author Werner Randelshofer
- * @version 2008-05-28 Created.
+ * @version $Id$
  */
 public class FileIconsSample {
 
@@ -65,7 +65,7 @@ public class FileIconsSample {
                     g.dispose();
                     ImageFigure imf = new ImageFigure();
                     imf.setBufferedImage(bimg);
-                    STROKE_COLOR.set(imf, null);
+                    imf.set(STROKE_COLOR, null);
                     imf.setBounds(new Point2D.Double(0,0),new Point2D.Double(icon.getIconWidth(), icon.getIconHeight()));
                     
                     // Creata TextAreaFigure for the file name
@@ -76,9 +76,9 @@ public class FileIconsSample {
                     tef.setBounds(new Point2D.Double(0,0), 
                             new Point2D.Double(Math.max(100,dim.width)+insets.left+insets.right, 
                             dim.height+insets.top+insets.bottom));
-                    STROKE_COLOR.set(tef, null);
-                    FILL_COLOR.set(tef, null);
-                    TEXT_ALIGNMENT.set(tef, Alignment.CENTER);
+                    tef.set(STROKE_COLOR, null);
+                    tef.set(FILL_COLOR, null);
+                    tef.set(TEXT_ALIGNMENT, Alignment.CENTER);
 
                      
                     // Alternatively, you could just create a TextFigure
@@ -90,7 +90,7 @@ public class FileIconsSample {
                     // and add the icon and the text figure to it
                     GraphicalCompositeFigure gcf = new GraphicalCompositeFigure();
                     gcf.setLayouter(new VerticalLayouter());
-                    COMPOSITE_ALIGNMENT.set(gcf, Alignment.CENTER);
+                    gcf.set(COMPOSITE_ALIGNMENT, Alignment.CENTER);
                     gcf.add(imf);
                     gcf.add(tef);
                     gcf.layout();

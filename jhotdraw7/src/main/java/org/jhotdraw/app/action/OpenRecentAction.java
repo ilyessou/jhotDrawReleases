@@ -1,5 +1,5 @@
 /*
- * @(#)OpenRecentAction.java  1.1  2008-03-19
+ * @(#)OpenRecentAction.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -13,15 +13,11 @@
  */
 package org.jhotdraw.app.action;
 
-import org.jhotdraw.gui.Worker;
 import org.jhotdraw.util.*;
 import org.jhotdraw.gui.*;
 import org.jhotdraw.gui.event.*;
-
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
-import java.util.prefs.*;
 import javax.swing.*;
 import java.io.*;
 import org.jhotdraw.app.Application;
@@ -31,9 +27,7 @@ import org.jhotdraw.app.View;
  * OpenRecentAction.
  *
  * @author Werner Randelshofer.
- * @version 1.1 2008-03-19 Check whether file exists before attempting to
- * open it. 
- * <br>1.0 June 15, 2006 Created.
+ * @version $Id$
  */
 public class OpenRecentAction extends AbstractApplicationAction {
 
@@ -88,60 +82,55 @@ public class OpenRecentAction extends AbstractApplicationAction {
         }
         view.setMultipleOpenId(multipleOpenId);
         view.setEnabled(false);
+        view.getOpenChooser(); // get open chooser is needed by read method.
 
         // Open the file
         view.execute(new Worker() {
 
-            public Object construct() {
-                try {
-                    if (file.exists()) {
-                        view.read(file);
-                        return null;
-                    } else {
-                        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
-                        return new IOException(labels.getFormatted("file.open.fileDoesNotExist.message", file.getName()));
-                    }
-                } catch (Throwable e) {
-                    return e;
+            protected Object construct() throws IOException {
+                if (file.exists()) {
+                    view.read(file);
+                    return null;
+                } else {
+                    ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
+                    throw new IOException(labels.getFormatted("file.open.fileDoesNotExist.message", file.getName()));
                 }
             }
 
-            public void finished(Object value) {
-                fileOpened(view, file, value);
+            @Override
+            protected void done(Object value) {
+                view.setFile(file);
+                Frame w = (Frame) SwingUtilities.getWindowAncestor(view.getComponent());
+                if (w != null) {
+                    w.setExtendedState(w.getExtendedState() & ~Frame.ICONIFIED);
+                    w.toFront();
+                }
+                view.setEnabled(true);
+                view.getComponent().requestFocus();
+            }
+
+            @Override
+            protected void failed(Throwable value) {
+                String message = null;
+                if (value instanceof Throwable) {
+                    ((Throwable) value).printStackTrace();
+                    message = ((Throwable) value).getMessage();
+                    if (message == null) {
+                        message = value.toString();
+                    }
+                }
+                ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
+                JSheet.showMessageSheet(view.getComponent(),
+                        "<html>" + UIManager.getString("OptionPane.css") +
+                        "<b>" + labels.getFormatted("file.open.couldntOpen.message", file.getName()) + "</b><br>" +
+                        (message == null ? "" : message),
+                        JOptionPane.ERROR_MESSAGE, new SheetListener() {
+
+                    public void optionSelected(SheetEvent evt) {
+                        view.setEnabled(true);
+                    }
+                });
             }
         });
-    }
-
-    protected void fileOpened(final View view, File file, Object value) {
-        if (value == null) {
-            view.setFile(file);
-            Frame w = (Frame) SwingUtilities.getWindowAncestor(view.getComponent());
-            if (w != null) {
-                w.setExtendedState(w.getExtendedState() & ~Frame.ICONIFIED);
-                w.toFront();
-            }
-            view.setEnabled(true);
-            view.getComponent().requestFocus();
-        } else {
-            String message = null;
-            if (value instanceof Throwable) {
-                ((Throwable) value).printStackTrace();
-                message = ((Throwable) value).getMessage();
-                if (message == null) {
-                    message = value.toString();
-                }
-            }
-            ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
-            JSheet.showMessageSheet(view.getComponent(),
-                    "<html>" + UIManager.getString("OptionPane.css") +
-                    "<b>" + labels.getFormatted("file.open.couldntOpen.message", file.getName()) + "</b><br>" +
-                    (message == null ? "" : message),
-                    JOptionPane.ERROR_MESSAGE, new SheetListener() {
-
-                public void optionSelected(SheetEvent evt) {
-                    view.setEnabled(true);
-                }
-            });
-        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * @(#)NodeFigure.java  1.0  July 4, 2006
+ * @(#)NodeFigure.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -26,7 +26,7 @@ import org.jhotdraw.xml.*;
  * NodeFigure.
  *
  * @author Werner Randelshofer
- * @version 1.0 July 4, 2006 Created.
+ * @version $Id$
  */
 public class NodeFigure extends TextFigure {
 
@@ -41,7 +41,7 @@ public class NodeFigure extends TextFigure {
         RectangleFigure rf = new RectangleFigure();
         setDecorator(rf);
         createConnectors();
-        DECORATOR_INSETS.basicSet(this, new Insets2D.Double(6, 10, 6, 10));
+        set(DECORATOR_INSETS, new Insets2D.Double(6, 10, 6, 10));
         ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.net.Labels");
         setText(labels.getString("nodeDefaultName"));
         setAttributeEnabled(DECORATOR_INSETS, false);
@@ -141,10 +141,10 @@ public class NodeFigure extends TextFigure {
     }
 
     @Override
-    public <T> void setAttribute(AttributeKey<T> key, T newValue) {
-        super.setAttribute(key, newValue);
+    public <T> void set(AttributeKey<T> key, T newValue) {
+        super.set(key, newValue);
         if (getDecorator() != null) {
-            key.basicSet(getDecorator(), newValue);
+            getDecorator().set(key, newValue);
         }
     }
 }

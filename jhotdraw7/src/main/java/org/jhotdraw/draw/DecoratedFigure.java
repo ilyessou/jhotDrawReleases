@@ -1,5 +1,5 @@
 /*
- * @(#)DecoratedFigure.java  2.0  2008-01-10
+ * @(#)DecoratedFigure.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -15,17 +15,19 @@
 package org.jhotdraw.draw;
 
 /**
- * This interface is implemented by Figures that can be Decorated with another
- * Figure.
- * <p>
- * Design pattern:<br>
- * Name: Decorator.<br>
- * Role: Component.<br>
- * Partners: {@link Figure} as Decorator. 
+ * A <em>decorated figure</em> can be decorated with another {@link Figure},
+ * for example to draw a border around the decorated figure.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Decorator</em><br>
+ * Decorated figures can be adorned with another figure.<br>
+ * Component: {@link DecoratedFigure}; Decorator: {@link Figure}.
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 2.0 2008-01-10 This interface extends now the Figure interface. 
- * <br>1.0 January 5, 2007 Created.
+ * @version $Id$
  */
 public interface DecoratedFigure extends Figure {
     /**

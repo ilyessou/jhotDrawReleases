@@ -1,5 +1,5 @@
 /*
- * @(#)SerializationInputOutputFormat.java  1.0  2009-04-19
+ * @(#)SerializationInputOutputFormat.java
  * 
  * Copyright (c) 2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -40,7 +40,7 @@ import org.jhotdraw.io.ExtensionFileFilter;
  * and writing {@code Drawing} objects.
  *
  * @author Werner Randelshofer
- * @version 1.0 2009-04-19 Created.
+ * @version $Id$
  */
 public class SerializationInputOutputFormat implements InputFormat, OutputFormat {
 
@@ -115,7 +115,7 @@ public class SerializationInputOutputFormat implements InputFormat, OutputFormat
             Drawing d = (Drawing) oin.readObject();
             if (replace) {
                 for (Map.Entry<AttributeKey, Object> e : d.getAttributes().entrySet()) {
-                    e.getKey().basicSet(drawing, e.getValue());
+                    drawing.set(e.getKey(), e.getValue());
                 }
             }
             for (Figure f : d.getChildren()) {
@@ -139,7 +139,7 @@ public class SerializationInputOutputFormat implements InputFormat, OutputFormat
 
             if (replace) {
                 for (Map.Entry<AttributeKey, Object> e : d.getAttributes().entrySet()) {
-                    e.getKey().basicSet(drawing, e.getValue());
+                    drawing.set(e.getKey(), e.getValue());
                 }
             }
             for (Figure f : d.getChildren()) {

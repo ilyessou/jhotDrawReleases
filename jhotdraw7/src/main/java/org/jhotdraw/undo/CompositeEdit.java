@@ -1,5 +1,5 @@
 /*
- * @(#)CompositeModel.java 1.1  2006-06-20
+ * @(#)CompositeModel.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -37,8 +37,7 @@ import java.util.*;
  * </pre>
  *
  * @author  Werner Randelshofer
- * @version 1.1 2006-06-20 Method setSignificant added.
- * <br>1.0 2001-01-01 Created.
+ * @version $Id$
  */
 public class CompositeEdit extends CompoundEdit {
     private String presentationName;
@@ -49,8 +48,8 @@ public class CompositeEdit extends CompoundEdit {
         isVerbose = b;
     }
     /**
-     * Creates new CompositeEdit.
-     * Which uses CompoundEdit.getPresentatioName.
+     * Creates a new {@code CompositeEdit} which uses CompoundEdit#getPresentationName()
+     * and is significant..
      *
      * @see javax.swing.undo.CompoundEdit#getPresentationName()
      */
@@ -58,8 +57,9 @@ public class CompositeEdit extends CompoundEdit {
         isSignificant = true;
     }
     /**
-     * Creates new CompositeEdit.
-     * Which uses CompoundEdit.getPresentatioName.
+     * Creates a new {@code CompositeEdit} which uses the specified significance.
+     * <p>
+     * The presentation name is used from CompoundEdit#getPresentationName().
      *
      * @see javax.swing.undo.CompoundEdit#getPresentationName()
      */
@@ -67,8 +67,9 @@ public class CompositeEdit extends CompoundEdit {
         this.isSignificant = isSignificant;
     }
     /**
-     * Creates new CompositeEdit.
-     * Which uses the given presentation name.
+     * Creates a new {@code CompositeEdit} which uses the specified
+     * presentation name.
+     * <p>
      * If the presentation name is null, then CompoundEdit.getPresentatioName
      * is used.
      * @see javax.swing.undo.CompoundEdit#getPresentationName()
@@ -78,8 +79,9 @@ public class CompositeEdit extends CompoundEdit {
         isSignificant = true;
     }
     /**
-     * Creates new CompositeEdit.
-     * Which uses the given presentation name.
+     * Creates a new {@code CompositeEdit} which uses the given presentation name
+     * and significance.
+     * <p>
      * If the presentation name is null, then CompoundEdit.getPresentatioName
      * is used.
      * @see javax.swing.undo.CompoundEdit#getPresentationName()

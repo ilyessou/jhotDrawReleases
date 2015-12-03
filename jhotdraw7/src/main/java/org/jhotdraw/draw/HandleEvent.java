@@ -1,5 +1,5 @@
 /*
- * @(#)HandleEvent.java  1.0  18. November 2003
+ * @(#)HandleEvent.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -17,10 +17,21 @@ package org.jhotdraw.draw;
 import java.awt.*;
 import java.util.*;
 /**
- * HandleEvent.
+ * An {@code EventObject} sent to {@link HandleListener}s.
+ *
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Observer</em><br>
+ * State changes of handles can be observed by other objects. Specifically
+ * {@code DrawingView} observes area invalidations and remove requests of
+ * handles.<br>
+ * Subject: {@link Handle}; Observer: {@link HandleListener}; Event:
+ * {@link HandleEvent}; Concrete Observer: {@link DrawingView}.
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public class HandleEvent extends EventObject {
     private Rectangle invalidatedArea;

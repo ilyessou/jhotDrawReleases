@@ -1,5 +1,5 @@
 /*
- * @(#)ConnectorHandle.java  2.0.1  2009-05-09
+ * @(#)ConnectorHandle.java
  *
  * Copyright (c) 1996-2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -20,15 +20,11 @@ import java.awt.*;
 import java.awt.geom.*;
 
 /**
- * A ConnectorHandle allows to create a ConnectionFigure by dragging the
- * connector handle to a connector.
+ * A {@link Handle} associated to a {@link Connector} which allows to create a
+ * new {@link ConnectionFigure} by dragging the handle to another connector.
  *
  * @author Werner Randelshofer.
- * @version 2.0.1 2009-05-09 The drawing area was not entirely repainted, when
- * the handle was released without connecting the figure.
- * <br>2.0 2007-05-15 Renamed from ConnectionHandle to ConnectorHandle.
- * Uses a Connector instead of a Locator now.
- * <br>1.0 20. Juni 2006 Created.
+ * @version $Id$
  */
 public class ConnectorHandle extends AbstractHandle {
 

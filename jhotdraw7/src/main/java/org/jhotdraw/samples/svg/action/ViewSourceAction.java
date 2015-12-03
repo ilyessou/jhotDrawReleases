@@ -1,5 +1,5 @@
 /*
- * @(#)ViewSourceAction.java  1.1  2009-04-10
+ * @(#)ViewSourceAction.java
  *
  * Copyright (c) 2007-2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -29,8 +29,7 @@ import org.jhotdraw.util.prefs.PreferencesUtil;
  * ViewSourceAction.
  *
  * @author Werner Randelshofer
- * @version 1.1 2009-04-10 Reuse dialog window.
- * <br>1.0 19. Mai 2007 Created.
+ * @version $Id$
  */
 public class ViewSourceAction extends AbstractViewAction {
 
@@ -77,7 +76,7 @@ public class ViewSourceAction extends AbstractViewAction {
                  ta.setText(source);
             }
 
-            Preferences prefs = Preferences.userNodeForPackage(getClass());
+            Preferences prefs = PreferencesUtil.userNodeForPackage(getClass());
             PreferencesUtil.installFramePrefsHandler(prefs, "viewSource", dialog);
 
             dialog.addWindowListener(new WindowAdapter() {

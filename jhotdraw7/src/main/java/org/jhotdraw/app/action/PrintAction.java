@@ -1,5 +1,5 @@
 /*
- * @(#)PrintAction.java  2.0  2007-07-31
+ * @(#)PrintAction.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -13,13 +13,10 @@
  */
 package org.jhotdraw.app.action;
 
-import org.jhotdraw.app.PrintableView;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.awt.print.*;
-import java.util.Arrays;
-import javax.print.DocPrintJob;
 import javax.print.attribute.*;
 import javax.print.attribute.standard.*;
 import javax.swing.*;
@@ -28,20 +25,24 @@ import org.jhotdraw.gui.*;
 import org.jhotdraw.util.*;
 
 /**
- * Presents a printer dialog to the user and then prints the View to the
- * chosen printer.
+ * Presents a printer chooser to the user and then prints the
+ * {@link org.jhotdraw.app.View}.
  * <p>
- * This action requires that the view implements the PrintableView
+ * This action requires that the view implements the {@link PrintableView}
  * interface.
- * <pre>
- * public Pageable createPageable();
- * </pre>
  * <p>
+ * <hr>
+ * <b>Design Patterns</b>
+ *
+ * <p><em>Framework</em><br>
+ * The interfaces and classes listed below define together the contracts
+ * of a smaller framework inside of the JHotDraw framework for document oriented
+ * applications.<br>
+ * Contract: {@link PrintableView}, {@link org.jhotdraw.app.action.PrintAction}.
+ * <hr>
  *
  * @author Werner Randelshofer
- * @version 2.0 2007-07-31 Rewritten to use an interface instead of
- * relying on Java Reflection. 
- * <br>1.0 January 1, 2007 Created.
+ * @version $Id$
  */
 public class PrintAction extends AbstractViewAction {
 
@@ -152,7 +153,7 @@ public class PrintAction extends AbstractViewAction {
         getActiveView().setEnabled(false);
         new Worker() {
 
-            public Object construct() {
+            protected Object construct() throws PrinterException {
 
                 // Compute page format from settings of the print job
                 Paper paper = new Paper();
@@ -193,15 +194,16 @@ public class PrintAction extends AbstractViewAction {
                         }
                         g.dispose();
                     }
-                } catch (Throwable t) {
-                    t.printStackTrace();
                 } finally {
                     pj.end();
                 }
                 return null;
             }
 
-            public void finished(Object value) {
+            protected void failed(Throwable error) {
+               error.printStackTrace();
+            }
+            protected void finished() {
                 getActiveView().setEnabled(true);
             }
         }.start();

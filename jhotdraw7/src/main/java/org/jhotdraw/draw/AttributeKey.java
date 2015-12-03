@@ -1,5 +1,5 @@
 /*
- * @(#)AttributeKey.java  3.0  2009-04-19
+ * @(#)AttributeKey.java
  *
  * Copyright (c) 1996-2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -19,33 +19,23 @@ import javax.swing.undo.*;
 import org.jhotdraw.util.*;
 
 /**
- * AttributeKey provides typesafe access to figure attributes.
+ * An <em>attribute key</em> provides typesafe access to an attribute of
+ * a {@link Figure}.
  * <p>
  * An AttributeKey has a name, a type and a default value. The default value
- * is returned by Figure.getAttribute, if a Figure does not have an attribute
+ * is returned by Figure.get, if a Figure does not have an attribute
  * of the specified key.
  * <p>
  * The following code example shows how to basicSet and get an attribute on a Figure.
  * <pre>
  * Figure aFigure;
- * AttributeKeys.STROKE_COLOR.set(aFigure, Color.blue);
+ * AttributeKeys.STROKE_COLOR.put(aFigure, Color.blue);
  * </pre>
  * <p>
  * See {@link AttributeKeys} for a list of useful attribute keys.
  * 
  * @author Werner Randelshofer
- * @version 3.0 2009-04-19 Added explicit
- * <br>2.1 2009-04-15 Added method getPresentationName. The labels are now
- * part of the attribute key.
- * <br>2.0.1 2008-02-13 Fixed comments. Removed equals and hashCode.
- * <br>2.0 2007-05-12 Removed basicSet methods.
- * <br>1.2 2007-04-10 Convenience methods for getting and setting a clone
- * of an attribute added.
- * <br>1.1 2006-12-29 Support for getting/setting attribute keys on a
- * Map added.
- * <br>1.0.1 2006-07-14 Null values are not returned anymore when null
- * values are not allowed.
- * <br>1.0 7. Juni 2006 Created.
+ * @version $Id$
  */
 public class AttributeKey<T> implements Serializable {
 
@@ -85,10 +75,7 @@ public class AttributeKey<T> implements Serializable {
     /** Creates a new instance with the specified attribute key, type token class,
      * default value, and allowing or disallowing null values. */
     public AttributeKey(String key, Class<T> clazz, T defaultValue, boolean isNullValueAllowed) {
-        this.key = key;
-        this.clazz = clazz;
-        this.defaultValue = defaultValue;
-        this.isNullValueAllowed = isNullValueAllowed;
+        this(key, clazz, defaultValue, isNullValueAllowed, null);
     }
 
     /** Creates a new instance with the specified attribute key, type token class,
@@ -107,7 +94,7 @@ public class AttributeKey<T> implements Serializable {
         this.clazz = clazz;
         this.defaultValue = defaultValue;
         this.isNullValueAllowed = isNullValueAllowed;
-        this.labels = labels;
+        this.labels = (labels == null) ? ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels") : labels;
     }
 
     /**
@@ -140,7 +127,7 @@ public class AttributeKey<T> implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public T getClone(Figure f) {
-        T value = get(f);
+        T value = f.get(this);
         try {
             return value == null ? null : clazz.cast(Methods.invoke(value, "clone"));
         } catch (NoSuchMethodException ex) {
@@ -158,8 +145,7 @@ public class AttributeKey<T> implements Serializable {
      * @return The value of the attribute.
      */
     public T get(Figure f) {
-        T value = (T) f.getAttribute(this);
-        return (value == null && !isNullValueAllowed) ? defaultValue : value;
+        return f.get(this);
     }
 
     /**
@@ -171,54 +157,41 @@ public class AttributeKey<T> implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public T get(Map<AttributeKey, Object> a) {
-        T value = (T) a.get(this);
-        return (value == null && !isNullValueAllowed) ? defaultValue : value;
+        return a.containsKey(this) ? (T) a.get(this) : defaultValue;
     }
 
     /**
-     * Convenience method for setting a value on the 
-     * specified figure and calling willChange before and changed 
-     * after setting the value.
+     * Convenience method for setting a value on a Figure.
+     * <p>
+     * Note: Unlike in previous versions of JHotDraw 7, this method does
+     * not call {@code f.willChange()} before setting the value, and
+     * {@code f.changed()} afterwards.
      *
      * @param f the Figure
      * @param value the attribute value
      */
     public void set(Figure f, T value) {
-        f.willChange();
-        basicSet(f, value);
-        f.changed();
-    }
-
-    /**
-     * Sets a value on the specified figure without invoking {@code willChange}
-     * and {@code changed} on the figure.
-     * <p>
-     * This method can be used to efficiently build a drawing from an 
-     * {@link InputFormat}.
-     *
-     * @param f the Figure
-     * @param value the attribute value
-     */
-    public void basicSet(Figure f, T value) {
         if (value == null && !isNullValueAllowed) {
             throw new NullPointerException("Null value not allowed for AttributeKey " + key);
         }
-        f.setAttribute(this, value);
+        f.set(this, value);
     }
 
     /**
      * Sets the attribute and returns an UndoableEditEvent which can be used
      * to undo it.
+     * <p>
+     * Note: Unlike in previous versions of JHotDraw 7, this method does
+     * not call {@code f.willChange()} before setting the value, and
+     * {@code f.changed()} afterwards.
      */
-    public UndoableEdit setUndoable(final Figure figure, final T value) {
+    public UndoableEdit setUndoable(final Figure f, final T value) {
         if (value == null && !isNullValueAllowed) {
             throw new NullPointerException("Null value not allowed for AttributeKey " + key);
         }
 
-        final Object restoreData = figure.getAttributesRestoreData();
-        figure.willChange();
-        figure.setAttribute(this, value);
-        figure.changed();
+        final Object restoreData = f.getAttributesRestoreData();
+        f.set(this, value);
 
         UndoableEdit edit = new AbstractUndoableEdit() {
 
@@ -230,17 +203,17 @@ public class AttributeKey<T> implements Serializable {
             @Override
             public void undo() {
                 super.undo();
-                figure.willChange();
-                figure.restoreAttributesTo(restoreData);
-                figure.changed();
+                f.willChange();
+                f.restoreAttributesTo(restoreData);
+                f.changed();
             }
 
             @Override
             public void redo() {
                 super.redo();
-                figure.willChange();
-                figure.setAttribute(AttributeKey.this, value);
-                figure.changed();
+                f.willChange();
+                f.set(AttributeKey.this, value);
+                f.changed();
             }
         };
         return edit;
@@ -248,32 +221,18 @@ public class AttributeKey<T> implements Serializable {
     }
 
     /**
-     * Convenience method for seting a clone of a value on the 
-     * specified figure and calling willChange before and changed 
-     * after setting the value.
+     * Convenience method for setting a clone of a value on a figure.
+     * <p>
+     * Note: Unlike in previous versions of JHotDraw 7, this method does
+     * not call {@code f.willChange()} before setting the value, and
+     * {@code f.changed()} afterwards.
      *
      * @param f the Figure
      * @param value the attribute value
      */
     public void setClone(Figure f, T value) {
-        f.willChange();
-        basicSetClone(f, value);
-        f.changed();
-    }
-
-    /**
-     * Sets a clone of a value on the specified figure, without invoking
-     * {@code willChange} and {@code changed} on the figure.
-     * <p>
-     * This method can be used to efficiently build a drawing from an 
-     * {@link InputFormat}.
-     *
-     * @param f the Figure
-     * @param value the attribute value
-     */
-    public void basicSetClone(Figure f, T value) {
         try {
-            basicSet(f, value == null ? null : clazz.cast(Methods.invoke(value, "clone")));
+           f.set(this, value == null ? null : clazz.cast(Methods.invoke(value, "clone")));
 
         } catch (NoSuchMethodException ex) {
             InternalError e = new InternalError();
@@ -283,18 +242,24 @@ public class AttributeKey<T> implements Serializable {
     }
 
     /**
-     * Use this method to perform a typeface put operation of an attribute
-     * into a Map.
+     * Convenience method for putting a clone of a value on a map.
      *
-     * @param a An attribute map.
-     * @param value The new value.
+     * @param a the map
+     * @param value the attribute value
      */
-    public void set(Map<AttributeKey, Object> a, T value) {
-        put(a, value);
+    public void putClone(Map<AttributeKey, Object> a, T value) {
+        try {
+           put(a, value == null ? null : clazz.cast(Methods.invoke(value, "clone")));
+
+        } catch (NoSuchMethodException ex) {
+            InternalError e = new InternalError();
+            e.initCause(ex);
+            throw e;
+        }
     }
 
     /**
-     * Use this method to perform a typeface put operation of an attribute
+     * Use this method to perform a type-safe put operation of an attribute
      * into a Map.
      *
      * @param a An attribute map.
@@ -307,20 +272,6 @@ public class AttributeKey<T> implements Serializable {
             throw new NullPointerException("Null value not allowed for AttributeKey " + key);
         }
         return (T) a.put(this, value);
-    }
-
-    /**
-     * Sets a clone of the value to the Figure without firing events.
-     */
-    @SuppressWarnings("unchecked")
-    public void setClone(Map<AttributeKey, Object> a, T value) {
-        try {
-            set(a, value == null ? null : (T) Methods.invoke(value, "clone"));
-        } catch (NoSuchMethodException ex) {
-            InternalError e = new InternalError();
-            e.initCause(ex);
-            throw e;
-        }
     }
 
     /**

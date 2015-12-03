@@ -1,5 +1,5 @@
 /**
- * @(#)PaletteLookAndFeel.java  1.0  Apr 6, 2008
+ * @(#)PaletteLookAndFeel.java
  *
  * Copyright (c) 2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -24,7 +24,7 @@ import javax.swing.plaf.basic.*;
  * A LookAndFeel for components in the palette windows of a drawing editor.
  *
  * @author Werner Randelshofer
- * @version 1.0 Apr 6, 2008 Created.
+ * @version $Id$
  */
 public class PaletteLookAndFeel extends BasicLookAndFeel {
 
@@ -292,7 +292,7 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
             // *** Labels
             "Label.font", dialogPlain12,
             // *** Ribbons
-            "Ribbon.border", new UIDefaults.ProxyLazyValue("javax.swing.border.MatteBorder", new Object[] {new Insets(1,0,0,0), new Color(0xa5a5a5)}), //
+            "Ribbon.border", new UIDefaults.ProxyLazyValue("javax.swing.border.MatteBorder", new Object[] {new Insets(1,0,0,0), new Color(0x777777)}), //
             // *** ScrollPane
             "ScrollPane.border", new UIDefaults.ProxyLazyValue("javax.swing.border.MatteBorder", new Object[] {new Insets(1,1,1,1), new Color(0xa5a5a5)}), //
             // *** Slider

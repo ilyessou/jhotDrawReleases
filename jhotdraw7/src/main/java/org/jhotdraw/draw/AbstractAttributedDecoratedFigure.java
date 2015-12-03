@@ -1,5 +1,5 @@
 /*
- * @(#)AbstractAttributedDecoratedFigure.java  1.0  January 5, 2007
+ * @(#)AbstractAttributedDecoratedFigure.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -22,10 +22,11 @@ import org.jhotdraw.geom.*;
 import org.jhotdraw.xml.*;
 
 /**
- * AbstractAttributedDecoratedFigure.
+ * This abstract class can be extended to implement a {@link DecoratedFigure}
+ * which has an attribute set.
  *
  * @author Werner Randelshofer
- * @version 1.0 January 5, 2007 Created.
+ * @version $Id$
  */
 public abstract class AbstractAttributedDecoratedFigure
         extends AbstractAttributedFigure implements DecoratedFigure {
@@ -73,7 +74,7 @@ public abstract class AbstractAttributedDecoratedFigure
         if (decorator != null) {
             Point2D.Double sp = getStartPoint();
             Point2D.Double ep = getEndPoint();
-            Insets2D.Double decoratorInsets = DECORATOR_INSETS.get(this);
+            Insets2D.Double decoratorInsets = get(DECORATOR_INSETS);
             sp.x -= decoratorInsets.left;
             sp.y -= decoratorInsets.top;
             ep.x += decoratorInsets.right;

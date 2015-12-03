@@ -1,5 +1,5 @@
 /*
- * @(#)MultiIcon.java  1.0.1  2006-02-14
+ * @(#)MultiIcon.java
  *
  * Copyright (c) 2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -16,6 +16,7 @@ package org.jhotdraw.gui.plaf.palette;
 
 import java.awt.*;
 import javax.swing.*;
+import org.jhotdraw.util.Images;
 
 /**
  * An icon which paints one out of multiple icons depending on the state
@@ -23,8 +24,7 @@ import javax.swing.*;
  * MultiIcon can lazily create the icons from a tiled image.
  *
  * @author  Werner Randelshofer
- * @version 1.0.1 2006-02-14 Created tileCount icons from image.
- * <br>1.0 October 17, 2005 Created.
+ * @version $Id$
  */
 public abstract class MultiIcon implements Icon {
     /**

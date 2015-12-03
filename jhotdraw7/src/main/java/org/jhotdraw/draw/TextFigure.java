@@ -1,5 +1,5 @@
 /*
- * @(#)TextFigure.java  1.0.2  2007-05-02
+ * @(#)TextFigure.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -25,18 +25,14 @@ import org.jhotdraw.xml.DOMInput;
 import org.jhotdraw.xml.DOMOutput;
 
 /**
- * A text figure.
+ * A {@code TextHolderFigure} which holds a single line of text.
  * <p>
  * A DrawingEditor should provide the TextCreationTool to create a TextFigure.
  *
  * @see TextCreationTool
  *
  * @author Werner Randelshofer
- * @version 2.0.2 2007-05-02 Made all instance variables protected instead of
- * private. 
- * <br>2.0.1 2006-02-27 Draw UNDERLINE_LOW_ONE_PIXEL instead of UNDERLINE_ON.
- * <br>2.0 2006-01-14 Changed to support double precison coordinates.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public class TextFigure extends AbstractAttributedDecoratedFigure
         implements TextHolderFigure {
@@ -97,7 +93,7 @@ public class TextFigure extends AbstractAttributedDecoratedFigure
             FontRenderContext frc = getFontRenderContext();
             HashMap<TextAttribute, Object> textAttributes = new HashMap<TextAttribute, Object>();
             textAttributes.put(TextAttribute.FONT, getFont());
-            if (FONT_UNDERLINE.get(this)) {
+            if (get(FONT_UNDERLINE)) {
                 textAttributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
             }
             textLayout = new TextLayout(text, textAttributes, frc);
@@ -161,7 +157,7 @@ public class TextFigure extends AbstractAttributedDecoratedFigure
      * Gets the text shown by the text figure.
      */
     public String getText() {
-        return TEXT.get(this);
+        return get(TEXT);
     }
 
     /**
@@ -170,7 +166,7 @@ public class TextFigure extends AbstractAttributedDecoratedFigure
      * AttribuTEXT.basicSet, changed.
      */
     public void setText(String newText) {
-        TEXT.set(this, newText);
+        set(TEXT, newText);
     }
 
     public int getTextColumns() {
@@ -198,19 +194,19 @@ public class TextFigure extends AbstractAttributedDecoratedFigure
     }
 
     public Color getTextColor() {
-        return TEXT_COLOR.get(this);
+        return get(TEXT_COLOR);
     }
 
     public Color getFillColor() {
-        return FILL_COLOR.get(this);
+        return get(FILL_COLOR);
     }
 
     public void setFontSize(float size) {
-        FONT_SIZE.set(this, new Double(size));
+        set(FONT_SIZE, new Double(size));
     }
 
     public float getFontSize() {
-        return FONT_SIZE.get(this).floatValue();
+        return get(FONT_SIZE).floatValue();
     }
 
     // EDITING

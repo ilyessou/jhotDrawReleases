@@ -1,15 +1,15 @@
 /**
- * @(#)EditCanvasPanel.java  1.0  2007-12-18
+ * @(#)EditCanvasPanel.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
  * All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * The copyright of this software is owned by the authors and
+ * contributors of the JHotDraw project ("the copyright holders").
+ * You may not use, copy or modify this software, except in
+ * accordance with the license agreement you entered into with
+ * the copyright holders. For details see accompanying license terms.
  */
 package org.jhotdraw.draw.action;
 
@@ -18,7 +18,7 @@ import java.awt.Color;
 import javax.swing.*;
 import javax.swing.text.*;
 import org.jhotdraw.draw.*;
-import org.jhotdraw.gui.DrawingAttributeEditorHandler;
+import org.jhotdraw.gui.event.DrawingAttributeEditorHandler;
 import org.jhotdraw.gui.JAttributeSlider;
 import org.jhotdraw.text.JavaNumberFormatter;
 import org.jhotdraw.util.*;
@@ -28,9 +28,9 @@ import static org.jhotdraw.draw.AttributeKeys.*;
  * The EditCanvasPanel can be used to edit the attributes of a Drawing.
  *
  * @see org.jhotdraw.draw.Drawing
- * 
+ *
  * @author Werner Randelshofer
- * @version 1.0 2007-12-18 Created.
+ * @version $Id$
  */
 @SuppressWarnings("unchecked")
 public class EditCanvasPanel extends javax.swing.JPanel {
@@ -82,9 +82,11 @@ public class EditCanvasPanel extends javax.swing.JPanel {
      */
     private void updateDrawing() {
         if (drawing != null) {
+            drawing.willChange();
             drawing.fireUndoableEditHappened(
                     CANVAS_FILL_COLOR.setUndoable(drawing, colorButton.getBackground())
                     );
+            drawing.changed();
         }
     }
 
@@ -93,7 +95,7 @@ public class EditCanvasPanel extends javax.swing.JPanel {
      */
     private void updatePanel() {
         if (drawing != null) {
-            colorButton.setBackground(CANVAS_FILL_COLOR.get(drawing));
+            colorButton.setBackground(drawing.get(CANVAS_FILL_COLOR));
         }
     }
 
@@ -166,7 +168,7 @@ public class EditCanvasPanel extends javax.swing.JPanel {
     private void colorButtonPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_colorButtonPerformed
      if (drawing != null) {
         Color color = getColorChooser().showDialog(this, labels.getString("attribute.backgroundColor"), 
-               CANVAS_FILL_COLOR.get(drawing)
+               drawing.get(CANVAS_FILL_COLOR)
                );
         colorButton.setBackground(color);
         updateDrawing();

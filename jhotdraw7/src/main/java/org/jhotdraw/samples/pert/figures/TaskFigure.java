@@ -1,5 +1,5 @@
 /*
- * @(#)TaskFigure.java  1.0  18. Juni 2006
+ * @(#)TaskFigure.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -13,6 +13,7 @@
  */
 package org.jhotdraw.samples.pert.figures;
 
+import java.awt.Point;
 import java.io.IOException;
 import java.awt.geom.*;
 import static org.jhotdraw.draw.AttributeKeys.*;
@@ -26,7 +27,7 @@ import org.jhotdraw.xml.*;
  * TaskFigure.
  *
  * @author Werner Randelshofer.
- * @version 1.0 18. Juni 2006 Created.
+ * @version $Id$
  */
 public class TaskFigure extends GraphicalCompositeFigure {
 
@@ -78,9 +79,9 @@ public class TaskFigure extends GraphicalCompositeFigure {
         setLayouter(new VerticalLayouter());
 
         RectangleFigure nameCompartmentPF = new RectangleFigure();
-        STROKE_COLOR.basicSet(nameCompartmentPF, null);
+        nameCompartmentPF.set(STROKE_COLOR, null);
         nameCompartmentPF.setAttributeEnabled(STROKE_COLOR, false);
-        FILL_COLOR.basicSet(nameCompartmentPF, null);
+        nameCompartmentPF.set(FILL_COLOR, null);
         nameCompartmentPF.setAttributeEnabled(FILL_COLOR, false);
         ListFigure nameCompartment = new ListFigure(nameCompartmentPF);
         ListFigure attributeCompartment = new ListFigure();
@@ -93,17 +94,17 @@ public class TaskFigure extends GraphicalCompositeFigure {
         add(attributeCompartment);
 
         Insets2D.Double insets = new Insets2D.Double(4, 8, 4, 8);
-        LAYOUT_INSETS.basicSet(nameCompartment, insets);
-        LAYOUT_INSETS.basicSet(attributeCompartment, insets);
+        nameCompartment.set(LAYOUT_INSETS, insets);
+        attributeCompartment.set(LAYOUT_INSETS, insets);
 
         TextFigure nameFigure;
         nameCompartment.add(nameFigure = new TextFigure());
-        FONT_BOLD.basicSet(nameFigure, true);
+        nameFigure.set(FONT_BOLD, true);
         nameFigure.setAttributeEnabled(FONT_BOLD, false);
 
         TextFigure durationFigure;
         attributeCompartment.add(durationFigure = new TextFigure());
-        FONT_BOLD.basicSet(durationFigure, true);
+        durationFigure.set(FONT_BOLD, true);
         durationFigure.setText("0");
         durationFigure.setAttributeEnabled(FONT_BOLD, false);
 
@@ -139,7 +140,9 @@ public class TaskFigure extends GraphicalCompositeFigure {
                 handles.add(new MoveHandle(this, RelativeLocator.northEast()));
                 handles.add(new MoveHandle(this, RelativeLocator.southWest()));
                 handles.add(new MoveHandle(this, RelativeLocator.southEast()));
-                handles.add(new ConnectorHandle(new LocatorConnector(this, RelativeLocator.east()), new DependencyFigure()));
+                ConnectorHandle ch;
+                handles.add(ch=new ConnectorHandle(new LocatorConnector(this, RelativeLocator.east()) , new DependencyFigure()));
+                ch.setToolTipText("Drag the connector to a dependent task.");
                 break;
         }
         return handles;
@@ -160,6 +163,7 @@ public class TaskFigure extends GraphicalCompositeFigure {
             for (TaskFigure succ : getSuccessors()) {
                 succ.updateStartTime();
             }
+
         }
     }
 
@@ -169,6 +173,7 @@ public class TaskFigure extends GraphicalCompositeFigure {
         } catch (NumberFormatException e) {
             return 0;
         }
+
     }
 
     public void updateStartTime() {
@@ -179,6 +184,7 @@ public class TaskFigure extends GraphicalCompositeFigure {
             newValue = Math.max(newValue,
                     pre.getStartTime() + pre.getDuration());
         }
+
         getStartTimeFigure().setText(Integer.toString(newValue));
         if (newValue != oldValue) {
             for (TaskFigure succ : getSuccessors()) {
@@ -187,6 +193,7 @@ public class TaskFigure extends GraphicalCompositeFigure {
                 if (!this.isDependentOf(succ)) {
                     succ.updateStartTime();
                 }
+
             }
         }
         changed();
@@ -198,6 +205,7 @@ public class TaskFigure extends GraphicalCompositeFigure {
         } catch (NumberFormatException e) {
             return 0;
         }
+
     }
 
     private TextFigure getNameFigure() {
@@ -216,8 +224,9 @@ public class TaskFigure extends GraphicalCompositeFigure {
     private void applyAttributes(Figure f) {
         Map<AttributeKey, Object> attr = ((AbstractAttributedFigure) getPresentationFigure()).getAttributes();
         for (Map.Entry<AttributeKey, Object> entry : attr.entrySet()) {
-            entry.getKey().basicSet(f, entry.getValue());
+            f.set(entry.getKey(), entry.getValue());
         }
+
     }
 
     @Override
@@ -274,11 +283,13 @@ public class TaskFigure extends GraphicalCompositeFigure {
     public void addDependency(DependencyFigure f) {
         dependencies.add(f);
         updateStartTime();
+
     }
 
     public void removeDependency(DependencyFigure f) {
         dependencies.remove(f);
         updateStartTime();
+
     }
 
     /**
@@ -291,6 +302,7 @@ public class TaskFigure extends GraphicalCompositeFigure {
             if (c.getStartFigure() == this) {
                 list.add((TaskFigure) c.getEndFigure());
             }
+
         }
         return list;
     }
@@ -305,6 +317,7 @@ public class TaskFigure extends GraphicalCompositeFigure {
             if (c.getEndFigure() == this) {
                 list.add((TaskFigure) c.getStartFigure());
             }
+
         }
         return list;
     }
@@ -320,10 +333,12 @@ public class TaskFigure extends GraphicalCompositeFigure {
         if (this == t) {
             return true;
         }
+
         for (TaskFigure pre : getPredecessors()) {
             if (pre.isDependentOf(t)) {
                 return true;
             }
+
         }
         return false;
     }

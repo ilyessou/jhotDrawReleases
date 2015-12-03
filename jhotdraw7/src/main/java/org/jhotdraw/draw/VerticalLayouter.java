@@ -1,5 +1,5 @@
 /*
- * @(#)VerticalLayouter.java  3.0  2008-05-28
+ * @(#)VerticalLayouter.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -13,16 +13,15 @@
  */
 package org.jhotdraw.draw;
 
-import org.jhotdraw.util.*;
-import java.awt.*;
 import java.awt.geom.*;
-import java.util.*;
 import org.jhotdraw.geom.*;
 import static org.jhotdraw.draw.AttributeKeys.*;
 
 /**
- * A layouter which lays out all children of a CompositeFigure in vertical
- * direction. The preferredSize of the figures is used to determine the layout.
+ * A {@link Layouter} which lays out all children of a {@link CompositeFigure}
+ * in vertical direction.
+ * <p>
+ * The preferred size of the figures is used to determine the layout.
  * This may cause some figures to resize.
  * <p>
  * The VerticalLayouter honors the LAYOUT_INSETS and the COMPOSITE_ALIGNMENT
@@ -33,9 +32,7 @@ import static org.jhotdraw.draw.AttributeKeys.*;
  * 
  * 
  * @author Werner Randelshofer
- * @version 3.0 2008-05-28 Added support for alignment.
- * <br>2.0 2006-01-14 Changed to support double precision coordinates.
- * <br>1.0 1. Dezember 2003  Created.
+ * @version $Id$
  */
 public class VerticalLayouter extends AbstractLayouter {
 
@@ -45,7 +42,7 @@ public class VerticalLayouter extends AbstractLayouter {
     private Alignment defaultAlignment = Alignment.BLOCK;
 
     public Rectangle2D.Double calculateLayout(CompositeFigure layoutable, Point2D.Double anchor, Point2D.Double lead) {
-        Insets2D.Double layoutInsets = LAYOUT_INSETS.get(layoutable);
+        Insets2D.Double layoutInsets = layoutable.get(LAYOUT_INSETS);
         if (layoutInsets == null) {
             layoutInsets = new Insets2D.Double(0, 0, 0, 0);
         }
@@ -65,8 +62,8 @@ public class VerticalLayouter extends AbstractLayouter {
     }
 
     public Rectangle2D.Double layout(CompositeFigure layoutable, Point2D.Double anchor, Point2D.Double lead) {
-        Insets2D.Double layoutInsets = LAYOUT_INSETS.get(layoutable);
-        Alignment compositeAlignment = COMPOSITE_ALIGNMENT.get(layoutable);
+        Insets2D.Double layoutInsets = layoutable.get(LAYOUT_INSETS);
+        Alignment compositeAlignment = layoutable.get(COMPOSITE_ALIGNMENT);
 
         if (layoutInsets == null) {
             layoutInsets = new Insets2D.Double();

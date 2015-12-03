@@ -1,5 +1,5 @@
 /*
- * @(#)AboutAction.java  1.0  04 January 2005
+ * @(#)AboutAction.java
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
  * and all its contributors.
@@ -15,8 +15,6 @@
 package org.jhotdraw.app.action;
 
 import org.jhotdraw.util.*;
-
-import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import org.jhotdraw.app.*;
@@ -25,7 +23,7 @@ import org.jhotdraw.app.*;
  * Displays a dialog showing information about the application.
  *
  * @author  Werner Randelshofer
- * @version 1.0  04 January 2005  Created.
+ * @version $Id$
  */
 public class AboutAction extends AbstractApplicationAction {
     public final static String ID = "application.about";
@@ -41,8 +39,13 @@ public class AboutAction extends AbstractApplicationAction {
         Application app = getApplication();
         JOptionPane.showMessageDialog(app.getComponent(),
                 app.getName()+" "+app.getVersion()+"\n"+app.getCopyright()+
-                "\n\nRunning on Java "+System.getProperty("java.vm.version")+
-                ", "+System.getProperty("java.vendor"), 
+                "\n\nRunning on" +
+                "\n  Java: "+System.getProperty("java.version")+
+                ", "+System.getProperty("java.vendor")+
+                "\n  JVM: "+System.getProperty("java.vm.version")+
+                ", "+System.getProperty("java.vm.vendor")+
+                "\n  OS: "+System.getProperty("os.name")+" "+System.getProperty("os.version")+
+                ", "+System.getProperty("os.arch"),
                 "About", JOptionPane.PLAIN_MESSAGE);
     }
 }

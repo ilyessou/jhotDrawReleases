@@ -1,5 +1,5 @@
 /*
- * @(#)ElbowLiner.java  1.1  2007-02-09
+ * @(#)ElbowLiner.java
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
  * and all its contributors.
@@ -23,12 +23,10 @@ import org.jhotdraw.xml.DOMOutput;
 import org.jhotdraw.xml.DOMStorable;
 
 /**
- * A Liner that constrains a connection to orthogonal lines.
+ * A {@link Liner} that constrains a connection to orthogonal lines.
  *
  * @author Werner Randelshofer
- * @version 1.1 2007-02-09 Added support for connections that connect to 
- * the same Figure on both ends.
- * <br>1.0 2006-03-28 Created.
+ * @version $Id$
  */
 public class ElbowLiner
         implements Liner, DOMStorable {
@@ -164,7 +162,7 @@ public class ElbowLiner
                         (eoutcode & (Geom.OUT_LEFT | Geom.OUT_RIGHT)) != 0) {
                     path.add(new BezierPath.Node((sp.x + ep.x)/2, sp.y));
                     path.add(new BezierPath.Node((sp.x + ep.x)/2, ep.y));
-                } else if (soutcode == Geom.OUT_BOTTOM && eoutcode == Geom.OUT_LEFT) {
+                } else if (soutcode == Geom.OUT_BOTTOM || soutcode == Geom.OUT_TOP) {
                     path.add(new BezierPath.Node(sp.x, ep.y));
                 } else {
                     path.add(new BezierPath.Node(ep.x, sp.y));

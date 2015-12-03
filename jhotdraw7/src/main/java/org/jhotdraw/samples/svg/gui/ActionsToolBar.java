@@ -1,5 +1,5 @@
 /*
- * @(#)ActionsToolBar.java  2.0  2008-04-08
+ * @(#)ActionsToolBar.java
  *
  * Copyright (c) 2007-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -13,33 +13,26 @@
  */
 package org.jhotdraw.samples.svg.gui;
 
-import java.beans.*;
 import java.util.prefs.*;
 import javax.swing.border.*;
 import org.jhotdraw.gui.*;
-import org.jhotdraw.samples.svg.*;
 import org.jhotdraw.undo.*;
 import org.jhotdraw.util.*;
 import org.jhotdraw.gui.plaf.palette.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import org.jhotdraw.app.action.*;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.action.*;
-import org.jhotdraw.samples.svg.action.*;
 import org.jhotdraw.samples.svg.figures.*;
+import org.jhotdraw.util.prefs.PreferencesUtil;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.*;
 
 /**
  * ActionsToolBar.
  *
  * @author Werner Randelshofer
- * @version 2.0 2008-04-08 Reworked. 
- * <br>1.1 2008-03-26 Don't draw button borders. 
- * <br>1.0 May 1, 2007 Created.
+ * @version $Id$
  */
 public class ActionsToolBar extends AbstractToolBar {
 
@@ -87,7 +80,12 @@ public class ActionsToolBar extends AbstractToolBar {
                 p.setOpaque(false);
                 p.setBorder(new EmptyBorder(5, 5, 5, 8));
 
-                Preferences prefs = Preferences.userNodeForPackage(getClass());
+                // Abort if no editor is set
+                if (editor == null) {
+                    break;
+                }
+
+                Preferences prefs = PreferencesUtil.userNodeForPackage(getClass());
 
                 ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.svg.Labels");
 
@@ -96,6 +94,7 @@ public class ActionsToolBar extends AbstractToolBar {
 
                 GridBagConstraints gbc;
                 AbstractButton btn;
+                AbstractSelectedAction d;
 
                 btn = new JButton(undoManager.getUndoAction());
                 btn.setUI((PaletteButtonUI) PaletteButtonUI.createUI(btn));
@@ -118,7 +117,7 @@ public class ActionsToolBar extends AbstractToolBar {
                 p.add(btn, gbc);
 
 
-                btn = ButtonFactory.createPickAttributesButton(editor);
+                btn = ButtonFactory.createPickAttributesButton(editor, disposables);
                 btn.setUI((PaletteButtonUI) PaletteButtonUI.createUI(btn));
                 labels.configureToolBarButton(btn, "attributesPick");
                 gbc = new GridBagConstraints();
@@ -126,7 +125,7 @@ public class ActionsToolBar extends AbstractToolBar {
                 gbc.insets = new Insets(3, 0, 0, 0);
                 p.add(btn, gbc);
 
-                btn = ButtonFactory.createApplyAttributesButton(editor);
+                btn = ButtonFactory.createApplyAttributesButton(editor, disposables);
                 btn.setUI((PaletteButtonUI) PaletteButtonUI.createUI(btn));
                 labels.configureToolBarButton(btn, "attributesApply");
                 gbc = new GridBagConstraints();
@@ -140,14 +139,19 @@ public class ActionsToolBar extends AbstractToolBar {
                 labels.configureToolBarButton(pb, "actions");
                 pb.add(new DuplicateAction());
                 pb.addSeparator();
-                pb.add(new GroupAction(editor, new SVGGroupFigure()));
-                pb.add(new UngroupAction(editor, new SVGGroupFigure()));
+                pb.add(d = new GroupAction(editor, new SVGGroupFigure()));
+                disposables.add(d);
+                pb.add(d = new UngroupAction(editor, new SVGGroupFigure()));
+                disposables.add(d);
                 pb.addSeparator();
                 pb.add(new CutAction());
                 pb.add(new CopyAction());
                 pb.add(new PasteAction());
+                pb.add(new DeleteAction());
+                pb.addSeparator();
                 pb.add(new SelectAllAction());
-                pb.add(new SelectSameAction(editor));
+                pb.add(d = new SelectSameAction(editor));
+                disposables.add(d);
                 pb.add(new ClearSelectionAction());
 
                 gbc = new GridBagConstraints();

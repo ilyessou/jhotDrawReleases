@@ -1,5 +1,5 @@
 /*
- * @(#)QuadTreeDrawing.java  2.2.2  2009-04-04
+ * @(#)QuadTreeDrawing.java
  *
  * Copyright (c) 1996-2009 by the original authors of JHotDraw
  * and all its contributors.
@@ -13,33 +13,26 @@
  */
 package org.jhotdraw.draw;
 
-import org.jhotdraw.geom.Dimension2DDouble;
 import org.jhotdraw.geom.QuadTree;
 import java.awt.*;
 import java.awt.geom.*;
 import org.jhotdraw.util.*;
 import java.util.*;
 import org.jhotdraw.geom.Geom;
+import static org.jhotdraw.draw.AttributeKeys.*;
 
 /**
- * QuadTreeDrawing uses a QuadTree2DDouble to improve responsiveness of drawings
- * which contain many children.
+ * An implementation of {@link Drawing} which uses a
+ * {@link org.jhotdraw.geom.QuadTree} to provide a good responsiveness for
+ * drawings which contain many figures.
  *
  * @author Werner Randelshofer
- * @version 2.2.2 2009-04-04 draw() method did not check isVisible() property.
- * <br>2.2.1 2008-03-26 Fixed NullPointerException when setting the
- * canvas size. Fixed cloning of quadTree and canvasSize. 
- * <br>2.2 2007-04-09 Added methods setCanvasSize, getCanvasSize.
- * <br>2.1 2007-02-09 Moved FigureListener and UndoableEditListener into
- * inner class.
- * <br>2.0 2006-01-14 Changed to support double precision coordinates.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public class QuadTreeDrawing extends AbstractDrawing {
 
     private QuadTree<Figure> quadTree = new QuadTree<Figure>();
     private boolean needsSorting = false;
-    private Dimension2DDouble canvasSize;
 
     @Override
     public int indexOf(Figure figure) {
@@ -234,8 +227,8 @@ public class QuadTreeDrawing extends AbstractDrawing {
         LinkedList<Figure> contained = new LinkedList<Figure>();
         for (Figure f : children) {
             Rectangle2D.Double r = f.getBounds();
-            if (AttributeKeys.TRANSFORM.get(f) != null) {
-                Rectangle2D rt = AttributeKeys.TRANSFORM.get(f).createTransformedShape(r).getBounds2D();
+            if (f.get(TRANSFORM) != null) {
+                Rectangle2D rt = f.get(TRANSFORM).createTransformedShape(r).getBounds2D();
                 r = (rt instanceof Rectangle2D.Double) ? (Rectangle2D.Double) rt : new Rectangle2D.Double(rt.getX(), rt.getY(), rt.getWidth(), rt.getHeight());
             }
             if (f.isVisible() && Geom.contains(bounds, r)) {
@@ -283,19 +276,8 @@ public class QuadTreeDrawing extends AbstractDrawing {
         // empty
     }
 
-    public void setCanvasSize(Dimension2DDouble newValue) {
-        Dimension2DDouble oldValue = canvasSize;
-        canvasSize = (newValue == null) ? null : (Dimension2DDouble) newValue.clone();
-        firePropertyChange("canvasSize", oldValue, newValue);
-    }
-
-    public Dimension2DDouble getCanvasSize() {
-        return (canvasSize == null) ? null : (Dimension2DDouble) canvasSize.clone();
-    }
-
     public QuadTreeDrawing clone() {
         QuadTreeDrawing that = (QuadTreeDrawing) super.clone();
-        that.canvasSize = (this.canvasSize == null) ? null : (Dimension2DDouble) this.canvasSize.clone();
         that.quadTree = new QuadTree<Figure>();
         for (Figure f : getChildren()) {
             quadTree.add(f, f.getDrawingArea());

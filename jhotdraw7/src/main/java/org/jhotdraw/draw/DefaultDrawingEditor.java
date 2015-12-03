@@ -1,5 +1,5 @@
 /*
- * @(#)DefaultDrawingEditor.java  3.2.2  2008-06-08
+ * @(#)DefaultDrawingEditor.java
  *
  * Copyright (c) 1996-2008 by the original authors of JHotDraw
  * and all its contributors.
@@ -15,33 +15,19 @@ package org.jhotdraw.draw;
 
 import org.jhotdraw.beans.*;
 import java.awt.*;
-import java.awt.datatransfer.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.beans.*;
 import java.util.*;
-import java.io.*;
 import javax.swing.JComponent;
 import static org.jhotdraw.draw.AttributeKeys.*;
 
 /**
- * DefaultDrawingEditor.
- * <p>
- * Design pattern:<br>
- * Name: Proxy.<br>
- * Role: Subject.<br>
- * Partners: {@link org.jhotdraw.draw.action.DrawingEditorProxy} as Proxy, {@link DrawingEditor} as
- * Subject.
+ * A default implementation of {@link DrawingEditor}.
+ *
+ * XXX - DefaultDrawingEditor should not publicly implement ToolListener.
  *
  * @author Werner Randelshofer
- * @version 3.2.2 Method getActiveView must fires now a PropertyChangeEvent, if
- * it automatically activates the first view of the editor. 
- * <br>3.2.1 2008-04-12 Method getDefaultAttribute returns default value of 
- * AttributeKey when the AttributeKey is not in the attribute map. 
- * <br>3.2 2007-04-22 Keep last focus view, even if we lost focus permanently.
- * <br>3.1 2007-04-16 Added method getDefaultAttributes.
- * <br>3.0 2006-02-13 Revised to handle multiple drawing views.
- * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
+ * @version $Id$
  */
 public class DefaultDrawingEditor extends AbstractBean implements DrawingEditor, ToolListener {
 
@@ -141,26 +127,25 @@ public class DefaultDrawingEditor extends AbstractBean implements DrawingEditor,
     }
 
     public DrawingView getActiveView() {
-        if (activeView == null && views.size() != 0) {
-           setActiveView(views.iterator().next());
-        }
         return activeView;
     }
 
     private void updateActiveView() {
+        DrawingView aView=null;
         for (DrawingView v : views) {
             if (v.getComponent().isFocusOwner()) {
                 setActiveView(v);
                 return;
             }
+            aView = v;
         }
-        setActiveView(null);
+        setActiveView(aView);
     }
 
     @SuppressWarnings("unchecked")
     public void applyDefaultAttributesTo(Figure f) {
         for (Map.Entry<AttributeKey, Object> entry : defaultAttributes.entrySet()) {
-            entry.getKey().basicSet(f, entry.getValue());
+            f.set(entry.getKey(), entry.getValue());
         }
     }
 
