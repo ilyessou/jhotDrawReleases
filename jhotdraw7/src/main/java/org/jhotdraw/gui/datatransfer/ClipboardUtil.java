@@ -41,7 +41,8 @@ public class ClipboardUtil {
 
         // Try to access the system clipboard
         try {
-            instance = new AWTClipboard(Toolkit.getDefaultToolkit().getSystemClipboard());
+//          instance = new AWTClipboard(Toolkit.getDefaultToolkit().getSystemClipboard());
+            instance = new OSXClipboard(Toolkit.getDefaultToolkit().getSystemClipboard());
         } catch (SecurityException e1) {
 
             // Fall back to JNLP ClipboardService
@@ -58,6 +59,11 @@ public class ClipboardUtil {
         return instance;
     }
 
+    /** Sets the Clipboard singleton used by the JHotDraw framework.
+     * <p>
+     * If you set this null, the next call to getClipboard will create a new
+     * singleton.
+     */
     public static void setClipboard(Clipboard instance) {
         ClipboardUtil.instance = instance;
     }

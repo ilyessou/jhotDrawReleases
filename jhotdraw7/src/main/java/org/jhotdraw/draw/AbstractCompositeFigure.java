@@ -49,11 +49,11 @@ public abstract class AbstractCompositeFigure
      */
     protected ArrayList<Figure> children = new ArrayList<Figure>();
     /**
-     * Cached draw cachedBounds.
+     * Caches the drawing area to improve the performance of method {@link #getDrawingArea}.
      */
     protected transient Rectangle2D.Double cachedDrawingArea;
     /**
-     * Cached layout cachedBounds.
+     * Caches the bounds to improve the performance of method {@link #getBounds}.
      */
     protected transient Rectangle2D.Double cachedBounds;
     /**
@@ -607,7 +607,7 @@ public abstract class AbstractCompositeFigure
                 cachedDrawingArea = new Rectangle2D.Double();
             } else {
                 for (Figure f : children) {
-                    if (cachedDrawingArea == null || cachedDrawingArea.isEmpty()) {
+                    if (cachedDrawingArea == null) {
                         cachedDrawingArea = f.getDrawingArea();
                     } else {
                         cachedDrawingArea.add(f.getDrawingArea());
@@ -624,7 +624,7 @@ public abstract class AbstractCompositeFigure
                 cachedBounds = new Rectangle2D.Double();
             } else {
                 for (Figure f : children) {
-                    if (cachedBounds == null || cachedBounds.isEmpty()) {
+                    if (cachedBounds == null) {
                         cachedBounds = f.getBounds();
                     } else {
                         cachedBounds.add(f.getBounds());
