@@ -1,18 +1,16 @@
 /*
  * @(#)BezierNodeHandle.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.handle;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.event.BezierNodeEdit;
 import org.jhotdraw.draw.*;
 import javax.swing.undo.AbstractUndoableEdit;
@@ -32,14 +30,14 @@ import static org.jhotdraw.draw.AttributeKeys.*;
  *
  *
  * @author Werner Randelshofer
- * @version $Id: BezierNodeHandle.java -1   $
+ * @version $Id$
  */
 public class BezierNodeHandle extends AbstractHandle {
 
     protected int index;
     private CompositeEdit edit;
     private BezierPath.Node oldNode;
-    private Figure transformOwner;
+    @Nullable private Figure transformOwner;
 
     /** Creates a new instance. */
     public BezierNodeHandle(BezierFigure owner, int index) {
@@ -111,6 +109,7 @@ public class BezierNodeHandle extends AbstractHandle {
         }
     }
 
+    @Nullable
     protected BezierPath.Node getBezierNode() {
         return getOwner().getNodeCount() > index ? getOwner().getNode(index) : null;
     }
@@ -133,8 +132,6 @@ public class BezierNodeHandle extends AbstractHandle {
     public void trackStart(Point anchor, int modifiersEx) {
         BezierFigure figure = getOwner();
         view.getDrawing().fireUndoableEditHappened(edit = new CompositeEdit("Punkt verschieben"));
-        Point2D.Double location = view.getConstrainer().constrainPoint(view.viewToDrawing(getLocation()));
-        Point2D.Double p = view.getConstrainer().constrainPoint(view.viewToDrawing(anchor));
         oldNode = figure.getNode(index);
         fireHandleRequestSecondaryHandles();
     }

@@ -1,19 +1,17 @@
 /*
  * @(#)MessagePanel.java
  *
- * Copyright (c) 2007 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2007 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and
- * contributors of the JHotDraw project ("the copyright holders").
- * You may not use, copy or modify this software, except in
- * accordance with the license agreement you entered into with
- * the copyright holders. For details see accompanying license terms.
+ * You may not use, copy or modify this file, except in compliance with the
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.samples.svg.gui;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
@@ -31,7 +29,7 @@ import org.jhotdraw.util.*;
  * @version $Id$
  */
 public class MessagePanel extends javax.swing.JPanel {
-    private EventListenerList listeners;
+    @Nullable private EventListenerList listeners;
     private ResourceBundleUtil labels;
     
     /** Creates new instance. */
@@ -39,17 +37,17 @@ public class MessagePanel extends javax.swing.JPanel {
         this(null, null);
     }
     
-    public MessagePanel(Icon icon, String message) {
+    public MessagePanel(@Nullable Icon icon, @Nullable String message) {
         labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.svg.Labels");
         initComponents();
         setIcon(icon);
         setMessage(message);
     }
     
-    public void setMessage(String message) {
+    public void setMessage(@Nullable String message) {
         messageLabel.setText(message);
     }
-    public void setIcon(Icon icon) {
+    public void setIcon(@Nullable Icon icon) {
         iconLabel.setIcon(icon);
     }
     public void addActionListener(ActionListener listener) {

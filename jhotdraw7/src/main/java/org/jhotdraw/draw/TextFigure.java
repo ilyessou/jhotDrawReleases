@@ -1,18 +1,16 @@
 /*
  * @(#)TextFigure.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.tool.Tool;
 import org.jhotdraw.draw.tool.TextEditingTool;
 import org.jhotdraw.draw.handle.FontSizeHandle;
@@ -47,7 +45,7 @@ public class TextFigure extends AbstractAttributedDecoratedFigure
     protected Point2D.Double origin = new Point2D.Double();
     protected boolean editable = true;
     // cache of the TextFigure's layout
-    transient protected TextLayout textLayout;
+    @Nullable transient protected TextLayout textLayout;
 
     /** Creates a new instance. */
     public TextFigure() {

@@ -1,21 +1,17 @@
 /*
  * @(#)VerticalLayouter.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.layouter;
 
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.CompositeFigure;
-import org.jhotdraw.draw.layouter.AbstractLayouter;
 import java.awt.geom.*;
 import org.jhotdraw.geom.*;
 import static org.jhotdraw.draw.AttributeKeys.*;
@@ -44,6 +40,7 @@ public class VerticalLayouter extends AbstractLayouter {
      */
     private Alignment defaultAlignment = Alignment.BLOCK;
 
+    @Override
     public Rectangle2D.Double calculateLayout(CompositeFigure layoutable, Point2D.Double anchor, Point2D.Double lead) {
         Insets2D.Double layoutInsets = layoutable.get(LAYOUT_INSETS);
         if (layoutInsets == null) {
@@ -64,6 +61,7 @@ public class VerticalLayouter extends AbstractLayouter {
         return layoutBounds;
     }
 
+    @Override
     public Rectangle2D.Double layout(CompositeFigure layoutable, Point2D.Double anchor, Point2D.Double lead) {
         Insets2D.Double layoutInsets = layoutable.get(LAYOUT_INSETS);
         Alignment compositeAlignment = layoutable.get(COMPOSITE_ALIGNMENT);

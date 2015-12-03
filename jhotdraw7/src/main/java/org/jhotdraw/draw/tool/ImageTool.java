@@ -1,15 +1,12 @@
 /*
  * @(#)ImageTool.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.tool;
 
@@ -19,6 +16,7 @@ import java.io.*;
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
+import javax.annotation.Nullable;
 import org.jhotdraw.gui.Worker;
 
 /**
@@ -48,8 +46,8 @@ import org.jhotdraw.gui.Worker;
  */
 public class ImageTool extends CreationTool {
 
-    protected FileDialog fileDialog;
-    protected JFileChooser fileChooser;
+    @Nullable protected FileDialog fileDialog;
+    @Nullable protected JFileChooser fileChooser;
     protected boolean useFileDialog;
     protected Thread workerThread;
 

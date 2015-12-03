@@ -1,18 +1,16 @@
 /*
  * @(#)AbstractDrawingViewAction.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.action;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.DrawingView;
@@ -44,9 +42,9 @@ import org.jhotdraw.beans.WeakPropertyChangeListener;
  */
 public abstract class AbstractDrawingViewAction extends AbstractAction implements Disposable {
 
-    private DrawingEditor editor;
-    private DrawingView specificView;
-    transient private DrawingView activeView;
+    @Nullable private DrawingEditor editor;
+    @Nullable private DrawingView specificView;
+    @Nullable transient private DrawingView activeView;
 
     private class EventHandler implements PropertyChangeListener {
 
@@ -73,24 +71,24 @@ public abstract class AbstractDrawingViewAction extends AbstractAction implement
             return AbstractDrawingViewAction.this+"^$EventHandler";
         }
     };
-    private EventHandler eventHandler = new EventHandler();
+    @Nullable private EventHandler eventHandler = new EventHandler();
 
     /**
      * Creates a view action which acts on the current view of the editor.
      */
-    public AbstractDrawingViewAction(DrawingEditor editor) {
+    public AbstractDrawingViewAction(@Nullable DrawingEditor editor) {
         setEditor(editor);
     }
 
     /**
      * Creates a view action which acts on the specified view.
      */
-    public AbstractDrawingViewAction(DrawingView view) {
+    public AbstractDrawingViewAction(@Nullable DrawingView view) {
         this.specificView = view;
         registerEventHandler();
     }
 
-    protected void setEditor(DrawingEditor newValue) {
+    protected void setEditor(@Nullable DrawingEditor newValue) {
         if (eventHandler != null) {
             unregisterEventHandler();
         }
@@ -101,12 +99,13 @@ public abstract class AbstractDrawingViewAction extends AbstractAction implement
         }
     }
 
-    protected DrawingEditor getEditor() {
+    @Nullable protected DrawingEditor getEditor() {
         return editor;
     }
 
+    @Nullable
     protected DrawingView getView() {
-        return (specificView != null) ? specificView : editor.getActiveView();
+        return (specificView != null || editor==null) ? specificView : editor.getActiveView();
     }
 
     protected Drawing getDrawing() {

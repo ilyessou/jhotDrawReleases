@@ -1,26 +1,23 @@
 /*
  * @(#)Handle.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 
 package org.jhotdraw.draw.handle;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.event.HandleListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import org.jhotdraw.annotations.NotNull;
 
 /**
  * A <em>handle</em> is used to change one aspect of a {@link Figure} by direct
@@ -73,7 +70,6 @@ import org.jhotdraw.annotations.NotNull;
  * @author Werner Randelshofer
  * @version $Id$
  */
-@NotNull
 public interface Handle extends KeyListener {
     /**
      * Returns the owner of this handle.
@@ -82,7 +78,7 @@ public interface Handle extends KeyListener {
     /**
      * Sets the view of the handle.
      */
-    public void setView(DrawingView view);
+    public void setView(@Nullable DrawingView view);
     /**
      * Adds a listener for this handle.
      */
@@ -177,9 +173,9 @@ public interface Handle extends KeyListener {
     /**
      * Creates secondary handles.
      */
-    public Collection<Handle> createSecondaryHandles();
+    @Nullable public Collection<Handle> createSecondaryHandles();
     /**
      * Returns a tooltip for the specified location.
      */
-    public String getToolTipText(Point p);
+    @Nullable public String getToolTipText(Point p);
 }

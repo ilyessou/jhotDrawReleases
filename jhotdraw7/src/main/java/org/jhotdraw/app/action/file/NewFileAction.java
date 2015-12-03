@@ -1,15 +1,12 @@
 /*
  * @(#)NewFileAction.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.app.action.file;
@@ -54,21 +51,21 @@ public class NewFileAction extends AbstractApplicationAction {
     @Override
     public void actionPerformed(ActionEvent evt) {
         Application app = getApplication();
-        final View newP = app.createView();
+        final View newView = app.createView();
         int multiOpenId = 1;
         for (View existingP : app.views()) {
             if (existingP.getURI() == null) {
                 multiOpenId = Math.max(multiOpenId, existingP.getMultipleOpenId() + 1);
             }
         }
-        newP.setMultipleOpenId(multiOpenId);
-        app.add(newP);
-        newP.execute(new Runnable() {
+        newView.setMultipleOpenId(multiOpenId);
+        app.add(newView);
+        newView.execute(new Runnable() {
             @Override
             public void run() {
-                newP.clear();
+                newView.clear();
             }
         });
-        app.show(newP);
+        app.show(newView);
     }
 }

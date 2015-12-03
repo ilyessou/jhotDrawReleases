@@ -1,18 +1,16 @@
 /*
  * @(#)BezierBezierLineConnection.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.liner.Liner;
 import org.jhotdraw.draw.event.FigureAdapter;
 import org.jhotdraw.draw.event.FigureEvent;
@@ -48,7 +46,7 @@ public class LineConnectionFigure extends LineFigure
     public final static String LINER_PROPERTY = "liner";
     private Connector startConnector;
     private Connector endConnector;
-    private Liner liner;
+    @Nullable private Liner liner;
     /**
      * Handles figure changes in the start and the
      * end figure.

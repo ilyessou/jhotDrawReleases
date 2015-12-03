@@ -1,19 +1,19 @@
 /**
  * @(#)PaletteLookAndFeel.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.gui.plaf.palette;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.*;
+import java.util.Enumeration;
+import java.util.ResourceBundle;
 import javax.swing.*;
 import javax.swing.UIDefaults.*;
 import javax.swing.border.Border;
@@ -24,7 +24,7 @@ import javax.swing.plaf.basic.*;
  * A LookAndFeel for components in the palette windows of a drawing editor.
  *
  * @author Werner Randelshofer
- * @version $Id$
+ * @version $Id$
  */
 public class PaletteLookAndFeel extends BasicLookAndFeel {
 
@@ -201,11 +201,21 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
     protected void initComponentDefaults(UIDefaults table) {
         super.initComponentDefaults(table);
 
+        // Add resource bundle to the table.
+        // Since this does not seem to work in sandboxed environments, we check
+        // whether we succeeded and - in case of failure - put the values in
+        // by ourselves.
         table.addResourceBundle("org.jhotdraw.gui.Labels");
-
+        if (table.getString("ColorChooser.rgbSliders") == null) {
+            ResourceBundle rb = ResourceBundle.getBundle("org.jhotdraw.gui.Labels");
+            for (Enumeration<String> keys = rb.getKeys(); keys.hasMoreElements();) {
+                String key = keys.nextElement();
+                table.put(key, rb.getObject(key));
+            }
+        }
         // *** Shared Fonts
-        Integer fontPlain = new Integer(Font.PLAIN);
-        Integer fontBold = new Integer(Font.BOLD);
+        Integer fontPlain = Font.PLAIN;
+        Integer fontBold = Font.BOLD;
         Object dialogPlain11 = new ProxyLazyValue(
                 "javax.swing.plaf.FontUIResource",
                 null,
@@ -218,18 +228,6 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
                 "javax.swing.plaf.FontUIResource",
                 null,
                 new Object[]{"Verdana", fontPlain, 12});
-        Object serifPlain12 = new ProxyLazyValue(
-                "javax.swing.plaf.FontUIResource",
-                null,
-                new Object[]{"Serif", fontPlain, 12});
-        Object sansSerifPlain12 = new ProxyLazyValue(
-                "javax.swing.plaf.FontUIResource",
-                null,
-                new Object[]{"SansSerif", fontPlain, 12});
-        Object monospacedPlain12 = new ProxyLazyValue(
-                "javax.swing.plaf.FontUIResource",
-                null,
-                new Object[]{"MonoSpaced", fontPlain, 12});
         Object dialogBold12 = new ProxyLazyValue(
                 "javax.swing.plaf.FontUIResource",
                 null,
@@ -253,7 +251,6 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
 
         // *** Shared Insets
         InsetsUIResource zeroInsets = new InsetsUIResource(0, 0, 0, 0);
-        InsetsUIResource twoInsets = new InsetsUIResource(2, 2, 2, 2);
 
         // *** Shared Borders
 	/*Object buttonBorder = 
@@ -364,6 +361,7 @@ public class PaletteLookAndFeel extends BasicLookAndFeel {
      * Returns the ui that is of type <code>klass</code>, or null if
      * one can not be found.
      */
+    @Nullable
     static Object getUIOfType(ComponentUI ui, Class klass) {
         if (klass.isInstance(ui)) {
             return ui;

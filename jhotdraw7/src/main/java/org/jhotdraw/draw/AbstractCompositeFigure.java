@@ -1,18 +1,16 @@
 /*
  * @(#)AbstractCompositeFigure.java
  *
- * Copyright (c) 2007-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2007-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.layouter.Layouter;
 import org.jhotdraw.draw.event.FigureAdapter;
 import org.jhotdraw.draw.event.FigureEvent;
@@ -60,11 +58,11 @@ public abstract class AbstractCompositeFigure
     /**
      * Caches the drawing area to improve the performance of method {@link #getDrawingArea}.
      */
-    protected transient Rectangle2D.Double cachedDrawingArea;
+    @Nullable protected transient Rectangle2D.Double cachedDrawingArea;
     /**
      * Caches the bounds to improve the performance of method {@link #getBounds}.
      */
-    protected transient Rectangle2D.Double cachedBounds;
+    @Nullable protected transient Rectangle2D.Double cachedBounds;
     /**
      * Handles figure changes in the children.
      */
@@ -227,9 +225,11 @@ public abstract class AbstractCompositeFigure
      * @see #add
      */
     public void removeAll(Collection<? extends Figure> figures) {
-        for (Figure f : figures) {
+        willChange();
+        for (Figure f : new LinkedList<Figure>(figures)) {
             remove(f);
         }
+        changed();
     }
 
     /**
@@ -239,14 +239,7 @@ public abstract class AbstractCompositeFigure
      */
     @Override
     public void removeAllChildren() {
-        willChange();
-        for (Figure f : new LinkedList<Figure>(getChildren())) {
-            if (getDrawing() != null) {
-                f.removeNotify(getDrawing());
-            }
-            int index = basicRemove(f);
-        }
-        changed();
+        removeAll(getChildren());
     }
 
     /**
@@ -407,7 +400,7 @@ public abstract class AbstractCompositeFigure
     }
 
     @Override
-    public Figure findFigureInside(Point2D.Double p) {
+    @Nullable public Figure findFigureInside(Point2D.Double p) {
         if (getDrawingArea().contains(p)) {
             Figure found = null;
             for (Figure child : getChildrenFrontToBack()) {
@@ -422,7 +415,7 @@ public abstract class AbstractCompositeFigure
         return null;
     }
 
-    public Figure findChild(Point2D.Double p) {
+    @Nullable public Figure findChild(Point2D.Double p) {
         if (getBounds().contains(p)) {
             Figure found = null;
             for (Figure child : getChildrenFrontToBack()) {
@@ -461,12 +454,17 @@ public abstract class AbstractCompositeFigure
      */
     @Override
     public void layout() {
+        // Note: We increase and below decrease the changing depth here,
+        //       because we want to ignore change events from our children
+        //       why we lay them out.
+        changingDepth++;
         for (Figure child : getChildren()) {
             if (child instanceof CompositeFigure) {
                 CompositeFigure cf = (CompositeFigure) child;
                 cf.layout();
             }
         }
+        changingDepth--;
         if (getLayouter() != null) {
             Rectangle2D.Double bounds = getBounds();
             Point2D.Double p = new Point2D.Double(bounds.x, bounds.y);

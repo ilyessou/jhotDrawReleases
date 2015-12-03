@@ -1,15 +1,12 @@
 /*
  * @(#)ColorTrackImageProducer.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.color;
@@ -30,8 +27,6 @@ import javax.swing.*;
 public class ColorTrackImageProducer extends MemoryImageSource {
     private int[] pixels;
     private int w, h;
-    private float[] baseComponents;
-    private int component;
     private int trackBuffer;
     private ColorSliderModel colorizer = new DefaultColorSliderModel(ColorSpace.getInstance(ColorSpace.CS_sRGB));
     private boolean isDirty = true;
@@ -45,7 +40,7 @@ public class ColorTrackImageProducer extends MemoryImageSource {
         this.w = w;
         this.h = h;
         // trackBuffer must be even
-        this.trackBuffer = (trackBuffer % 2 == 1) ? trackBuffer - 1 : trackBuffer;
+        this.trackBuffer = ((trackBuffer & 1) == 0) ? trackBuffer : trackBuffer - 1;
         //this.componentIndex = componentIndex;
         this.isHorizontal = isHorizontal;
         newPixels(pixels, new DirectColorModel(24,
@@ -125,15 +120,6 @@ public class ColorTrackImageProducer extends MemoryImageSource {
             for (int y=0, n = w*h; y < n; y+=w) {
                 pixels[x + y] = pixels[x - 1 + y];
             }
-        }
-    }
-    
-    public void setBaseComponents(BoundedRangeModel[] components) {
-        isDirty = true;
-        //isDirty = isDirty || colorizer.needsRegeneration(this.baseRGB, baseRGB);
-        //this.baseRGB = baseRGB;
-        for (int i=0; i < components.length; i++) {
-            baseComponents[i] = components[i].getValue() / (float) components[i].getMaximum();
         }
     }
     

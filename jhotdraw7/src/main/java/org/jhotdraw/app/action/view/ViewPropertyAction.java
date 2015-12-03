@@ -1,19 +1,17 @@
 /*
  * @(#)ViewPropertyAction.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.app.action.view;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.event.*;
 import java.beans.*;
 import org.jhotdraw.app.Application;
@@ -44,10 +42,10 @@ public class ViewPropertyAction extends AbstractViewAction {
     };
     
     /** Creates a new instance. */
-    public ViewPropertyAction(Application app, View view, String propertyName, Object propertyValue) {
+    public ViewPropertyAction(Application app, @Nullable View view, String propertyName, Object propertyValue) {
         this(app, view, propertyName, propertyValue.getClass(), propertyValue);
     }
-    public ViewPropertyAction(Application app, View view, String propertyName, Class propertyClass, Object propertyValue) {
+    public ViewPropertyAction(Application app, @Nullable View view, String propertyName, Class propertyClass, Object propertyValue) {
         super(app, view);
         this.propertyName = propertyName;
         this.parameterClass = new Class[] { propertyClass };

@@ -1,15 +1,12 @@
 /*
  * @(#)NetView.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  *
  */
 package org.jhotdraw.samples.net;
@@ -66,7 +63,6 @@ public class NetView extends AbstractView {
     public NetView() {
         initComponents();
 
-        JPanel zoomButtonPanel = new JPanel(new BorderLayout());
         scrollPane.setLayout(new PlacardScrollPaneLayout());
         scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 
@@ -223,26 +219,6 @@ public class NetView extends AbstractView {
             e.initCause(e);
             throw error;
         }
-    }
-
-    /**
-     * Sets a drawing editor for the view.
-     */
-    public void setDrawingEditor(DrawingEditor newValue) {
-        if (editor != null) {
-            editor.remove(view);
-        }
-        editor = newValue;
-        if (editor != null) {
-            editor.add(view);
-        }
-    }
-
-    /**
-     * Gets the drawing editor of the view.
-     */
-    public DrawingEditor getDrawingEditor() {
-        return editor;
     }
 
     /**

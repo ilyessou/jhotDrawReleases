@@ -1,15 +1,12 @@
 /**
  * @(#)DefaultFontModel.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.gui.fontchooser;
 
@@ -38,7 +35,7 @@ import org.jhotdraw.util.ResourceBundleUtil;
  * </pre>
  * 
  * @author Werner Randelshofer
- * @version $Id$
+ * @version $Id$
  */
 public class DefaultFontChooserModel extends AbstractFontChooserModel {
 
@@ -363,7 +360,7 @@ public class DefaultFontChooserModel extends AbstractFontChooserModel {
                 // Fonts on Windows Vista
                 "Segoe Print",
                 "Segoe Script")));
-        
+
         // Monospaced
         root.add(
                 new FontCollectionNode(labels.getString("FontCollection.monospaced"), collectFamiliesNamed(families,
@@ -393,7 +390,7 @@ public class DefaultFontChooserModel extends AbstractFontChooserModel {
                 "DotumChe",
                 "Miriam Fixed",
                 "Rod")));
-        
+
         // Decorative
         root.add(
                 new FontCollectionNode(labels.getString("FontCollection.decorative"), collectFamiliesNamed(families,
@@ -484,8 +481,7 @@ public class DefaultFontChooserModel extends AbstractFontChooserModel {
                 "Showcard Gothic",
                 "Slimbach-Black",
                 "Slimbach-BlackItalic",
-                "Snap ITC"
-                // Fonts on Windows Vista:
+                "Snap ITC" // Fonts on Windows Vista:
                 )));
         root.add(
                 new FontCollectionNode(labels.getString("FontCollection.symbols"), collectFamiliesNamed(families,
@@ -506,10 +502,8 @@ public class DefaultFontChooserModel extends AbstractFontChooserModel {
                 //
                 // Fonts on Windows XP:
 
-                "Bookshelf Symbol"
-                //
+                "Bookshelf Symbol" //
                 // Fonts on Windows Vista:
-
                 )));
 
         // Collect font families, which are not in one of the other collections
@@ -553,18 +547,16 @@ public class DefaultFontChooserModel extends AbstractFontChooserModel {
         boolean result = true;
         if (node instanceof FontFaceNode) {
             result &= ((FontFaceNode) node).isEditable();
-            node =
-                    (MutableTreeNode) node.getParent();
+            node = (MutableTreeNode) node.getParent();
         }
 
         if (result && (node instanceof FontFamilyNode)) {
             result &= ((FontFamilyNode) node).isEditable();
-            node =
-                    (MutableTreeNode) node.getParent();
+            node = (MutableTreeNode) node.getParent();
         }
 
         if (result && (node instanceof FontCollectionNode)) {
-            result &= ((FontFamilyNode) node).isEditable();
+            result &= ((FontCollectionNode) node).isEditable();
         }
 
         return result;

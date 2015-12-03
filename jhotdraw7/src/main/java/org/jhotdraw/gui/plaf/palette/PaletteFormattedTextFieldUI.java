@@ -1,15 +1,12 @@
 /**
  * @(#)PaletteTextFieldUI.java
  *
- * Copyright (c) 2009-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2009-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.gui.plaf.palette;
 
@@ -25,7 +22,7 @@ import javax.swing.text.*;
  * PaletteFormattedTextFieldUI.
  *
  * @author Werner Randelshofer
- * @version $Id$
+ * @version $Id$
  */
 public class PaletteFormattedTextFieldUI extends BasicFormattedTextFieldUI {
     private Color errorIndicatorForeground;
@@ -55,85 +52,6 @@ public class PaletteFormattedTextFieldUI extends BasicFormattedTextFieldUI {
          * Draws a wavy line if the value of the field is not valid.
          */
         return new FieldView(elem) {
-
-            /**
-             * Adjusts the allocation given to the view
-             * to be a suitable allocation for a text field.
-             * If the view has been allocated more than the
-             * preferred span vertically, the allocation is
-             * changed to be centered vertically.  Horizontally
-             * the view is adjusted according to the horizontal
-             * alignment property set on the associated JTextField
-             * (if that is the type of the hosting component).
-             *
-             * @param a the allocation given to the view, which may need
-             *  to be adjusted.
-             * @return the allocation that the superclass should use.
-             */
-            protected Shape adjustAllocationXX(Shape a) {
-                if (a != null) {
-                    Rectangle bounds = a.getBounds();
-                    int vspan = (int) getPreferredSpan(Y_AXIS);
-                    int hspan = (int) getPreferredSpan(X_AXIS);
-                    if (bounds.height != vspan) {
-                        int slop = bounds.height - vspan;
-                        bounds.y += slop / 2;
-                        bounds.height -= slop;
-                    }
-
-                    // horizontal adjustments
-                    Component c = getContainer();
-                    if (c instanceof JTextField) {
-                        JTextField field = (JTextField) c;
-                        BoundedRangeModel vis = field.getHorizontalVisibility();
-                        int max = Math.max(hspan, bounds.width);
-                        int value = vis.getValue();
-                        int extent = Math.min(max, bounds.width - 1);
-                        if ((value + extent) > max) {
-                            value = max - extent;
-                        }
-                        vis.setRangeProperties(value, extent, vis.getMinimum(),
-                                max, false);
-                        if (hspan < bounds.width) {
-                            // horizontally align the interior
-                            int slop = bounds.width - 1 - hspan;
-
-                            int align = ((JTextField) c).getHorizontalAlignment();
-                            if (true /*((JComponent) c).isLeftToRight()*/) {
-                                if (align == LEADING) {
-                                    align = LEFT;
-                                } else if (align == TRAILING) {
-                                    align = RIGHT;
-                                }
-                            } else {
-                                if (align == LEADING) {
-                                    align = RIGHT;
-                                } else if (align == TRAILING) {
-                                    align = LEFT;
-                                }
-                            }
-
-                            switch (align) {
-                                case SwingConstants.CENTER:
-                                    bounds.x += slop / 2;
-                                    bounds.width -= slop;
-                                    break;
-                                case SwingConstants.RIGHT:
-                                    bounds.x += slop;
-                                    bounds.width -= slop;
-                                    break;
-                            }
-                        } else {
-                            // adjust the allocation to match the bounded range.
-                            bounds.width = hspan;
-                            bounds.x -= vis.getValue();
-                        }
-                    }
-                    return bounds;
-                }
-                return null;
-            }
-
             @Override
             public void paint(Graphics gr, Shape a) {
                 Graphics2D g = (Graphics2D) gr;

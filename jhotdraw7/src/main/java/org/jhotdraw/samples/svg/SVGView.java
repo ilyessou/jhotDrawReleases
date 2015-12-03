@@ -1,19 +1,17 @@
 /*
  * @(#)SVGView.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  *
  */
 package org.jhotdraw.samples.svg;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.app.action.edit.RedoAction;
 import org.jhotdraw.app.action.edit.UndoAction;
 import org.jhotdraw.draw.io.InputFormat;
@@ -51,15 +49,13 @@ public class SVGView extends AbstractView {
      * This allows for undoing and redoing actions per view.
      */
     private UndoRedoManager undo;
-    private PropertyChangeListener propertyHandler;
+    @Nullable private PropertyChangeListener propertyHandler;
 
     /**
      * Creates a new View.
      */
     public SVGView() {
         initComponents();
-
-        JPanel zoomButtonPanel = new JPanel(new BorderLayout());
 
         undo = svgPanel.getUndoRedoManager();
         Drawing oldDrawing = svgPanel.getDrawing();
@@ -78,7 +74,6 @@ public class SVGView extends AbstractView {
 
     @Override
     public void dispose() {
-        DrawingEditor e = getEditor();
         clear();
 
         undo.removePropertyChangeListener(propertyHandler);
@@ -157,7 +152,6 @@ public class SVGView extends AbstractView {
                 fileFilterInputFormatMap = (HashMap<javax.swing.filechooser.FileFilter, InputFormat>) fc.getClientProperty(SVGApplicationModel.INPUT_FORMAT_MAP_CLIENT_PROPERTY);
             }
             //private HashMap<javax.swing.filechooser.FileFilter, OutputFormat> fileFilterOutputFormatMap;
-
 
             InputFormat selectedFormat = (fc == null) ? null : fileFilterInputFormatMap.get(fc.getFileFilter());
             boolean success = false;

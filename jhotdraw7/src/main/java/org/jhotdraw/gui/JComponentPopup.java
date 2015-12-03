@@ -1,23 +1,22 @@
 /*
  * @(#)JComponentPopup.java
  * 
- * Copyright (c) 2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  * 
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.gui;
 
 import java.awt.AWTEvent;
 import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.MouseEvent;
+import java.security.AccessControlException;
 import javax.swing.JLayeredPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
@@ -33,6 +32,9 @@ import javax.swing.SwingUtilities;
  * @version $Id$
  */
 public class JComponentPopup extends JPopupMenu {
+
+    /** Wether we are permitted to listen on AWT events. */
+    private boolean isAWTEventListenerPermitted = true;
 
     private class Handler implements AWTEventListener {
 
@@ -58,7 +60,7 @@ public class JComponentPopup extends JPopupMenu {
                     while (srcLPChild.getParent() != srcLP) {
                         srcLPChild = srcLPChild.getParent();
                     }
-                    if (srcLPChild == null || srcLP.getLayer(srcLPChild) < JLayeredPane.POPUP_LAYER) {
+                    if (srcLP.getLayer(srcLPChild) < JLayeredPane.POPUP_LAYER) {
                         JComponentPopup.this.setVisible(false);
                     }
                 }
@@ -81,24 +83,56 @@ public class JComponentPopup extends JPopupMenu {
 
     @Override
     public void menuSelectionChanged(boolean isIncluded) {
-        // Don't let the MenuSelectionManager hide this popup.
-        return;
-
-
+        if (isAWTEventListenerPermitted) {
+            // Don't let the MenuSelectionManager hide this popup.
+            return;
+        } else {
+            // Since we are not allowed to use an AWTEventListener we
+            // grab the current AWT Event ourselves (hoping that this method
+            // invocation is associated to it) and try to decide whether
+            // we want to close the popup.
+            //
+            // This will prevent undesired closing of the popup component when
+            // a combo box is opened on the popup component.
+            // After this happened though, menuSelectionChanged is not invoked
+            // anymore and we lose the ability to close the popup component.
+            AWTEvent evt = EventQueue.getCurrentEvent();
+            if (evt != null && evt.getSource() instanceof Component) {
+                Component src = (Component) evt.getSource();
+                Component invoker = getInvoker();
+                if (!SwingUtilities.isDescendingFrom(src, JComponentPopup.this)
+                        && SwingUtilities.getWindowAncestor(src)
+                        == SwingUtilities.getWindowAncestor(invoker)) {
+                    JLayeredPane srcLP = (JLayeredPane) SwingUtilities.getAncestorOfClass(JLayeredPane.class, src);
+                    Component srcLPChild = src;
+                    while (srcLPChild.getParent() != srcLP) {
+                        srcLPChild = srcLPChild.getParent();
+                    }
+                    if (srcLP.getLayer(srcLPChild) < JLayeredPane.POPUP_LAYER) {
+                        JComponentPopup.this.setVisible(false);
+                    }
+                }
+            } else {
+                super.menuSelectionChanged(isIncluded);
+            }
+        }
     }
 
     @Override
     public void setVisible(boolean newValue) {
         // Attach/detach AWTEventListener on "visible" property change.
         if (isVisible() != newValue) {
-            if (newValue) {
-                Toolkit.getDefaultToolkit().addAWTEventListener(handler, AWTEvent.MOUSE_EVENT_MASK);
-
-
-            } else {
-                Toolkit.getDefaultToolkit().removeAWTEventListener(handler);
-
-
+            if (isAWTEventListenerPermitted) {
+                try {
+                    if (newValue) {
+                        Toolkit.getDefaultToolkit().addAWTEventListener(handler, AWTEvent.MOUSE_EVENT_MASK);
+                    } else {
+                        Toolkit.getDefaultToolkit().removeAWTEventListener(handler);
+                    }
+                } catch (AccessControlException e) {
+                    // Unsigned Applets are not allowed to use an AWTEventListener.
+                    isAWTEventListenerPermitted = false;
+                }
             }
             super.setVisible(newValue);
 

@@ -1,15 +1,12 @@
 /*
  * @(#)DefaultDrawing.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw;
 
@@ -248,18 +245,19 @@ public class DefaultDrawing
         if (get(CANVAS_WIDTH) != null && get(CANVAS_HEIGHT) != null) {
             // Determine canvas color and opacity
             Color canvasColor = get(CANVAS_FILL_COLOR);
-            if (canvasColor != null) {
+            Double fillOpacity = get(CANVAS_FILL_OPACITY);
+            if (canvasColor != null && fillOpacity > 0) {
                 canvasColor = new Color(
                         (canvasColor.getRGB() & 0xffffff)
-                        | ((int) (get(CANVAS_FILL_OPACITY) * 255) << 24), true);
+                        | ((int) (fillOpacity * 255) << 24), true);
+
+                // Fill the canvas
+                Rectangle2D.Double r = new Rectangle2D.Double(
+                        0, 0, get(CANVAS_WIDTH), get(CANVAS_HEIGHT));
+
+                g.setColor(canvasColor);
+                g.fill(r);
             }
-
-            // Fill the canvas
-            Rectangle2D.Double r = new Rectangle2D.Double(
-                    0, 0, get(CANVAS_WIDTH), get(CANVAS_HEIGHT));
-
-            g.setColor(canvasColor);
-            g.fill(r);
         }
     }
 }

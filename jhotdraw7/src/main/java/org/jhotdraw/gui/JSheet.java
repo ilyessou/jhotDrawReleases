@@ -1,18 +1,16 @@
 /*
  * @(#)JSheet.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.gui;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
@@ -57,7 +55,7 @@ public class JSheet extends JDialog {
      * If this is non-null, we put the owner to the specified location,
      * when the sheet is hidden.
      */
-    private Point shiftBackLocation;
+    @Nullable private Point shiftBackLocation;
     /**
      * We need to keep track of the old owner position, in order to avoid
      * processing duplicate owner moved events.
@@ -93,7 +91,7 @@ public class JSheet extends JDialog {
      * Before we do this, we store the glass pane of the owner window here,
      * and restore it after we have finished.
      */
-    private Component ownersGlassPane;
+    @Nullable private Component ownersGlassPane;
 
     static {
         // SoyLatte doesn't properly support document modal dialogs yet.
@@ -401,8 +399,6 @@ public class JSheet extends JDialog {
             installSheet();
             getContentPane().setVisible(false);
 
-            final long startTime = System.currentTimeMillis();
-            final long endTime = startTime + 300;
             final Rectangle endBounds = getBounds();
             int parentWidth = getParent().getWidth();
             final Rectangle startBounds = new Rectangle(
@@ -534,7 +530,7 @@ public class JSheet extends JDialog {
      *   is lazily created using the parameters passed into
      *   the fire method.
      */
-    protected void fireOptionSelected(JOptionPane pane, int option, Object value, Object inputValue) {
+    protected void fireOptionSelected(JOptionPane pane, int option, @Nullable Object value, @Nullable Object inputValue) {
         SheetEvent sheetEvent = null;
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
@@ -703,7 +699,7 @@ public class JSheet extends JDialog {
      */
     public static void showConfirmSheet(Component parentComponent,
             Object message, int optionType,
-            int messageType, Icon icon, SheetListener listener) {
+            int messageType, @Nullable Icon icon, SheetListener listener) {
         showOptionSheet(parentComponent, message, optionType,
                 messageType, icon, null, null, listener);
     }
@@ -791,8 +787,8 @@ public class JSheet extends JDialog {
      * @param listener The listener for SheetEvents.
      */
     public static void showInputSheet(Component parentComponent,
-            Object message, int messageType, Icon icon,
-            Object[] selectionValues, Object initialSelectionValue, SheetListener listener) {
+            Object message, int messageType, @Nullable Icon icon,
+            @Nullable Object[] selectionValues, @Nullable Object initialSelectionValue, SheetListener listener) {
 
         JOptionPane pane = new JOptionPane(message, messageType,
                 JOptionPane.OK_CANCEL_OPTION, icon,
@@ -868,7 +864,13 @@ public class JSheet extends JDialog {
      */
     public static void showMessageSheet(Component parentComponent,
             Object message, int messageType) {
-        showMessageSheet(parentComponent, message, messageType, null, null);
+        showMessageSheet(parentComponent, message, messageType, null, new SheetListener() {
+
+            @Override
+            public void optionSelected(SheetEvent evt) {
+                // empty
+            }
+        });
     }
 
     /**
@@ -912,7 +914,7 @@ public class JSheet extends JDialog {
      * @param listener This listener is notified when the sheet is dismissed.
      */
     public static void showMessageSheet(Component parentComponent,
-            Object message, int messageType, Icon icon, SheetListener listener) {
+            Object message, int messageType, @Nullable Icon icon, SheetListener listener) {
         showOptionSheet(parentComponent, message, JOptionPane.DEFAULT_OPTION,
                 messageType, icon, null, null, listener);
     }
@@ -963,7 +965,7 @@ public class JSheet extends JDialog {
      */
     public static void showOptionSheet(Component parentComponent,
             Object message, int optionType, int messageType,
-            Icon icon, Object[] options, Object initialValue, SheetListener listener) {
+            @Nullable Icon icon, @Nullable Object[] options, @Nullable Object initialValue, SheetListener listener) {
 
         JOptionPane pane = new JOptionPane(message, messageType,
                 optionType, icon,
@@ -1021,7 +1023,6 @@ public class JSheet extends JDialog {
         sheet.addWindowListener(new WindowAdapter() {
 
             private boolean gotFocus = false;
-            int count;
 
             @Override
             public void windowClosing(WindowEvent we) {
@@ -1166,7 +1167,7 @@ public class JSheet extends JDialog {
      * @param listener The listener for SheetEvents.
      */
     public static void showSheet(final JFileChooser chooser, Component parent,
-            String approveButtonText, SheetListener listener) {
+            @Nullable String approveButtonText, SheetListener listener) {
         if (approveButtonText != null) {
             chooser.setApproveButtonText(approveButtonText);
             chooser.setDialogType(JFileChooser.CUSTOM_DIALOG);
@@ -1226,7 +1227,7 @@ public class JSheet extends JDialog {
      * @param listener The listener for SheetEvents.
      */
     public static void showSheet(final URIChooser chooser, Component parent,
-            String approveButtonText, SheetListener listener) {
+            @Nullable String approveButtonText, SheetListener listener) {
         if (approveButtonText != null) {
             chooser.setApproveButtonText(approveButtonText);
             chooser.setDialogType(URIChooser.CUSTOM_DIALOG);

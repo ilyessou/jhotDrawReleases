@@ -1,18 +1,16 @@
 /*
  * @(#)TextAreaCreationTool.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.tool;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.text.*;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.text.FloatingTextArea;
@@ -81,12 +79,12 @@ import org.jhotdraw.util.ResourceBundleUtil;
 public class TextAreaCreationTool extends CreationTool implements ActionListener {
 
     private FloatingTextArea textArea;
-    private TextHolderFigure typingTarget;
+    @Nullable private TextHolderFigure typingTarget;
     /**
      * Rubberband color of the tool. When this is null, the tool does not
      * draw a rubberband.
      */
-    private Color rubberbandColor = null;
+    @Nullable private Color rubberbandColor = null;
 
     /** Creates a new instance. */
     public TextAreaCreationTool(TextHolderFigure prototype) {
@@ -119,42 +117,10 @@ public class TextAreaCreationTool extends CreationTool implements ActionListener
      */
     @Override
     public void mousePressed(MouseEvent e) {
-        TextHolderFigure textHolder = null;
-
         // Note: The search sequence used here, must be
         // consistent with the search sequence used by the
         // HandleTracker, SelectAreaTracker, DelegationSelectionTool, SelectionTool.
 
-        // If possible, continue to work with the current selection
-        DrawingView v = getView();
-        Point2D.Double p = v.viewToDrawing(e.getPoint());
-        Figure pressedFigure = null;
-        if (true /*isSelectBehindEnabled()*/) {
-            for (Figure f : v.getSelectedFigures()) {
-                if (f.contains(p)) {
-                    pressedFigure = f;
-                    break;
-                }
-            }
-        }
-
-        // If the point is not contained in the current selection,
-        // search for a figure in the drawing.
-        if (pressedFigure == null) {
-            pressedFigure = getDrawing().findFigureInside(p);
-        }
-
-        // 
-        if (pressedFigure instanceof TextHolderFigure) {
-            textHolder = (TextHolderFigure) pressedFigure;
-                textHolder = null;
-        }
-
-        if (textHolder != null) {
-            createdFigure = null;
-            beginEdit(textHolder);
-            return;
-        }
         if (typingTarget != null) {
             endEdit();
             if (isToolDoneAfterCreation()) {

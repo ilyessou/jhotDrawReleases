@@ -1,18 +1,18 @@
 /*
  * @(#)LinkToolBar.java
  *
- * Copyright (c) 2009-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2009-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.samples.svg.gui;
 
+import org.jhotdraw.draw.gui.JAttributeTextField;
+import org.jhotdraw.draw.gui.JAttributeTextArea;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.event.FigureAttributeEditorHandler;
 import org.jhotdraw.draw.event.SelectionComponentDisplayer;
 import javax.swing.border.*;
@@ -37,7 +37,7 @@ import static org.jhotdraw.samples.svg.SVGAttributeKeys.*;
  */
 public class LinkToolBar extends AbstractToolBar {
 
-    private SelectionComponentDisplayer displayer;
+    @Nullable private SelectionComponentDisplayer displayer;
     private ResourceBundleUtil labels;
 
     /** Creates new instance. */
@@ -49,7 +49,6 @@ public class LinkToolBar extends AbstractToolBar {
 
     @Override
     public void setEditor(DrawingEditor newValue) {
-        DrawingEditor oldValue = getEditor();
         if (displayer != null) {
             displayer.dispose();
             displayer = null;

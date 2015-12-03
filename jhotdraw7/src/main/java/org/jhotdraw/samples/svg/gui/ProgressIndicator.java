@@ -1,18 +1,16 @@
 /*
  * @(#)ProgressIndicator.java
  *
- * Copyright (c) 2007-2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2007-2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.samples.svg.gui;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.*;
 import javax.swing.*;
 
@@ -33,16 +31,14 @@ public class ProgressIndicator extends javax.swing.JPanel {
     }
 
     /** Creates new instance. */
-    public ProgressIndicator(
-            String message,
-            String note) {
+    public ProgressIndicator(@Nullable String message, @Nullable String note) {
         this(message, note, 0, 100, true);
     }
 
     /** Creates new instance. */
     public ProgressIndicator(
-            String message,
-            String note,
+            @Nullable String message,
+            @Nullable String note,
             int min,
             int max,
             boolean indeterminate) {
@@ -56,15 +52,15 @@ public class ProgressIndicator extends javax.swing.JPanel {
         setIndeterminate(indeterminate);
     }
 
-    public void setMessage(String message) {
+    public void setMessage(@Nullable String message) {
         messageLabel.setText(message);
     }
 
-    public String getMessage() {
+    @Nullable public String getMessage() {
         return messageLabel.getText();
     }
 
-    public void setNote(final String newValue) {
+    public void setNote(@Nullable final String newValue) {
         String oldValue = noteLabel.getText();
         noteLabel.setText(newValue);
         if (oldValue == null || newValue == null && oldValue != newValue) {

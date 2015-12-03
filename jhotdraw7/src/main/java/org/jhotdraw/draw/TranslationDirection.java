@@ -1,19 +1,16 @@
 /*
  * @(#)TranslationDirection.java
  *
- * Copyright (c) 2007 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2007 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
-
 package org.jhotdraw.draw;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 
@@ -29,6 +26,7 @@ import java.awt.geom.Point2D;
  * @version $Id$
  */
 public enum TranslationDirection {
+
     NORTH,
     WEST,
     SOUTH,
@@ -37,15 +35,16 @@ public enum TranslationDirection {
     SOUTH_WEST,
     NORTH_EAST,
     SOUTH_EAST;
-    
+
     /**
      * Returns the direction from the provided start point to the end point.
      * Returns null, if both points are at the same location.
      */
+    @Nullable
     public static TranslationDirection getDirection(Point startPoint, Point endPoint) {
         int dx = endPoint.x - startPoint.x;
         int dy = endPoint.y - startPoint.y;
-        
+
         if (dx == 0) {
             if (dy == 0) {
                 return null;
@@ -72,14 +71,16 @@ public enum TranslationDirection {
             }
         }
     }
+
     /**
      * Returns the direction from the provided start point to the end point.
      * Returns null, if both points are at the same location.
      */
+    @Nullable
     public static TranslationDirection getDirection(Point2D.Double startPoint, Point2D.Double endPoint) {
         double dx = endPoint.x - startPoint.x;
         double dy = endPoint.y - startPoint.y;
-        
+
         if (dx == 0) {
             if (dy == 0) {
                 return null;

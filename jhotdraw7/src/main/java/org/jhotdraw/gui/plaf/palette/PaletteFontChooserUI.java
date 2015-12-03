@@ -1,18 +1,16 @@
 /**
  * @(#)PaletteFontChooserUI.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.gui.plaf.palette;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -31,7 +29,7 @@ import org.jhotdraw.gui.plaf.FontChooserUI;
  * PaletteFontChooserUI.
  *
  * @author Werner Randelshofer
- * @version $Id$
+ * @version $Id$
  */
 public class PaletteFontChooserUI extends FontChooserUI {
 
@@ -40,8 +38,8 @@ public class PaletteFontChooserUI extends FontChooserUI {
     private JFontChooser fontChooser;
     private PaletteFontChooserSelectionPanel selectionPanel;
     private PaletteFontChooserPreviewPanel previewPanel;
-    private SelectionPanelHandler selectionPanelHandler;
-    private FontChooserHandler chooserHandler;
+    @Nullable private SelectionPanelHandler selectionPanelHandler;
+    @Nullable private FontChooserHandler chooserHandler;
     /**
      * The value of this counter is greater 0, if the palette
      * font chooser is updating, and should ignore incoming events.
@@ -106,7 +104,6 @@ public class PaletteFontChooserUI extends FontChooserUI {
         previewPanel = new PaletteFontChooserPreviewPanel();
         fc.add(previewPanel, BorderLayout.NORTH);
 
-        FontChooserModel model = fontChooser.getModel();
         updateCollectionList();
         updateFamilyList();
         updateFaceList();
@@ -336,7 +333,6 @@ public class PaletteFontChooserUI extends FontChooserUI {
     }
 
     private void doFamilyChanged() {
-        FontChooserModel model = fontChooser.getModel();
         JList list = selectionPanel.getFamilyList();
 
         TreePath path = fontChooser.getSelectionPath();
@@ -386,7 +382,7 @@ public class PaletteFontChooserUI extends FontChooserUI {
         setNewSelectionPath(newCollection, newFamily, newFace);
     }
 
-    private void setNewSelectionPath(FontCollectionNode newCollection, FontFamilyNode newFamily, FontFaceNode newFace) {
+    private void setNewSelectionPath(@Nullable FontCollectionNode newCollection, @Nullable FontFamilyNode newFamily, @Nullable FontFaceNode newFace) {
         FontChooserModel model = fontChooser.getModel();
 
         TreePath newPath;

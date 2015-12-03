@@ -1,15 +1,12 @@
 /**
  * @(#)PaletteSliderUI.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.gui.plaf.palette;
@@ -24,7 +21,7 @@ import javax.swing.plaf.basic.*;
  * PaletteSliderUI.
  *
  * @author Werner Randelshofer
- * @version $Id$
+ * @version $Id$
  */
 public class PaletteSliderUI extends BasicSliderUI {
     private final static float[] enabledStops = new float[]{0f, 0.35f, 0.351f, 1f};
@@ -44,7 +41,6 @@ public class PaletteSliderUI extends BasicSliderUI {
     protected void installDefaults( JSlider slider ) {
         super.installDefaults(slider);
         
-        PaletteLookAndFeel laf = PaletteLookAndFeel.getInstance();
         PaletteLookAndFeel.installBorder(slider, "Slider.border");
         PaletteLookAndFeel.installColors(slider, "Slider.background", "Slider.foreground");
     }
@@ -91,7 +87,7 @@ public class PaletteSliderUI extends BasicSliderUI {
 
         if ( slider.getOrientation() == JSlider.HORIZONTAL ) {
             pad = trackBuffer;
-            cx = pad;
+            //cx = pad;
             cy = (trackBounds.height / 2) - 2;
             cw = trackBounds.width;
 
@@ -111,7 +107,7 @@ public class PaletteSliderUI extends BasicSliderUI {
         else {
             pad = trackBuffer;
             cx = (trackBounds.width / 2) - 2;
-            cy = pad;
+            //cy = pad;
             ch = trackBounds.height;
             g.setColor(new Color(slider.isEnabled() ? 0x888888 : 0xaaaaaa));
             g.drawRoundRect( trackBounds.x + cx, trackBounds.y, 5, ch, 5, 5);

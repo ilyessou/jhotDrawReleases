@@ -1,18 +1,16 @@
 /*
  * @(#)DefaultHandleTracker.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.tool;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.handle.Handle;
 import org.jhotdraw.draw.event.HandleMulticaster;
 import org.jhotdraw.draw.*;
@@ -49,7 +47,7 @@ public class DefaultHandleTracker extends AbstractTool implements HandleTracker 
     /** Last dragged mouse location. This variable is only non-null when
      * the mouse is being pressed or dragged.
      */
-    private Point dragLocation;
+    @Nullable private Point dragLocation;
     private Handle masterHandle;
     private HandleMulticaster multicaster;
     /**
@@ -61,7 +59,7 @@ public class DefaultHandleTracker extends AbstractTool implements HandleTracker 
      * The hover Figure is the figure, over which the mouse is currently
      * hovering.
      */
-    private Figure hoverFigure = null;
+    @Nullable private Figure hoverFigure = null;
 
     /** Creates a new instance. */
     public DefaultHandleTracker(Handle handle) {
@@ -226,7 +224,7 @@ public class DefaultHandleTracker extends AbstractTool implements HandleTracker 
         updateHoverHandles(null, null);
     }
 
-    protected void updateHoverHandles(DrawingView view, Figure f) {
+    protected void updateHoverHandles(@Nullable DrawingView view, @Nullable Figure f) {
         if (f != hoverFigure) {
             Rectangle r = null;
             if (hoverFigure != null && hoverFigure.isSelectable()) {

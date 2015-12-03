@@ -1,15 +1,12 @@
 /**
  * @(#)DefaultHarmonicColorModel.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.color;
 
@@ -24,9 +21,9 @@ import static org.jhotdraw.color.HarmonicColorModel.*;
  * DefaultHarmonicColorModel.
  *
  * @author Werner Randelshofer
- * @version $Id$
+ * @version $Id$
  */
-public class DefaultHarmonicColorModel extends AbstractListModel implements HarmonicColorModel {
+public class DefaultHarmonicColorModel extends AbstractListModel implements HarmonicColorModel, Cloneable {
 
     protected PropertyChangeSupport propertySupport = new PropertyChangeSupport(this);
     private ArrayList<Color> colors;
@@ -54,7 +51,6 @@ public class DefaultHarmonicColorModel extends AbstractListModel implements Harm
         while (colors.size() > newValue) {
             colors.remove(colors.size() - 1);
         }
-        ColorSpace sys = sliderModel.getColorSpace();
         while (colors.size() < newValue) {
             colors.add(null);
         }

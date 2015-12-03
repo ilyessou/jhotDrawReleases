@@ -1,15 +1,12 @@
 /*
  * @(#)OpenRecentFileAction.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.app.action.file;
 
@@ -60,8 +57,8 @@ public class OpenRecentFileAction extends AbstractApplicationAction {
             // Search for an empty view
             View emptyView = app.getActiveView();
             if (emptyView == null
-                    || emptyView.getURI() != null
-                    || emptyView.hasUnsavedChanges()) {
+                     || !emptyView.isEmpty()
+                    || !emptyView.isEnabled()) {
                 emptyView = null;
             }
 
@@ -87,8 +84,7 @@ public class OpenRecentFileAction extends AbstractApplicationAction {
         int multipleOpenId = 1;
         for (View aView : app.views()) {
             if (aView != view
-                    && aView.getURI() != null
-                    && aView.getURI().equals(uri)) {
+                    && aView.isEmpty()) {
                 multipleOpenId = Math.max(multipleOpenId, aView.getMultipleOpenId() + 1);
             }
         }
@@ -131,14 +127,7 @@ public class OpenRecentFileAction extends AbstractApplicationAction {
             @Override
             protected void failed(Throwable value) {
                 value.printStackTrace();
-                String message = null;
-                if (value instanceof Throwable) {
-                    ((Throwable) value).printStackTrace();
-                    message = ((Throwable) value).getMessage();
-                    if (message == null) {
-                        message = value.toString();
-                    }
-                }
+                String message = value.getMessage() != null ? value.getMessage() : value.toString();
                 ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
                 JSheet.showMessageSheet(view.getComponent(),
                         "<html>" + UIManager.getString("OptionPane.css")

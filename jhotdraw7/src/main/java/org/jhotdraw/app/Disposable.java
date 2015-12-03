@@ -1,20 +1,17 @@
 /*
  * @(#)Disposable.java
  * 
- * Copyright (c) 2009-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2009-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  * 
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.app;
 
-import org.jhotdraw.annotations.NotNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Interface for objects which explicitly must be disposed to free resources.
@@ -22,7 +19,6 @@ import org.jhotdraw.annotations.NotNull;
  * @author Werner Randelshofer
  * @version $Id$
  */
-@NotNull
 public interface Disposable {
     /** Disposes of all resources held by this object so that they can be
      * garbage collected.

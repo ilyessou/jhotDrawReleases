@@ -1,15 +1,12 @@
 /*
  * @(#)TransformHandleKit.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.handle;
 
@@ -30,7 +27,7 @@ import static org.jhotdraw.draw.handle.HandleAttributeKeys.*;
  * its <code>transform</code> method.
  * 
  * 
- * @author Werntransformr
+ * @author Werner Randelshofer
  * @version $Id$
  */
 public class TransformHandleKit {
@@ -44,10 +41,12 @@ public class TransformHandleKit {
      * figure and adds them to the provided collection.
      */
     static public void addCornerTransformHandles(Figure f, Collection<Handle> handles) {
-        handles.add(southEast(f));
-        handles.add(southWest(f));
-        handles.add(northEast(f));
-        handles.add(northWest(f));
+        if (f.isTransformable()) {
+            handles.add(southEast(f));
+            handles.add(southWest(f));
+            handles.add(northEast(f));
+            handles.add(northWest(f));
+        }
     }
 
     /**
@@ -55,18 +54,22 @@ public class TransformHandleKit {
      * the north, south, east, and west of the figure.
      */
     static public void addEdgeTransformHandles(Figure f, Collection<Handle> handles) {
-        handles.add(south(f));
-        handles.add(north(f));
-        handles.add(east(f));
-        handles.add(west(f));
+        if (f.isTransformable()) {
+            handles.add(south(f));
+            handles.add(north(f));
+            handles.add(east(f));
+            handles.add(west(f));
+        }
     }
 
     /**
      * Adds handles for scaling and moving a Figure.
      */
     static public void addScaleMoveTransformHandles(Figure f, Collection<Handle> handles) {
-        addCornerTransformHandles(f, handles);
-        addEdgeTransformHandles(f, handles);
+        if (f.isTransformable()) {
+            addCornerTransformHandles(f, handles);
+            addEdgeTransformHandles(f, handles);
+        }
     }
 
     /**
@@ -74,9 +77,11 @@ public class TransformHandleKit {
      */
     static public void addTransformHandles(Figure f, Collection<Handle> handles) {
         handles.add(new BoundsOutlineHandle(f, true, false));
-        addCornerTransformHandles(f, handles);
-        addEdgeTransformHandles(f, handles);
-        handles.add(new RotateHandle(f));
+        if (f.isTransformable()) {
+            addCornerTransformHandles(f, handles);
+            addEdgeTransformHandles(f, handles);
+            handles.add(new RotateHandle(f));
+        }
     }
 
     /**
@@ -140,6 +145,8 @@ public class TransformHandleKit {
 
         private int dx, dy;
         private Object geometry;
+        /** Caches the value returned by getOwner().isTransformable(): */
+        private boolean isTransformableCache;
 
         TransformHandle(Figure owner, Locator loc) {
             super(owner, loc);
@@ -191,6 +198,10 @@ public class TransformHandleKit {
 
         @Override
         public void trackStart(Point anchor, int modifiersEx) {
+            isTransformableCache = getOwner().isTransformable();
+            if (!isTransformableCache) {
+                return;
+            }
             geometry = getOwner().getTransformRestoreData();
             Point location = getLocation();
             dx = -anchor.x + location.x;
@@ -199,6 +210,9 @@ public class TransformHandleKit {
 
         @Override
         public void trackStep(Point anchor, Point lead, int modifiersEx) {
+            if (!isTransformableCache) {
+                return;
+            }
             Point2D.Double p = view.viewToDrawing(new Point(lead.x + dx, lead.y + dy));
             view.getConstrainer().constrainPoint(p);
 
@@ -207,6 +221,9 @@ public class TransformHandleKit {
 
         @Override
         public void trackEnd(Point anchor, Point lead, int modifiersEx) {
+            if (!isTransformableCache) {
+                return;
+            }
             fireUndoableEditHappened(
                     new TransformRestoreEdit(getOwner(), geometry, getOwner().getTransformRestoreData()));
 
@@ -260,6 +277,10 @@ public class TransformHandleKit {
 
         @Override
         public void keyPressed(KeyEvent evt) {
+            if (!getOwner().isTransformable()) {
+                evt.consume();
+                return;
+            }
             Object geom = getOwner().getTransformRestoreData();
             Rectangle2D.Double r = getTransformedBounds();
 
@@ -322,6 +343,10 @@ public class TransformHandleKit {
 
         @Override
         public void keyPressed(KeyEvent evt) {
+            if (!getOwner().isTransformable()) {
+                evt.consume();
+                return;
+            }
             Object geom = getOwner().getTransformRestoreData();
             Rectangle2D.Double r = getTransformedBounds();
 
@@ -375,6 +400,10 @@ public class TransformHandleKit {
 
         @Override
         public void keyPressed(KeyEvent evt) {
+            if (!getOwner().isTransformable()) {
+                evt.consume();
+                return;
+            }
             Object geom = getOwner().getTransformRestoreData();
             Rectangle2D.Double r = getTransformedBounds();
 
@@ -428,6 +457,10 @@ public class TransformHandleKit {
 
         @Override
         public void keyPressed(KeyEvent evt) {
+            if (!getOwner().isTransformable()) {
+                evt.consume();
+                return;
+            }
             Object geom = getOwner().getTransformRestoreData();
             Rectangle2D.Double r = getTransformedBounds();
 
@@ -489,6 +522,10 @@ public class TransformHandleKit {
 
         @Override
         public void keyPressed(KeyEvent evt) {
+            if (!getOwner().isTransformable()) {
+                evt.consume();
+                return;
+            }
             Object geom = getOwner().getTransformRestoreData();
             Rectangle2D.Double r = getTransformedBounds();
 
@@ -550,6 +587,10 @@ public class TransformHandleKit {
 
         @Override
         public void keyPressed(KeyEvent evt) {
+            if (!getOwner().isTransformable()) {
+                evt.consume();
+                return;
+            }
             Object geom = getOwner().getTransformRestoreData();
             Rectangle2D.Double r = getTransformedBounds();
 
@@ -603,6 +644,10 @@ public class TransformHandleKit {
 
         @Override
         public void keyPressed(KeyEvent evt) {
+            if (!getOwner().isTransformable()) {
+                evt.consume();
+                return;
+            }
             Object geom = getOwner().getTransformRestoreData();
             Rectangle2D.Double r = getTransformedBounds();
 
@@ -664,6 +709,10 @@ public class TransformHandleKit {
 
         @Override
         public void keyPressed(KeyEvent evt) {
+            if (!getOwner().isTransformable()) {
+                evt.consume();
+                return;
+            }
             Object geom = getOwner().getTransformRestoreData();
             Rectangle2D.Double r = getTransformedBounds();
 

@@ -1,19 +1,17 @@
 /*
  * @(#)SVGText.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.samples.svg.figures;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.tool.Tool;
 import org.jhotdraw.draw.locator.RelativeLocator;
 import org.jhotdraw.draw.handle.TransformHandleKit;
@@ -54,9 +52,9 @@ public class SVGTextFigure
     /**
      * This is used to perform faster drawing and hit testing.
      */
-    private transient Shape cachedTextShape;
-    private transient Rectangle2D.Double cachedBounds;
-    private transient Rectangle2D.Double cachedDrawingArea;
+    @Nullable private transient Shape cachedTextShape;
+    @Nullable private transient Rectangle2D.Double cachedBounds;
+    @Nullable private transient Rectangle2D.Double cachedDrawingArea;
     
     /** Creates a new instance. */
     public SVGTextFigure() {
@@ -84,7 +82,7 @@ public class SVGTextFigure
     
     // SHAPE AND BOUNDS
     public void setCoordinates(Point2D.Double[] coordinates) {
-        this.coordinates = coordinates;
+        this.coordinates = coordinates.clone();
         invalidate();
     }
     
@@ -97,7 +95,7 @@ public class SVGTextFigure
     }
     
     public void setRotates(double[] rotates) {
-        this.rotates = rotates;
+        this.rotates = rotates.clone();
         invalidate();
     }
     public double[] getRotates() {

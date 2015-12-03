@@ -1,18 +1,16 @@
 /**
  * @(#)BackdropBorder.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.gui.plaf.palette;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -22,18 +20,18 @@ import javax.swing.border.Border;
  * BackdropBorder.
  *
  * @author Werner Randelshofer
- * @version $Id$
+ * @version $Id$
  */
 public class BackdropBorder implements Border {
 
     private Border backgroundBorder;
-    private Border foregroundBorder;
+    @Nullable private Border foregroundBorder;
 
     public BackdropBorder(Border backgroundBorder) {
         this(null, backgroundBorder);
     }
 
-    public BackdropBorder(Border foregroundBorder, Border backgroundBorder) {
+    public BackdropBorder(@Nullable Border foregroundBorder, Border backgroundBorder) {
         this.foregroundBorder = foregroundBorder;
         this.backgroundBorder = backgroundBorder;
     }
@@ -69,7 +67,7 @@ public class BackdropBorder implements Border {
             this(null, backgroundBorder);
         }
 
-        public UIResource(Border foregroundBorder, Border backgroundBorder) {
+        public UIResource(@Nullable Border foregroundBorder, Border backgroundBorder) {
             super(foregroundBorder, backgroundBorder);
         }
     }

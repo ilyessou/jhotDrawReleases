@@ -1,22 +1,18 @@
 /**
  * @(#)FontModel.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.gui.fontchooser;
 
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeModel;
-import org.jhotdraw.annotations.NotNull;
 
 /**
  * This interface defines the methods components like JFontChooser
@@ -32,9 +28,8 @@ import org.jhotdraw.annotations.NotNull;
  * </ul>
  *
  * @author Werner Randelshofer
- * @version $Id$
+ * @version $Id$
  */
-@NotNull
 public interface FontChooserModel extends TreeModel {
     /**
      * Returns <code>true</code> if <code>node</code> is editable by the user.

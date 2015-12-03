@@ -1,15 +1,12 @@
 /*
  * @(#)JPopupButton.java
  *
- * Copyright (c) 2006-2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2006-2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.gui;
 
@@ -80,7 +77,6 @@ public class JPopupButton extends javax.swing.JButton {
                 // We are interested in MouseEvents only
                 return;
             }
-            MouseEvent me = (MouseEvent) ev;
             Component src = (Component) ev.getSource();
 
             // Close popup only on mouse press on a component which has
@@ -94,8 +90,7 @@ public class JPopupButton extends javax.swing.JButton {
                     while (srcLPChild.getParent() != srcLP) {
                         srcLPChild = srcLPChild.getParent();
                     }
-                    if (srcLPChild == null || srcLP.getLayer(srcLPChild) < JLayeredPane.POPUP_LAYER) {
-
+                    if (srcLP.getLayer(srcLPChild) < JLayeredPane.POPUP_LAYER) {
                         popupMenu.setVisible(false);
                     }
                 }
@@ -177,7 +172,6 @@ public class JPopupButton extends javax.swing.JButton {
 
     /** Adds a sub-menu to the popup menu. */
     public void add(JMenu submenu) {
-        JMenuItem item = getPopupMenu().add(submenu);
         updateItemFont(submenu);
     }
 

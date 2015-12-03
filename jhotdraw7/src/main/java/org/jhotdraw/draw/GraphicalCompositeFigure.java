@@ -1,18 +1,16 @@
 /*
  * @(#)GraphicalCompositeFigure.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.handle.MoveHandle;
 import org.jhotdraw.draw.handle.Handle;
 import org.jhotdraw.draw.event.FigureAdapter;
@@ -20,6 +18,7 @@ import org.jhotdraw.draw.event.FigureEvent;
 import java.io.IOException;
 import java.awt.*;
 import java.awt.geom.*;
+import java.io.Serializable;
 import java.util.*;
 import javax.swing.event.*;
 
@@ -62,13 +61,13 @@ public class GraphicalCompositeFigure extends AbstractCompositeFigure {
      * an own presentation but present only the sum of all its
      * children.
      */
-    private Figure presentationFigure;
+    @Nullable private Figure presentationFigure;
     /**
      * Handles figure changes in the children.
      */
     private PresentationFigureHandler presentationFigureHandler = new PresentationFigureHandler(this);
 
-    private static class PresentationFigureHandler extends FigureAdapter implements UndoableEditListener {
+    private static class PresentationFigureHandler extends FigureAdapter implements UndoableEditListener, Serializable {
 
         private GraphicalCompositeFigure owner;
 
@@ -117,7 +116,7 @@ public class GraphicalCompositeFigure extends AbstractCompositeFigure {
      *
      * @param	newPresentationFigure	figure which renders the container
      */
-    public GraphicalCompositeFigure(Figure newPresentationFigure) {
+    public GraphicalCompositeFigure(@Nullable Figure newPresentationFigure) {
         super();
         setPresentationFigure(newPresentationFigure);
     }
@@ -253,7 +252,7 @@ public class GraphicalCompositeFigure extends AbstractCompositeFigure {
      * 
      * @param newPresentationFigure	figure takes over the presentation tasks
      */
-    public void setPresentationFigure(Figure newPresentationFigure) {
+    public void setPresentationFigure(@Nullable Figure newPresentationFigure) {
         if (this.presentationFigure != null) {
             this.presentationFigure.removeFigureListener(presentationFigureHandler);
             if (getDrawing() != null) {
@@ -285,7 +284,7 @@ public class GraphicalCompositeFigure extends AbstractCompositeFigure {
         return presentationFigure;
     }
 
-    @Override
+    @Override @SuppressWarnings("unchecked")
     public GraphicalCompositeFigure clone() {
         GraphicalCompositeFigure that = (GraphicalCompositeFigure) super.clone();
         that.presentationFigure = (this.presentationFigure == null)
@@ -294,6 +293,8 @@ public class GraphicalCompositeFigure extends AbstractCompositeFigure {
         if (that.presentationFigure != null) {
             that.presentationFigure.addFigureListener(that.presentationFigureHandler);
         }
+        that.attributes=(HashMap<AttributeKey, Object>) this.attributes.clone();
+        that.forbiddenAttributes= this.forbiddenAttributes==null?null:(HashSet<AttributeKey>) this.forbiddenAttributes.clone();
         return that;
     }
 
@@ -316,8 +317,8 @@ public class GraphicalCompositeFigure extends AbstractCompositeFigure {
             if (getPresentationFigure() != null) {
                 getPresentationFigure().set(key, newValue);
             }
-            super.set(key, newValue);
-            Object oldValue = attributes.put(key, newValue);
+            T oldValue = (T) key.put(attributes, newValue);
+            fireAttributeChanged(key, oldValue, newValue);
         }
     }
 

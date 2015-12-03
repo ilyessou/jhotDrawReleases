@@ -1,19 +1,17 @@
 /*
  * @(#)NanoXMLDOMOutput.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.xml;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.*;
 import java.io.*;
 import net.n3.nanoxml.*;
@@ -50,7 +48,7 @@ public class NanoXMLDOMOutput implements DOMOutput, Disposable {
     /**
      * The document used for output.
      */
-    private XMLElement document;
+    @Nullable private XMLElement document;
     /**
      * The current node used for output.
      */
@@ -176,7 +174,7 @@ public class NanoXMLDOMOutput implements DOMOutput, Disposable {
      */
     @Override
     public void addAttribute(String name, boolean value) {
-        current.setAttribute(name, new Boolean(value).toString());
+        current.setAttribute(name, Boolean.valueOf(value).toString());
     }
     /**
      * Adds an attribute to current element of the DOM Document.

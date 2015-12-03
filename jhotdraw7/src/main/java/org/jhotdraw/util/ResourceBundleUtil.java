@@ -1,18 +1,16 @@
 /*
  * @(#)ResourceBundleUtil.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and
- * contributors of the JHotDraw project ("the copyright holders").
- * You may not use, copy or modify this software, except in
- * accordance with the license agreement you entered into with
- * the copyright holders. For details see accompanying license terms.
+ * You may not use, copy or modify this file, except in compliance with the
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.util;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -264,7 +262,7 @@ public class ResourceBundleUtil implements Serializable {
                 System.err.println("Warning ResourceBundleUtil[" + baseName + "] \"" + key + "\" not found.");
                 //e.printStackTrace();
             }
-            return new Integer(-1);
+            return -1;
         }
     }
 
@@ -276,6 +274,7 @@ public class ResourceBundleUtil implements Serializable {
      * @return The value of the property. Returns null
      *          if the property is missing.
      */
+    @Nullable
     public ImageIcon getIconProperty(String key, Class baseClass) {
         try {
             String rsrcName = getStringRecursive(key + ".icon");
@@ -340,6 +339,7 @@ public class ResourceBundleUtil implements Serializable {
      * @param key The key of the property. This method appends ".toolTipText" to the key.
      * @return The ToolTip. Returns null if no tooltip is defined.
      */
+    @Nullable
     public String getToolTipTextProperty(String key) {
         try {
             String value = getStringRecursive(key + ".toolTipText");
@@ -360,6 +360,7 @@ public class ResourceBundleUtil implements Serializable {
      * @param key The key of the property. This method appends ".text" to the key.
      * @return The ToolTip. Returns null if no tooltip is defined.
      */
+    @Nullable
     public String getTextProperty(String key) {
         try {
             String value = getStringRecursive(key + ".text");
@@ -381,6 +382,7 @@ public class ResourceBundleUtil implements Serializable {
      * @return <code>javax.swing.KeyStroke.getKeyStroke(value)</code>.
      *          Returns null if the property is missing.
      */
+    @Nullable
     public KeyStroke getKeyStroke(String key) {
         KeyStroke ks = null;
         try {
@@ -399,6 +401,7 @@ public class ResourceBundleUtil implements Serializable {
      * @return <code>javax.swing.KeyStroke.getKeyStroke(value)</code>.
      *          Returns null if the property is missing.
      */
+    @Nullable
     public KeyStroke getAcceleratorProperty(String key) {
         KeyStroke ks = null;
         try {
@@ -444,7 +447,7 @@ public class ResourceBundleUtil implements Serializable {
             action.putValue(Action.SHORT_DESCRIPTION, shortDescription);
         }
         action.putValue(Action.ACCELERATOR_KEY, getAcceleratorProperty(argument));
-        action.putValue(Action.MNEMONIC_KEY, new Integer(getMnemonicProperty(argument)));
+        action.putValue(Action.MNEMONIC_KEY, Integer.valueOf(getMnemonicProperty(argument)));
         action.putValue(Action.SMALL_ICON, getIconProperty(argument, baseClass));
     }
 

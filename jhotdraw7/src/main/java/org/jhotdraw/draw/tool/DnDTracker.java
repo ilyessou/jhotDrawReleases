@@ -1,18 +1,16 @@
 /*
  * @(#)DnDTracker.java
  * 
- * Copyright (c) 2009-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2009-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  * 
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.tool;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.*;
 import java.awt.Container;
 import java.awt.dnd.DnDConstants;
@@ -36,15 +34,15 @@ import java.awt.geom.Rectangle2D;
  * how it looks.
  *
  * @author Werner Randelshofer
- * @version $Id: DnDTracker.java -1   $
+ * @version $Id$
  */
 public class DnDTracker extends AbstractTool implements DragTracker {
 
-    protected Figure anchorFigure;
+    @Nullable protected Figure anchorFigure;
     /**
      * The drag rectangle encompasses the bounds of all dragged figures.
      */
-    protected Rectangle2D.Double dragRect;
+    @Nullable protected Rectangle2D.Double dragRect;
     /**
      * The previousOrigin holds the origin of all dragged figures of the
      * previous mouseDragged event. This coordinate is constrained using

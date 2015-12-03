@@ -1,18 +1,16 @@
 /*
  * @(#)Polygon2D.java
  * 
- * Copyright (c) 2009-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2009-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  * 
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.geom;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
@@ -295,7 +293,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
          *
          * 
          */
-        protected Rectangle2D.Double bounds;
+        @Nullable protected Rectangle2D.Double bounds;
 
         public Double() {
             xpoints = new double[MIN_LENGTH];
@@ -489,6 +487,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
             return (cross == null || !cross.isEmpty());
         }
 
+        @Nullable
         private Crossings getCrossings(double xlo, double ylo,
                 double xhi, double yhi) {
             Crossings cross = new Crossings.EvenOdd(xlo, ylo, xhi, yhi);
@@ -605,7 +604,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
          * The bounds of this {@code Polygon}.
          * This value can be null.
          */
-        protected Rectangle2D.Float bounds;
+        @Nullable protected Rectangle2D.Float bounds;
 
         public Float() {
             xpoints = new float[MIN_LENGTH];
@@ -811,6 +810,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
             return (cross == null || !cross.isEmpty());
         }
 
+        @Nullable
         private Crossings getCrossings(float xlo, float ylo,
                 float xhi, float yhi) {
             Crossings cross = new Crossings.EvenOdd(xlo, ylo, xhi, yhi);
@@ -902,7 +902,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
         }
     }
 
-    class PolygonPathIteratorDouble implements PathIterator {
+    static class PolygonPathIteratorDouble implements PathIterator {
 
         Polygon2D.Double poly;
         AffineTransform transform;
@@ -1012,7 +1012,7 @@ public abstract class Polygon2D implements Shape, Cloneable {
         }
     }
 
-    class PolygonPathIteratorFloat implements PathIterator {
+    static class PolygonPathIteratorFloat implements PathIterator {
 
         Polygon2D.Float poly;
         AffineTransform transform;

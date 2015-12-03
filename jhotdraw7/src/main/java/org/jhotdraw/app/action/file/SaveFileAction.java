@@ -1,18 +1,16 @@
 /*
  * @(#)SaveFileAction.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.app.action.file;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.gui.filechooser.ExtensionFileFilter;
 import java.awt.*;
 import java.awt.event.*;
@@ -49,8 +47,16 @@ public class SaveFileAction extends AbstractViewAction {
     private Component oldFocusOwner;
 
     /** Creates a new instance. */
-    public SaveFileAction(Application app, View view) {
+    public SaveFileAction(Application app, @Nullable View view) {
         this(app, view, false);
+    }
+
+    /** Creates a new instance. */
+    public SaveFileAction(Application app, @Nullable View view, boolean saveAs) {
+        super(app, view);
+        this.saveAs = saveAs;
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
+        labels.configureAction(this, ID);
     }
 
     protected URIChooser getChooser(View view) {
@@ -62,17 +68,12 @@ public class SaveFileAction extends AbstractViewAction {
         return chsr;
     }
 
-    /** Creates a new instance. */
-    public SaveFileAction(Application app, View view, boolean saveAs) {
-        super(app, view);
-        this.saveAs = saveAs;
-        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
-        labels.configureAction(this, ID);
-    }
-
     @Override
     public void actionPerformed(ActionEvent evt) {
         final View view = getActiveView();
+        if (view == null) {
+            return;
+        }
         if (view.isEnabled()) {
             oldFocusOwner = SwingUtilities.getWindowAncestor(view.getComponent()).getFocusOwner();
             view.setEnabled(false);
@@ -106,7 +107,8 @@ public class SaveFileAction extends AbstractViewAction {
         }
     }
 
-    protected void saveViewToURI(final View view, final URI file, final URIChooser chooser) {
+    protected void saveViewToURI(final View view, final URI file,
+            @Nullable final URIChooser chooser) {
         view.execute(new Worker() {
 
             @Override
@@ -132,12 +134,7 @@ public class SaveFileAction extends AbstractViewAction {
             @Override
             protected void failed(Throwable value) {
                 value.printStackTrace();
-                String message;
-                if ((value instanceof Throwable) && ((Throwable) value).getMessage() != null) {
-                    message = ((Throwable) value).getMessage();
-                } else {
-                    message = value.toString();
-                }
+                String message = value.getMessage() != null ? value.getMessage() : value.toString();
                 ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
                 JSheet.showMessageSheet(getActiveView().getComponent(),
                         "<html>" + UIManager.getString("OptionPane.css")

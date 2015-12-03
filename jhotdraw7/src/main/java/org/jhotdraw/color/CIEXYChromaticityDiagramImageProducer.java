@@ -1,27 +1,23 @@
 /*
  * @(#)CIEXYChromaticityDiagramImageProducer.java
  * 
- * Copyright (c) 2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  * 
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.color;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.color.ColorSpace;
 import java.awt.color.ICC_ColorSpace;
-import java.awt.geom.AffineTransform;
 import java.awt.image.ColorModel;
 import java.awt.image.MemoryImageSource;
 import java.util.Arrays;
-import org.jhotdraw.samples.color.CIEXYChromaticityDiagram;
 
 /**
  * Produces a CIE xy Chromaticity Diagram.
@@ -132,16 +128,16 @@ public class CIEXYChromaticityDiagramImageProducer extends MemoryImageSource {
         }
     }
 
-    public Point getColorLocation(Color c) {
+    @Nullable public Point getColorLocation(Color c) {
         float[] components = ColorUtil.fromColor(colorSpace, c);
         return getColorLocation(components);
     }
 
-    public Point getColorLocation(float[] components) {
+    @Nullable public Point getColorLocation(float[] components) {
         return null;
     }
 
-    public float[] getColorAt(int x, int y) {
+    @Nullable public float[] getColorAt(int x, int y) {
         return null;
     }
 
@@ -153,9 +149,6 @@ public class CIEXYChromaticityDiagramImageProducer extends MemoryImageSource {
         return h;
     }
 
-    public static void main(String[] args) {
-        CIEXYChromaticityDiagram.main(args);
-    }
     public void toRGB(float[] ciexyz, float[] rgb) {
         double X = ciexyz[0];
         double Y = ciexyz[1];

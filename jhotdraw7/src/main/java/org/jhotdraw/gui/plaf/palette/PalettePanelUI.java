@@ -1,15 +1,12 @@
 /*
  * @(#)QuaquaPanelUI.java  
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and
- * contributors of the JHotDraw project ("the copyright holders").
- * You may not use, copy or modify this software, except in
- * accordance with the license agreement you entered into with
- * the copyright holders. For details see accompanying license terms.
+ * You may not use, copy or modify this file, except in compliance with the
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.gui.plaf.palette;
@@ -19,8 +16,9 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.border.*;
 import javax.swing.plaf.basic.*;
+
 /**
- * QuaquaPanelUI.
+ * PalettePanelUI.
  *
  * @author  Werner Randelshofer
  * @version $Id$
@@ -76,12 +74,13 @@ public class PalettePanelUI extends BasicPanelUI {
             g.setColor(c.getBackground());
             g.fillRect(0, 0, c.getWidth(), c.getHeight());
         }
-        
+        /*
         Border backgroundBorder = null;
         Insets insets = new Insets(0,0,0,0);
 
         if (backgroundBorder != null) {
             backgroundBorder.paintBorder(c, gr, insets.left, insets.top, c.getWidth() - insets.left - insets.right, c.getHeight() - insets.top - insets.bottom);
         }
+        */
     }
 }

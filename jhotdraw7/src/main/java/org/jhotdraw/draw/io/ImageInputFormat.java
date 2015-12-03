@@ -1,15 +1,12 @@
 /*
  * @(#)ImageInputFormat.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.io;
 
@@ -106,8 +103,8 @@ public class ImageInputFormat implements InputFormat {
         this.prototype = prototype;
         this.formatName = formatName;
         this.description = description;
-        this.fileExtensions = fileExtensions;
-        this.mimeTypes = mimeTypes;
+        this.fileExtensions = fileExtensions.clone();
+        this.mimeTypes = mimeTypes.clone();
     }
 
     @Override
@@ -116,7 +113,7 @@ public class ImageInputFormat implements InputFormat {
     }
 
     public String[] getFileExtensions() {
-        return fileExtensions;
+        return fileExtensions.clone();
     }
 
     @Override

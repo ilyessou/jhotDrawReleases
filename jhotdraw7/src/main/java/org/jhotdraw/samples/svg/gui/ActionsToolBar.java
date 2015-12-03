@@ -1,18 +1,16 @@
 /*
  * @(#)ActionsToolBar.java
  *
- * Copyright (c) 2007-2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2007-2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.samples.svg.gui;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -43,9 +41,7 @@ import org.jhotdraw.samples.svg.figures.*;
  * @version $Id$
  */
 public class ActionsToolBar extends AbstractToolBar {
-
-    private ToggleGridAction toggleGridAction;
-    private UndoRedoManager undoManager;
+    @Nullable private UndoRedoManager undoManager;
     private ArrayList<Action> actions;
     private JPopupButton popupButton;
 
@@ -56,7 +52,7 @@ public class ActionsToolBar extends AbstractToolBar {
     }
 
     @Override
-    public void setEditor(DrawingEditor newValue) {
+    public void setEditor(@Nullable DrawingEditor newValue) {
         if (this.editor != null && undoManager != null) {
             this.removePropertyChangeListener(getEventHandler());
         }
@@ -221,10 +217,6 @@ public class ActionsToolBar extends AbstractToolBar {
                 }
             }
         }
-    }
-
-    public ToggleGridAction getToggleGridAction() {
-        return toggleGridAction;
     }
 
     /** This method is called from within the constructor to

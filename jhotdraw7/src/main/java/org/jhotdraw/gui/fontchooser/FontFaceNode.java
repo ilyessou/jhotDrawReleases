@@ -1,18 +1,16 @@
 /**
  * @(#)FontFaceNode.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.gui.fontchooser;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.Font;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -23,11 +21,11 @@ import javax.swing.tree.TreeNode;
  * A FontFaceNode is a MutableTreeNode which does not allow children.
  *
  * @author Werner Randelshofer
- * @version $Id$
+ * @version $Id$
  */
 public class FontFaceNode implements MutableTreeNode, Comparable<FontFaceNode>, Cloneable {
 
-    private FontFamilyNode parent;
+    @Nullable private FontFamilyNode parent;
     private Font typeface;
     private String name;
 
@@ -146,7 +144,7 @@ public class FontFaceNode implements MutableTreeNode, Comparable<FontFaceNode>, 
         }
     }
 
-    @Override
+    @Override @Nullable
     public void setParent(MutableTreeNode newParent) {
         this.parent = (FontFamilyNode) newParent;
     }
@@ -161,7 +159,7 @@ public class FontFaceNode implements MutableTreeNode, Comparable<FontFaceNode>, 
         return 0;
     }
 
-    @Override
+    @Override @Nullable
     public TreeNode getParent() {
         return parent;
     }

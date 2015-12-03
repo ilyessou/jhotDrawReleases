@@ -1,19 +1,17 @@
 /*
  * @(#)ODGPropertiesPanel.java
  *
- * Copyright (c) 2007 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2007 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.samples.odg;
 
+import org.jhotdraw.draw.gui.JAttributeSlider;
 import org.jhotdraw.draw.event.FigureAttributeEditorHandler;
 import org.jhotdraw.text.JavaNumberFormatter;
 import java.awt.*;
@@ -63,9 +61,9 @@ public class ODGPropertiesPanel extends javax.swing.JPanel {
     
     public void setEditor(DrawingEditor editor) {
         this.editor = editor;
-        linkFieldHandler.setDrawingEditor(editor);
-        opacitySliderHandler.setDrawingEditor(editor);
-        opacityFieldHandler.setDrawingEditor(editor);
+        linkFieldHandler.setEditor(editor);
+        opacitySliderHandler.setEditor(editor);
+        opacityFieldHandler.setEditor(editor);
     }
     
     public void setView(DrawingView view) {
@@ -84,9 +82,9 @@ public class ODGPropertiesPanel extends javax.swing.JPanel {
         java.awt.GridBagConstraints gridBagConstraints;
 
         linkLabel = new javax.swing.JLabel();
-        linkField = new org.jhotdraw.gui.JAttributeTextField();
+        linkField = new org.jhotdraw.draw.gui.JAttributeTextField();
         opacityLabel = new javax.swing.JLabel();
-        opacityField = new org.jhotdraw.gui.JAttributeTextField();
+        opacityField = new org.jhotdraw.draw.gui.JAttributeTextField();
         opacityPopupButton = new org.jhotdraw.gui.JPopupButton();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -115,9 +113,9 @@ public class ODGPropertiesPanel extends javax.swing.JPanel {
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private org.jhotdraw.gui.JAttributeTextField linkField;
+    private org.jhotdraw.draw.gui.JAttributeTextField linkField;
     private javax.swing.JLabel linkLabel;
-    private org.jhotdraw.gui.JAttributeTextField opacityField;
+    private org.jhotdraw.draw.gui.JAttributeTextField opacityField;
     private javax.swing.JLabel opacityLabel;
     private org.jhotdraw.gui.JPopupButton opacityPopupButton;
     // End of variables declaration//GEN-END:variables

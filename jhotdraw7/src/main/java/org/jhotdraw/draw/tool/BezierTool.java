@@ -1,18 +1,16 @@
 /*
  * @(#)BezierTool.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.tool;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.*;
 import javax.swing.undo.*;
 import org.jhotdraw.util.*;
@@ -35,8 +33,8 @@ public class BezierTool extends AbstractTool {
      * Set this to true to turn on debugging output on System.out.
      */
     private final static boolean DEBUG = false;
-    private Boolean finishWhenMouseReleased;
-    protected Map<AttributeKey, Object> attributes;
+    @Nullable private Boolean finishWhenMouseReleased;
+    @Nullable protected Map<AttributeKey, Object> attributes;
     private boolean isToolDoneAfterCreation;
     /**
      * The prototype for new figures.
@@ -45,13 +43,13 @@ public class BezierTool extends AbstractTool {
     /**
      * The created figure.
      */
-    protected BezierFigure createdFigure;
+    @Nullable protected BezierFigure createdFigure;
     private int nodeCountBeforeDrag;
     /**
      * A localized name for this tool. The presentationName is displayed by the
      * UndoableEdit.
      */
-    private String presentationName;
+    @Nullable private String presentationName;
     private Point mouseLocation;
     /** Holds the view on which we are currently creating a figure. */
     private DrawingView creationView;
@@ -62,11 +60,11 @@ public class BezierTool extends AbstractTool {
     }
 
     /** Creates a new instance. */
-    public BezierTool(BezierFigure prototype, Map<AttributeKey, Object> attributes) {
+    public BezierTool(BezierFigure prototype, @Nullable Map<AttributeKey, Object> attributes) {
         this(prototype, attributes, null);
     }
 
-    public BezierTool(BezierFigure prototype, Map<AttributeKey, Object> attributes, String name) {
+    public BezierTool(BezierFigure prototype, @Nullable Map<AttributeKey, Object> attributes, @Nullable String name) {
         this.prototype = prototype;
         this.attributes = attributes;
         if (name == null) {
@@ -256,7 +254,7 @@ public class BezierTool extends AbstractTool {
                 figurePath.remove(nodeCountBeforeDrag - 1);
             }
             BezierPath fittedPath = calculateFittedCurve(digitizedPath);
-            //figurePath.addAll(digitizedPath);
+            //figurePath.addPolyline(digitizedPath);
             figurePath.addAll(fittedPath);
             createdFigure.setBezierPath(figurePath);
             createdFigure.changed();

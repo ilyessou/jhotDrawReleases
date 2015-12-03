@@ -1,9 +1,8 @@
 /*
  * @(#)WeakPropertyChangeListener.java
  * 
- * Copyright (c) 2009-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2009-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  * 
  * The copyright of this software is owned by the authors and  
  * contributors of the JHotDraw project ("the copyright holders").  
@@ -44,6 +43,7 @@
  */
 package org.jhotdraw.beans;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.beans.*;
 import java.lang.ref.*;
 
@@ -101,6 +101,7 @@ public class WeakPropertyChangeListener implements PropertyChangeListener {
      *
      * @return The target or null.
      */
+    @Nullable
     public PropertyChangeListener getTarget() {
         return weakRef.get();
     }

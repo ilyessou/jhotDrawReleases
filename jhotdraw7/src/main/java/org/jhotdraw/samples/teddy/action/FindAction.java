@@ -1,19 +1,17 @@
 /*
  * @(#)AbstractFindAction.java
  *
- * Copyright (c) 2005 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2005 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and
- * contributors of the JHotDraw project ("the copyright holders").
- * You may not use, copy or modify this software, except in
- * accordance with the license agreement you entered into with
- * the copyright holders. For details see accompanying license terms.
+ * You may not use, copy or modify this file, except in compliance with the
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.samples.teddy.action;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.app.*;
 import org.jhotdraw.samples.teddy.*;
 import java.awt.event.*;
@@ -31,7 +29,7 @@ public class FindAction extends AbstractFindAction {
     /**
      * Creates a new instance.
      */
-    public FindAction(Application app, View v) {
+    public FindAction(Application app, @Nullable View v) {
         super(app,v);
     }
     

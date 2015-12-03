@@ -1,22 +1,19 @@
 /*
  * @(#)NanoXMLDOMInput.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.xml;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.*;
 import java.io.*;
-import java.awt.*;
 import net.n3.nanoxml.*;
 import org.jhotdraw.app.Disposable;
 /**
@@ -41,7 +38,7 @@ public class NanoXMLDOMInput implements DOMInput, Disposable {
     /**
      * The document used for input.
      */
-    private XMLElement document;
+    @Nullable private XMLElement document;
     /**
      * The current node used for input.
      */
@@ -248,19 +245,17 @@ public class NanoXMLDOMInput implements DOMInput, Disposable {
         openElement(index);
         Object o;
         
-        String tagName = getTagName();
-
         String ref = getAttribute("ref", null);
         String id = getAttribute("id", null);
 
         if (ref != null && id != null) {
-            throw new IOException("Element has both an id and a ref attribute: <" + getTagName() + " id=" + id + " ref=" + ref + ">");
+            throw new IOException("Element has both an id and a ref attribute: <" + getTagName() + " id=\"" + id + "\" ref=\"" + ref + "\"> in line number "+current.getLineNr());
         }
         if (id != null && idobjects.containsKey(id)) {
-            throw new IOException("Duplicate id attribute: <" + getTagName() + " id=" + id + ">");
+            throw new IOException("Duplicate id attribute: <" + getTagName() + " id=\"" + id + "\"> in line number "+current.getLineNr());
         }
         if (ref != null && !idobjects.containsKey(ref)) {
-            throw new IOException("Illegal ref attribute value: <" + getTagName() + " ref=" + ref + ">");
+            throw new IOException("Referenced element not found: <" + getTagName() + " ref=\"" + ref + "\"> in line number "+current.getLineNr());
         }
 
         // Keep track of objects which have an ID
@@ -271,8 +266,11 @@ public class NanoXMLDOMInput implements DOMInput, Disposable {
             if (id != null) {
                 idobjects.put(id, o);
             }
+            if (o instanceof DOMStorable) {
+                ((DOMStorable) o).read(this);
+            }
         }
-        
+
         closeElement();
         return o;
     }

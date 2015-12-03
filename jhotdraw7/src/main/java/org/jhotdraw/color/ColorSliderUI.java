@@ -1,15 +1,12 @@
 /*
  * @(#)ColorSliderUI.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.color;
 
@@ -203,9 +200,6 @@ public class ColorSliderUI extends BasicSliderUI {
         g.fillRect(tickBounds.x, tickBounds.y, tickBounds.width, tickBounds.height);
          */
         g.setColor(foreground);
-
-        maj = slider.getMajorTickSpacing();
-        min = slider.getMinorTickSpacing();
 
         if (slider.getOrientation() == JSlider.HORIZONTAL) {
             g.translate(0, tickBounds.y);
@@ -555,9 +549,6 @@ public class ColorSliderUI extends BasicSliderUI {
             if (thumbRect.contains(currentMouseX, currentMouseY)) {
                 super.mousePressed(e);
             } else {
-                Dimension sbSize = slider.getSize();
-                int direction = POSITIVE_SCROLL;
-
                 switch (slider.getOrientation()) {
                     case JSlider.VERTICAL:
                         slider.setValue(valueForYPosition(currentMouseY));

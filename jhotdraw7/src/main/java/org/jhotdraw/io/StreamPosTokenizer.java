@@ -1,18 +1,16 @@
 /*
  * @(#)StreamPosTokenizer.java
  *
- * Copyright (c) 1999-2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1999-2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.io;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.*;
 import java.util.Vector;
 
@@ -28,9 +26,10 @@ import java.util.Vector;
  * @version $Id$
  */
 
+
 public class StreamPosTokenizer
         /*extends StreamTokenizer*/ {
-    private Reader reader = null;
+    @Nullable private Reader reader = null;
     
     /**
      * Position of the next character that will be read from the file.
@@ -474,7 +473,7 @@ public class StreamPosTokenizer
     }
     /** Unread */
     private void unread(int c) {
-        unread.addElement(new Integer(c));
+        unread.addElement(c);
         readpos--;
     }
     
@@ -496,6 +495,7 @@ public class StreamPosTokenizer
      * @see        java.io.StreamTokenizer#sval
      * @see        java.io.StreamTokenizer#ttype
      */
+    @SuppressWarnings("empty-statement")
     public int nextToken() throws IOException {
         if (pushedBack) {
             pushedBack = false;
@@ -936,7 +936,7 @@ public class StreamPosTokenizer
         if ((ctype & CT_COMMENT) != 0) {
             while ((c = read()) != '\n' && c != '\r' && c >= 0);
             peekc = c;
-            lineno++;
+            //lineno++;  removed because it counts line break twice
             return nextToken();
         }
         

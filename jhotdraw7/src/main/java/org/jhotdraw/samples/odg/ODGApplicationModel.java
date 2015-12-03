@@ -1,18 +1,16 @@
 /*
  * @(#)ODGApplicationModel.java
  *
- * Copyright (c) 2007 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2007 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.samples.odg;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.app.action.view.ViewPropertyAction;
 import org.jhotdraw.app.action.view.ToggleViewPropertyAction;
 import org.jhotdraw.app.action.file.ExportFileAction;
@@ -97,7 +95,6 @@ public class ODGApplicationModel extends DefaultApplicationModel {
         // AttributeKeys for the entitie sets
         HashMap<AttributeKey, Object> attributes;
 
-        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.odg.Labels");
         ResourceBundleUtil drawLabels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
 
         ButtonFactory.addSelectionToolTo(tb, editor, createDrawingActions(editor), createSelectionActions(editor));
@@ -121,7 +118,6 @@ public class ODGApplicationModel extends DefaultApplicationModel {
      * Creates toolbar buttons and adds them to the specified JToolBar
      */
     private void addAttributesButtonsTo(JToolBar bar, DrawingEditor editor) {
-        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
         JButton b;
 
         b = bar.add(new PickAttributesAction(editor));
@@ -166,7 +162,7 @@ public class ODGApplicationModel extends DefaultApplicationModel {
      * Creates toolbars for the application.
      */
     @Override
-    public java.util.List<JToolBar> createToolBars(Application a, View pr) {
+    public java.util.List<JToolBar> createToolBars(Application a, @Nullable View pr) {
         ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
         ODGView p = (ODGView) pr;
 
@@ -202,10 +198,9 @@ public class ODGApplicationModel extends DefaultApplicationModel {
     }
 
     @Override
-    public ActionMap createActionMap(Application a, View v) {
+    public ActionMap createActionMap(Application a, @Nullable View v) {
         ActionMap m = super.createActionMap(a, v);
         ResourceBundleUtil drawLabels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
-        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.odg.Labels");
         AbstractAction aa;
 
         m.put(ExportFileAction.ID, new ExportFileAction(a, v));
@@ -221,7 +216,7 @@ public class ODGApplicationModel extends DefaultApplicationModel {
     }
 
     @Override
-    public URIChooser createOpenChooser(Application a, View view) {
+    public URIChooser createOpenChooser(Application a, @Nullable View view) {
         final JFileURIChooser c = new JFileURIChooser();
         final HashMap<javax.swing.filechooser.FileFilter, InputFormat> fileFilterInputFormatMap = new HashMap<javax.swing.filechooser.FileFilter, InputFormat>();
         c.putClientProperty("ffInputFormatMap", fileFilterInputFormatMap);
@@ -255,7 +250,7 @@ public class ODGApplicationModel extends DefaultApplicationModel {
     }
 
     @Override
-    public URIChooser createSaveChooser(Application a, View view) {
+    public URIChooser createSaveChooser(Application a, @Nullable View view) {
         JFileURIChooser c = new JFileURIChooser();
         final HashMap<javax.swing.filechooser.FileFilter, OutputFormat> fileFilterOutputFormatMap = new HashMap<javax.swing.filechooser.FileFilter, OutputFormat>();
         c.putClientProperty("ffOutputFormatMap", fileFilterOutputFormatMap);
@@ -272,7 +267,7 @@ public class ODGApplicationModel extends DefaultApplicationModel {
         return c;
     }
     @Override
-    public URIChooser createExportChooser(Application a, View view) {
+    public URIChooser createExportChooser(Application a, @Nullable View view) {
         JFileURIChooser c = new JFileURIChooser();
         final HashMap<javax.swing.filechooser.FileFilter, OutputFormat> fileFilterOutputFormatMap = new HashMap<javax.swing.filechooser.FileFilter, OutputFormat>();
         c.putClientProperty("ffExportFormatMap", fileFilterOutputFormatMap);

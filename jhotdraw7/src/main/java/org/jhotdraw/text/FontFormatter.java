@@ -1,18 +1,16 @@
 /*
  * @(#)FontFormatter.java
  * 
- * Copyright (c) 2009-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2009-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  * 
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.text;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.Font;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -44,7 +42,7 @@ public class FontFormatter extends DefaultFormatter {
      * <a href="http://www.w3.org/TR/CSS2/fonts.html#generic-font-families"/>
      * http://www.w3.org/TR/CSS2/fonts.html#generic-font-families</a>.
      */
-    private HashMap<String, Font> genericFontFamilies = new HashMap<String, Font>();
+    @Nullable private HashMap<String, Font> genericFontFamilies = new HashMap<String, Font>();
 
     public FontFormatter() {
         this(true);

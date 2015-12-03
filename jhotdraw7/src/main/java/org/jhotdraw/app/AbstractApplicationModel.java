@@ -1,18 +1,16 @@
 /*
  * @(#)AbstractApplicationModel.java
  * 
- * Copyright (c) 2009-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2009-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  * 
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.app;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.beans.*;
 import java.util.*;
 import javax.swing.*;
@@ -124,10 +122,7 @@ public abstract class AbstractApplicationModel extends AbstractBean
      * Creates toolbars for the application.
      */
     @Override
-    public abstract List<JToolBar> createToolBars(Application a, View p);
-
-    @Override
-    public abstract List<JMenu> createMenus(Application a, View p);
+    public abstract List<JToolBar> createToolBars(Application a, @Nullable View p);
 
     /** This method is empty. */
     @Override
@@ -148,13 +143,13 @@ public abstract class AbstractApplicationModel extends AbstractBean
     }
 
     @Override
-    public URIChooser createOpenChooser(Application a, View v) {
+    public URIChooser createOpenChooser(Application a, @Nullable View v) {
         URIChooser c = new JFileURIChooser();
 
         return c;
     }
     @Override
-    public URIChooser createOpenDirectoryChooser(Application a, View v) {
+    public URIChooser createOpenDirectoryChooser(Application a, @Nullable View v) {
         JFileURIChooser c = new JFileURIChooser();
         c.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         return c;
@@ -162,19 +157,19 @@ public abstract class AbstractApplicationModel extends AbstractBean
 
 
     @Override
-    public URIChooser createSaveChooser(Application a, View v) {
+    public URIChooser createSaveChooser(Application a, @Nullable View v) {
         JFileURIChooser c = new JFileURIChooser();
         return c;
     }
     /** Returns createOpenChooser. */
     @Override
-    public URIChooser createImportChooser(Application a, View v) {
+    public URIChooser createImportChooser(Application a, @Nullable View v) {
         return createOpenChooser(a,v);
     }
 
     /** Returns createSaveChooser. */
     @Override
-    public URIChooser createExportChooser(Application a, View v) {
+    public URIChooser createExportChooser(Application a, @Nullable View v) {
         return createSaveChooser(a,v);
     }
 

@@ -1,18 +1,16 @@
 /*
  * @(#)AbstractViewAction.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.app.action;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.beans.*;
 import javax.swing.*;
 import org.jhotdraw.app.Application;
@@ -35,7 +33,7 @@ import org.jhotdraw.app.View;
 public abstract class AbstractViewAction extends AbstractAction {
 
     private Application app;
-    private View view;
+    @Nullable private View view;
     private String propertyName;
     public final static String VIEW_PROPERTY = "view";
     public final static String ENABLED_PROPERTY = "enabled";
@@ -62,7 +60,7 @@ public abstract class AbstractViewAction extends AbstractAction {
     };
 
     /** Creates a new instance which acts on the specified view of the application. */
-    public AbstractViewAction(Application app, View view) {
+    public AbstractViewAction(Application app, @Nullable View view) {
         this.app = app;
         this.view = view;
         this.enabled = true;
@@ -77,7 +75,7 @@ public abstract class AbstractViewAction extends AbstractAction {
      * Updates the listeners of this action depending on the current view
      * of the application.
      */
-    protected void updateView(View oldValue, View newValue) {
+    protected void updateView(@Nullable View oldValue, @Nullable View newValue) {
         // We only need to do this, if the view has not been explicitly set
         if (view == null) {
             if (oldValue != null) {
@@ -136,13 +134,14 @@ public abstract class AbstractViewAction extends AbstractAction {
      * state of the view.
      */
     protected void updateEnabled(boolean oldValue, boolean newValue) {
-        firePropertyChange("enabled", oldValue, newValue && isEnabled());
+        firePropertyChange("enabled", oldValue, isEnabled());
     }
 
     public Application getApplication() {
         return app;
     }
 
+    @Nullable
     public View getActiveView() {
         return (view == null) ? app.getActiveView() : view;
     }
@@ -150,14 +149,17 @@ public abstract class AbstractViewAction extends AbstractAction {
     /**
      * Returns true if the action is enabled.
      * The enabled state of the action depends on the state that has been set
-     * using setEnabled() and on the enabled state of the application.
+     * using setEnabled(), on the enabled state of the application,
+     * on the enabled state of the active view and whether there is an active
+     * view.
      *
      * @return true if the action is enabled, false otherwise
      * @see Action#isEnabled
      */
     @Override
     public boolean isEnabled() {
-        return getActiveView() != null
+        return getApplication().isEnabled() &&
+                getActiveView() != null
                 && getActiveView().isEnabled()
                 && this.enabled;
     }

@@ -1,18 +1,16 @@
 /*
  * @(#)AttributeAction.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.action;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import javax.swing.undo.*;
 import org.jhotdraw.app.action.ActionUtil;
 import javax.swing.*;
@@ -32,25 +30,25 @@ public class DrawingAttributeAction extends AbstractDrawingViewAction {
 
     /** Creates a new instance. */
     /** Creates a new instance. */
-    public DrawingAttributeAction(DrawingEditor editor, AttributeKey key, Object value) {
+    public <T> DrawingAttributeAction(DrawingEditor editor, AttributeKey<T> key, @Nullable T value) {
         this(editor, key, value, null, null);
     }
 
     /** Creates a new instance. */
-    public DrawingAttributeAction(DrawingEditor editor, AttributeKey key, Object value, Icon icon) {
+    public <T> DrawingAttributeAction(DrawingEditor editor, AttributeKey<T> key, @Nullable T value, @Nullable Icon icon) {
         this(editor, key, value, null, icon);
     }
 
     /** Creates a new instance. */
-    public DrawingAttributeAction(DrawingEditor editor, AttributeKey key, Object value, String name) {
+    public <T> DrawingAttributeAction(DrawingEditor editor, AttributeKey<T> key, @Nullable T value, @Nullable String name) {
         this(editor, key, value, name, null);
     }
 
-    public DrawingAttributeAction(DrawingEditor editor, AttributeKey key, Object value, String name, Icon icon) {
+    public <T> DrawingAttributeAction(DrawingEditor editor, AttributeKey<T> key, @Nullable T value, @Nullable String name, @Nullable Icon icon) {
         this(editor, key, value, name, icon, null);
     }
 
-    public DrawingAttributeAction(DrawingEditor editor, AttributeKey key, Object value, String name, Icon icon, Action compatibleTextAction) {
+    public <T> DrawingAttributeAction(DrawingEditor editor, AttributeKey<T> key, @Nullable T value, @Nullable String name, @Nullable Icon icon, @Nullable Action compatibleTextAction) {
         super(editor);
         this.attributes = new HashMap<AttributeKey, Object>();
         attributes.put(key, value);

@@ -1,15 +1,12 @@
 /*
  * @(#)NumberedParagraphView.java
  *
- * Copyright (c) 2005 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2005 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and
- * contributors of the JHotDraw project ("the copyright holders").
- * You may not use, copy or modify this software, except in
- * accordance with the license agreement you entered into with
- * the copyright holders. For details see accompanying license terms.
+ * You may not use, copy or modify this file, except in compliance with the
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.samples.teddy.text;
@@ -23,7 +20,7 @@ import javax.swing.text.*;
  * @version $Id$
  */
 public class NumberedParagraphView extends ParagraphView {
-    public static short NUMBERS_WIDTH=30;
+    public final static short NUMBERS_WIDTH=30;
     private static Font numberFont = new Font("Dialog",Font.PLAIN,10);
     private NumberedViewFactory viewFactory;
     public NumberedParagraphView(Element e, NumberedViewFactory viewFactory) {
@@ -53,7 +50,7 @@ public class NumberedParagraphView extends ParagraphView {
                 g.setColor(Color.gray);
                 int lineAscent = g.getFontMetrics().getAscent();
                 g.setFont(numberFont);
-                int numberAscent = g.getFontMetrics().getAscent();
+                //int numberAscent = g.getFontMetrics().getAscent();
                 int lineNumber = getDocument().
                         getDefaultRootElement().
                         getElementIndex(getStartOffset());

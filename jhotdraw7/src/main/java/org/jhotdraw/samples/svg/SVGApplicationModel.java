@@ -1,18 +1,16 @@
 /*
  * @(#)SVGApplicationModel.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.samples.svg;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import org.jhotdraw.app.action.file.ExportFileAction;
@@ -72,108 +70,90 @@ public class SVGApplicationModel extends DefaultApplicationModel {
     @Override
     public void initView(Application a, View view) {
         SVGView v = (SVGView) view;
+        DrawingEditor editor;
         if (a.isSharingToolsAmongViews()) {
-            v.setEditor(getSharedEditor());
+            v.setEditor(editor=getSharedEditor());
         } else {
-            v.setEditor(new DefaultDrawingEditor());
+            v.setEditor(editor=new DefaultDrawingEditor());
         }
 
         AbstractSelectedAction action;
-        view.getActionMap().put(SelectSameAction.ID, action = new SelectSameAction(v.getEditor()));
-        view.addDisposable(action);
+        ActionMap m =view.getActionMap();
+        m.put(SelectSameAction.ID,new SelectSameAction(editor));
+        m.put(GroupAction.ID,new GroupAction(editor, new SVGGroupFigure()));
+        m.put(UngroupAction.ID,new UngroupAction(editor, new SVGGroupFigure()));
+        m.put(CombineAction.ID,new CombineAction(editor));
+        m.put(SplitAction.ID,new SplitAction(editor));
+        m.put(BringToFrontAction.ID,new BringToFrontAction(editor));
+        m.put(SendToBackAction.ID,new SendToBackAction(editor));
+        //view.addDisposable(action);
     }
 
     @Override
-    public ActionMap createActionMap(Application a, View v) {
+    public ActionMap createActionMap(Application a, @Nullable View view) {
+        SVGView v = (SVGView) view;
         ActionMap m = super.createActionMap(a, v);
-        ResourceBundleUtil drawLabels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
-        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.svg.Labels");
         AbstractAction aa;
 
         m.put(ClearSelectionAction.ID, new ClearSelectionAction());
         m.put(ViewSourceAction.ID, new ViewSourceAction(a, v));
         m.put(ExportFileAction.ID, new ExportFileAction(a, v));
         if (v instanceof SVGView) {
-            SVGView svgView=(SVGView)v;
+            SVGView svgView = (SVGView) v;
             m.put(UndoAction.ID, svgView.getUndoManager().getUndoAction());
             m.put(RedoAction.ID, svgView.getUndoManager().getRedoAction());
         }
-        return m;
-    }
 
-    public Collection<Action> createDrawingActions(Application app, DrawingEditor editor) {
-        LinkedList<Action> a = new LinkedList<Action>();
-        a.add(new CutAction());
-        a.add(new CopyAction());
-        a.add(new PasteAction());
-        a.add(new SelectAllAction());
-        a.add(new ClearSelectionAction());
-        a.add(new SelectSameAction(editor));
-        return a;
-    }
-
-    public static Collection<Action> createSelectionActions(DrawingEditor editor) {
-        LinkedList<Action> a = new LinkedList<Action>();
-        a.add(new DuplicateAction());
-
-        a.add(null); // separator
-        a.add(new GroupAction(editor, new SVGGroupFigure()));
-        a.add(new UngroupAction(editor, new SVGGroupFigure()));
-        a.add(new CombineAction(editor));
-        a.add(new SplitAction(editor));
-
-        a.add(null); // separator
-        a.add(new BringToFrontAction(editor));
-        a.add(new SendToBackAction(editor));
-
-        return a;
-    }
-
-    @Override
-    public java.util.List<JMenu> createMenus(Application a, View pr) {
-        LinkedList<JMenu> mb = new LinkedList<JMenu>();
-        mb.add(createEditMenu(a, pr));
-        mb.add(createViewMenu(a, pr));
-        return mb;
-    }
-
-    @Override
-    protected JMenu createViewMenu(Application a, View v) {
-        JMenu m, m2;
-        JMenuItem mi;
-        JRadioButtonMenuItem rbmi;
-        JCheckBoxMenuItem cbmi;
-        ButtonGroup group;
-        Action action;
-
-        ResourceBundleUtil appLabels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
-        ResourceBundleUtil drawLabels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
-        ResourceBundleUtil svgLabels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.svg.Labels");
-
-        m = new JMenu();
-        appLabels.configureMenu(m, "view");
-        ActionMap am = a.getActionMap(v);
-        m.add(am.get(ViewSourceAction.ID));
-
-        return m;
-    }
-
-    @Override
-    protected JMenu createEditMenu(Application a, View v) {
-        ResourceBundleUtil appLabels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
-        ResourceBundleUtil drawLabels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
-
-        JMenu m = a.createEditMenu(v);
-        if (m == null) {
-            m = new JMenu();
-            appLabels.configureMenu(m, "edit");
+        DrawingEditor editor;
+        if (a.isSharingToolsAmongViews()) {
+            editor=getSharedEditor();
+        } else {
+           editor = (v == null) ? null : v.getEditor();
         }
-        JMenuItem mi;
+        m.put(SelectSameAction.ID,new SelectSameAction(editor));
+        m.put(GroupAction.ID,new GroupAction(editor, new SVGGroupFigure()));
+        m.put(UngroupAction.ID,new UngroupAction(editor, new SVGGroupFigure()));
+        m.put(CombineAction.ID,new CombineAction(editor));
+        m.put(SplitAction.ID,new SplitAction(editor));
+        m.put(BringToFrontAction.ID,new BringToFrontAction(editor));
+        m.put(SendToBackAction.ID,new SendToBackAction(editor));
 
-        ActionMap am = a.getActionMap(v);
-        mi = m.add(am.get(SelectSameAction.ID));
-        mi.setIcon(null);
         return m;
+    }
+
+    /** Creates the MenuBuilder. */
+    @Override
+    protected MenuBuilder createMenuBuilder() {
+        return new DefaultMenuBuilder() {
+
+            @Override
+            public void addSelectionItems(JMenu m, Application app, @Nullable View v) {
+                ActionMap am = app.getActionMap(v);
+
+                super.addSelectionItems(m, app, v);
+                m.add(am.get(SelectSameAction.ID));
+            }
+
+            @Override
+            public void addOtherEditItems(JMenu m, Application app, @Nullable View v) {
+                ActionMap am = app.getActionMap(v);
+
+                m.add(am.get(GroupAction.ID));
+                m.add(am.get(UngroupAction.ID));
+                m.add(am.get(CombineAction.ID));
+                m.add(am.get(SplitAction.ID));
+
+                m.addSeparator();
+                m.add(am.get(BringToFrontAction.ID));
+                m.add(am.get(SendToBackAction.ID));
+            }
+
+            @Override
+            public void addOtherViewItems(JMenu m, Application app, @Nullable View v) {
+                ActionMap am = app.getActionMap(v);
+                m.add(am.get(ViewSourceAction.ID));
+            }
+        };
     }
 
     /**
@@ -184,13 +164,13 @@ public class SVGApplicationModel extends DefaultApplicationModel {
      * @return An empty list.
      */
     @Override
-    public List<JToolBar> createToolBars(Application app, View p) {
+    public List<JToolBar> createToolBars(Application app, @Nullable View p) {
         LinkedList<JToolBar> list = new LinkedList<JToolBar>();
         return list;
     }
 
     @Override
-    public URIChooser createOpenChooser(Application a, View v) {
+    public URIChooser createOpenChooser(Application a, @Nullable View v) {
         final JFileURIChooser c = new JFileURIChooser();
         final HashMap<FileFilter, InputFormat> fileFilterInputFormatMap =
                 new HashMap<FileFilter, InputFormat>();
@@ -233,7 +213,7 @@ public class SVGApplicationModel extends DefaultApplicationModel {
     }
 
     @Override
-    public URIChooser createSaveChooser(Application a, View v) {
+    public URIChooser createSaveChooser(Application a, @Nullable View v) {
         JFileURIChooser c = new JFileURIChooser();
 
         final HashMap<FileFilter, OutputFormat> fileFilterOutputFormatMap =
@@ -260,7 +240,7 @@ public class SVGApplicationModel extends DefaultApplicationModel {
     }
 
     @Override
-    public URIChooser createExportChooser(Application a, View v) {
+    public URIChooser createExportChooser(Application a, @Nullable View v) {
         JFileURIChooser c = new JFileURIChooser();
 
         final HashMap<FileFilter, OutputFormat> fileFilterOutputFormatMap =

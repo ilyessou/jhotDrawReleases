@@ -1,18 +1,16 @@
 /*
  * @(#)ImageOutputFormat.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.io;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.gui.filechooser.ExtensionFileFilter;
 import org.jhotdraw.draw.*;
 import java.awt.*;
@@ -152,7 +150,7 @@ public class ImageOutputFormat implements OutputFormat {
      * it on an image of the specified size.
      */
     public void write(OutputStream out, Drawing drawing, java.util.List<Figure> figures,
-            AffineTransform drawingTransform, Dimension imageSize) throws IOException {
+            @Nullable AffineTransform drawingTransform, @Nullable Dimension imageSize) throws IOException {
         BufferedImage img;
         if (drawingTransform == null || imageSize == null) {
             img = toImage(drawing, figures, 1d, false);

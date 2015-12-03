@@ -1,18 +1,16 @@
 /*
  * @(#)AbstractTool.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.tool;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.handle.Handle;
 import org.jhotdraw.draw.event.ToolEvent;
@@ -271,6 +269,7 @@ public abstract class AbstractTool extends AbstractBean implements Tool {
      * <p>
      * The implementation of this class returns null.
      */
+    @Nullable
     protected InputMap createInputMap() {
         return null;
     }
@@ -280,6 +279,7 @@ public abstract class AbstractTool extends AbstractBean implements Tool {
      * <p>
      * The implementation of this class returns null.
      */
+    @Nullable
     protected ActionMap createActionMap() {
         return null;
     }
@@ -421,8 +421,8 @@ public abstract class AbstractTool extends AbstractBean implements Tool {
             canvasBounds.height += d.get(CANVAS_HEIGHT);
         }
         if (!canvasBounds.contains(invalidatedArea)) {
-           fireBoundsInvalidated(invalidatedArea);
-           }
+            fireBoundsInvalidated(invalidatedArea);
+        }
     }
 
     /**

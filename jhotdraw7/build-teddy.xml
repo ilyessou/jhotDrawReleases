@@ -4,7 +4,7 @@
     <target name="init">
         <!-- properties for copyright and versioning -->
         <property name="author" value="the authors and contributors of JHotDraw"/>
-        <property name="version" value="7.4.1"/>
+        <property name="version" value="7.6"/>
 
         <!-- build properties -->
         <property name="libdir" value="lib"/>
@@ -31,6 +31,8 @@
                 encoding="UTF-8"
          >
             <classpath path="${libdir}/quaqua.jar"/>
+            <classpath path="${libdir}/annotations.jar"/>
+            <classpath path="${libdir}/jsr305.jar"/>
             <include name="org/jhotdraw/samples/teddy/Main.java"/> 
             <include name="org/jhotdraw/samples/teddy/TeddyProject.java"/> 
         </javac>

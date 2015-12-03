@@ -1,19 +1,17 @@
 /*
  * @(#)Insets2D.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.geom;
 
+import java.awt.Insets;
 import java.awt.geom.*;
 import java.io.Serializable;
 /**
@@ -206,6 +204,20 @@ public abstract class Insets2D implements Cloneable, Serializable {
             // this shouldn't happen, since we are Cloneable
             throw new InternalError();
         }
+    }
+
+    /**
+     * Returns a string representation of this <code>Insets</code> object.
+     * This method is intended to be used only for debugging purposes, and
+     * the content and format of the returned string may vary between
+     * implementations. The returned string may be empty but may not be
+     * <code>null</code>.
+     *
+     * @return  a string representation of this <code>Insets</code> object.
+     */
+    @Override
+    public String toString() {
+	return getClass().getName().substring(getClass().getName().lastIndexOf('.')+1) + "[top="  + getTop() + ",left=" + getLeft() + ",bottom=" + getBottom() + ",right=" + getRight() + "]";
     }
     /**
      * The <code>Float</code> class defines insets specified in

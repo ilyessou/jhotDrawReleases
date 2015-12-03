@@ -1,23 +1,22 @@
 /*
  * @(#)SheetEvent.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.gui.event;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.*;
 import javax.swing.*;
 import org.jhotdraw.gui.URIChooser;
 import org.jhotdraw.gui.JSheet;
+
 /**
  * SheetEvent.
  *
@@ -27,8 +26,8 @@ import org.jhotdraw.gui.JSheet;
 public class SheetEvent extends EventObject {
     private Object pane;
     private int option;
-    private Object value;
-    private Object inputValue;
+    @Nullable private Object value;
+    @Nullable private Object inputValue;
     
     /**
      * Creates a new instance.
@@ -39,7 +38,7 @@ public class SheetEvent extends EventObject {
     /**
      * Creates a new instance.
      */
-    public SheetEvent(JSheet source, JFileChooser fileChooser, int option, Object value) {
+    public SheetEvent(JSheet source, JFileChooser fileChooser, int option, @Nullable Object value) {
         super(source);
         this.pane = fileChooser;
         this.option = option;
@@ -48,7 +47,7 @@ public class SheetEvent extends EventObject {
     /**
      * Creates a new instance.
      */
-    public SheetEvent(JSheet source, URIChooser chooser, int option, Object value) {
+    public SheetEvent(JSheet source, URIChooser chooser, int option, @Nullable Object value) {
         super(source);
         this.pane = chooser;
         this.option = option;
@@ -57,7 +56,7 @@ public class SheetEvent extends EventObject {
     /**
      * Creates a new instance.
      */
-    public SheetEvent(JSheet source, JOptionPane optionPane, int option, Object value, Object inputValue) {
+    public SheetEvent(JSheet source, JOptionPane optionPane, int option, @Nullable Object value, @Nullable Object inputValue) {
         super(source);
         this.pane = optionPane;
         this.option = option;

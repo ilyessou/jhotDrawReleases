@@ -1,15 +1,12 @@
 /**
  * @(#)EditCanvasPanel.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and
- * contributors of the JHotDraw project ("the copyright holders").
- * You may not use, copy or modify this software, except in
- * accordance with the license agreement you entered into with
- * the copyright holders. For details see accompanying license terms.
+ * You may not use, copy or modify this file, except in compliance with the
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.action;
 
@@ -18,7 +15,7 @@ import javax.swing.*;
 import javax.swing.text.*;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.event.DrawingAttributeEditorHandler;
-import org.jhotdraw.gui.JAttributeSlider;
+import org.jhotdraw.draw.gui.JAttributeSlider;
 import org.jhotdraw.text.JavaNumberFormatter;
 import org.jhotdraw.util.*;
 import static org.jhotdraw.draw.AttributeKeys.*;
@@ -29,7 +26,7 @@ import static org.jhotdraw.draw.AttributeKeys.*;
  * @see org.jhotdraw.draw.Drawing
  *
  * @author Werner Randelshofer
- * @version $Id$
+ * @version $Id$
  */
 @SuppressWarnings("unchecked")
 public class EditCanvasPanel extends javax.swing.JPanel {
@@ -133,7 +130,7 @@ public class EditCanvasPanel extends javax.swing.JPanel {
         colorLabel = new javax.swing.JLabel();
         colorButton = new javax.swing.JButton();
         opacityLabel = new javax.swing.JLabel();
-        opacityField = new org.jhotdraw.gui.JAttributeTextField<Double>();
+        opacityField = new org.jhotdraw.draw.gui.JAttributeTextField<Double>();
         opacityPopupButton = new org.jhotdraw.gui.JPopupButton();
 
         setLayout(new java.awt.GridBagLayout());
@@ -178,7 +175,7 @@ public class EditCanvasPanel extends javax.swing.JPanel {
     private javax.swing.ButtonGroup bgColorButtonGroup;
     private javax.swing.JButton colorButton;
     private javax.swing.JLabel colorLabel;
-    private org.jhotdraw.gui.JAttributeTextField opacityField;
+    private org.jhotdraw.draw.gui.JAttributeTextField opacityField;
     private javax.swing.JLabel opacityLabel;
     private org.jhotdraw.gui.JPopupButton opacityPopupButton;
     // End of variables declaration//GEN-END:variables

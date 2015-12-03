@@ -1,21 +1,18 @@
 /*
  * @(#)DecoratedFigure.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.draw;
 
-import org.jhotdraw.annotations.NotNull;
-import org.jhotdraw.annotations.Nullable;
+import edu.umd.cs.findbugs.annotations.Nullable;
+
 
 /**
  * A <em>decorated figure</em> can be decorated with another {@link Figure},
@@ -38,7 +35,6 @@ import org.jhotdraw.annotations.Nullable;
  * @author Werner Randelshofer
  * @version $Id$
  */
-@NotNull
 public interface DecoratedFigure extends Figure {
     /**
      * Sets a decorator Figure, for example a visual adornment to this Figure.

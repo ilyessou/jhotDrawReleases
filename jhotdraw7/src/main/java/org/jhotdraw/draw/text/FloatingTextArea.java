@@ -1,18 +1,16 @@
 /*
  *  @(#)FloatingTextArea.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.text;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.event.FigureListener;
 import org.jhotdraw.draw.event.FigureAdapter;
 import org.jhotdraw.draw.event.FigureEvent;
@@ -56,8 +54,8 @@ public class FloatingTextArea {
     /**
      * The drawing view.
      */
-    protected DrawingView view;
-    private TextHolderFigure editedFigure;
+    @Nullable protected DrawingView view;
+    @Nullable private TextHolderFigure editedFigure;
     private FigureListener figureHandler = new FigureAdapter() {
 
         @Override
@@ -98,7 +96,7 @@ public class FloatingTextArea {
      * @param view the DrawingView
      * @param figure the figure holding the text
      */
-    public void createOverlay(DrawingView view, TextHolderFigure figure) {
+    public void createOverlay(DrawingView view, @Nullable TextHolderFigure figure) {
         view.getComponent().add(editScrollContainer, 0);
         editedFigure = figure;
         this.view = view;

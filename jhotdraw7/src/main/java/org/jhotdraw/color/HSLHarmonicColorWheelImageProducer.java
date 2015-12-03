@@ -1,15 +1,12 @@
 /**
  * @(#)HSLHarmonicColorWheelImageProducer.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.color;
 
@@ -21,7 +18,7 @@ import java.awt.color.ColorSpace;
  * HSLHarmonicColorWheelImageProducer.
  *
  * @author Werner Randelshofer
- * @version $Id$
+ * @version $Id$
  */
 public class HSLHarmonicColorWheelImageProducer extends PolarColorWheelImageProducer {
 
@@ -127,7 +124,6 @@ public class HSLHarmonicColorWheelImageProducer extends PolarColorWheelImageProd
 
     @Override
     public void generateColorWheel() {
-        float radius = (float) Math.min(w, h);
         for (int index = 0; index < pixels.length; index++) {
             if (alphas[index] != 0) {
                 pixels[index] = alphas[index] | 0xffffff & ColorUtil.toRGB(colorSpace, angulars[index], radials[index], brights[index]);
@@ -146,12 +142,9 @@ public class HSLHarmonicColorWheelImageProducer extends PolarColorWheelImageProd
     @Override
     public Point getColorLocation(float[] hsb) {
         float hue = hsb[0];
-        float saturation = hsb[1];
         float brightness = hsb[2];
         float radius = Math.min(w, h) / 2f;
-        float radiusH = radius / 2f;
 
-        saturation = Math.max(0f, Math.min(1f, saturation));
         brightness = Math.max(0f, Math.min(1f, brightness));
 
         Point p;

@@ -1,18 +1,16 @@
 /*
  * @(#)SDIApplication.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.app;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.app.action.app.AbstractPreferencesAction;
 import org.jhotdraw.app.action.window.ToggleVisibleAction;
 import org.jhotdraw.app.action.file.SaveFileAsAction;
@@ -75,6 +73,63 @@ import org.jhotdraw.net.URIUtil;
  * <p>
  * The life cycle of the application is tied to the JFrame. Closing the JFrame
  * quits the application.
+ * <p>
+ * The menu bar of a JFrame has the following standard menus:
+ * <pre>
+ * File &nbsp; Edit &nbsp; View &nbsp; Help</pre>
+ *
+ * The <b>file menu</b> has the following standard menu items:
+ * <pre>
+ *  Clear ({@link ClearFileAction#ID}})
+ *  New ({@link NewFileAction#ID}})
+ *  New Window ({@link NewWindowAction#ID}})
+ *  Load... ({@link LoadFileAction#ID}})
+ *  Open... ({@link OpenFileAction#ID}})
+ *  Load Directory... ({@link LoadDirectoryAction#ID}})
+ *  Open Directory... ({@link OpenDirectoryAction#ID}})
+ *  Load Recent &gt; "Filename" ({@link org.jhotdraw.app.action.file.LoadRecentFileAction#ID})
+ *  Open Recent &gt; "Filename" ({@link org.jhotdraw.app.action.file.OpenRecentFileAction#ID})
+ *  -
+ *  Save ({@link SaveFileAction#ID})
+ *  Save As... ({@link SaveFileAsAction#ID})
+ *  Export... ({@link ExportFileAction#ID})
+ *  Print... ({@link PrintFileAction#ID})
+ *  -
+ *  Close ({@link CloseFileAction#ID})
+ * </pre>
+ *
+ * The <b>edit menu</b> has the following standard menu items:
+ * <pre>
+ *  Undo ({@link UndoAction#ID}})
+ *  Redo ({@link RedoAction#ID}})
+ *  -
+ *  Cut ({@link CutAction#ID}})
+ *  Copy ({@link CopyAction#ID}})
+ *  Paste ({@link PasteAction#ID}})
+ *  Duplicate ({@link DuplicateAction#ID}})
+ *  Delete... ({@link DeleteAction#ID}})
+ *  -
+ *  Select All ({@link SelectAllAction#ID}})
+ *  Clear Selection ({@link ClearSelectionAction#ID}})
+ *  -
+ *  Find ({@link AbstractFindAction#ID}})
+ *  -
+ *  Preferences... ({@link AbstractPreferencesAction#ID})
+ * </pre>
+ *
+ * The <b>view menu</b> has the following standard menu items:
+ * <pre>
+ *  "Toolbar" ({@link ToggleVisibleAction})
+ * </pre>
+ *
+ * The <b>view menu</b> has the following standard menu items:
+ * <pre>
+ *  About ({@link AboutAction#ID})
+ * </pre>
+ *
+ * The menus provided by the {@code ApplicationModel} are inserted between
+ * the file menu and the window menu. In case the application model supplies
+ * a menu with the title "Help", it is inserted after the window menu.
  *
  * @author Werner Randelshofer
  * @version $Id$
@@ -236,6 +291,9 @@ public class SDIApplication extends AbstractApplication {
     @Override
     public void hide(View p) {
         if (p.isShowing()) {
+            if (getActiveView()==p) {
+                setActiveView(null);
+            }
             p.setShowing(false);
             JFrame f = (JFrame) SwingUtilities.getWindowAncestor(p.getComponent());
             f.setVisible(false);
@@ -269,7 +327,9 @@ public class SDIApplication extends AbstractApplication {
         String viewMenuText = labels.getString("view.text");
         String windowMenuText = labels.getString("window.text");
         String helpMenuText = labels.getString("help.text");
-        for (JMenu mm : getModel().createMenus(this, v)) {
+        LinkedList<JMenu> ll = new LinkedList<JMenu>();
+        getModel().getMenuBuilder().addOtherMenus(ll, this, v);
+        for (JMenu mm : ll) {
             String text = mm.getText();
             if (text == null) {
             } else if (text.equals(fileMenuText)) {
@@ -329,40 +389,41 @@ public class SDIApplication extends AbstractApplication {
     }
 
     @Override
+    @Nullable
     public JMenu createFileMenu(View view) {
-        JMenuBar mb = new JMenuBar();
         JMenu m;
 
         m = new JMenu();
         labels.configureMenu(m, "file");
-        addAction(m, view, ClearFileAction.ID);
-        addAction(m, view, NewFileAction.ID);
-        addAction(m, view, NewWindowAction.ID);
+        MenuBuilder mb = model.getMenuBuilder();
+        mb.addClearFileItems(m, this, view);
+        mb.addNewFileItems(m, this, view);
+        mb.addNewWindowItems(m, this, view);
 
-        addAction(m, view, LoadFileAction.ID);
-        addAction(m, view, OpenFileAction.ID);
-        addAction(m, view, LoadDirectoryAction.ID);
-        addAction(m, view, OpenDirectoryAction.ID);
+        mb.addLoadFileItems(m, this, view);
+        mb.addOpenFileItems(m, this, view);
 
         if (getAction(view, LoadFileAction.ID) != null ||//
                 getAction(view, OpenFileAction.ID) != null ||//
                 getAction(view, LoadDirectoryAction.ID) != null ||//
                 getAction(view, OpenDirectoryAction.ID) != null) {
-            m.add(createOpenRecentFileMenu(null));
+            m.add(createOpenRecentFileMenu(view));
         }
         maybeAddSeparator(m);
-        addAction(m, view, SaveFileAction.ID);
-        addAction(m, view, SaveFileAsAction.ID);
-        addAction(m, view, ExportFileAction.ID);
-        addAction(m, view, PrintFileAction.ID);
+
+        mb.addSaveFileItems(m, this, view);
+        mb.addExportFileItems(m, this, view);
+        mb.addPrintFileItems(m, this, view);
+
+        mb.addOtherFileItems(m, this, view);
 
         maybeAddSeparator(m);
-        addAction(m, view, CloseFileAction.ID);
+        mb.addCloseFileItems(m, this, view);
 
-        return m;
+        return (m.getItemCount() == 0) ? null : m;
     }
 
-    @Override
+    @Override @Nullable
     public JMenu createEditMenu(View view) {
 
         JMenu m;
@@ -370,24 +431,19 @@ public class SDIApplication extends AbstractApplication {
         Action a;
         m = new JMenu();
         labels.configureMenu(m, "edit");
-        addAction(m, view, UndoAction.ID);
-        addAction(m, view, RedoAction.ID);
-
+        MenuBuilder mb = model.getMenuBuilder();
+        mb.addUndoItems(m, this, view);
         maybeAddSeparator(m);
-
-        addAction(m, view, CutAction.ID);
-        addAction(m, view, CopyAction.ID);
-        addAction(m, view, PasteAction.ID);
-        addAction(m, view, DuplicateAction.ID);
-        addAction(m, view, DeleteAction.ID);
+        mb.addClipboardItems(m, this, view);
         maybeAddSeparator(m);
-        addAction(m, view, SelectAllAction.ID);
-        addAction(m, view, ClearSelectionAction.ID);
+        mb.addSelectionItems(m, this, view);
         maybeAddSeparator(m);
-        addAction(m, view, AbstractFindAction.ID);
+        mb.addFindItems(m, this, view);
         maybeAddSeparator(m);
-        addAction(m, view, AbstractPreferencesAction.ID);
-        return (m.getPopupMenu().getComponentCount() == 0) ? null : m;
+        mb.addOtherEditItems(m, this, view);
+        maybeAddSeparator(m);
+        mb.addPreferencesItems(m, this, view);
+        return (m.getItemCount() == 0) ? null : m;
     }
 
     /**
@@ -423,12 +479,20 @@ public class SDIApplication extends AbstractApplication {
     }
 
     @Override
-    public JMenu createWindowMenu(View view) {
-        return null;
+    @Nullable
+    public JMenu createWindowMenu(final View view) {
+        JMenu m = new JMenu();
+        labels.configureMenu(m, "window");
+
+        MenuBuilder mb = model.getMenuBuilder();
+        mb.addOtherWindowItems(m, this, view);
+
+        return (m.getItemCount() > 0) ? m : null;
     }
 
+
     /**
-     * Creates the window menu.
+     * Creates the view menu.
      * 
      * @param view The View
      * @return A JMenu or null, if the menu doesn't have any items.
@@ -444,9 +508,9 @@ public class SDIApplication extends AbstractApplication {
         JCheckBoxMenuItem cbmi;
 
         m = new JMenu();
+        labels.configureMenu(m, "view");
         if (viewActions != null && viewActions.size() > 0) {
             m2 = (viewActions.size() == 1) ? m : new JMenu(labels.getString("toolBars"));
-            labels.configureMenu(m, "view");
             for (Action a : viewActions) {
                 cbmi = new JCheckBoxMenuItem(a);
                 ActionUtil.configureJCheckBoxMenuItem(cbmi, a);
@@ -457,7 +521,10 @@ public class SDIApplication extends AbstractApplication {
             }
         }
 
-        return (m.getPopupMenu().getComponentCount() > 0) ? m : null;
+        MenuBuilder mb = model.getMenuBuilder();
+        mb.addOtherViewItems(m, this, view);
+
+        return (m.getItemCount() > 0) ? m : null;
     }
 
     @Override

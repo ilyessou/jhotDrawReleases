@@ -1,18 +1,16 @@
 /**
  * @(#)AbstractToolBar.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and
- * contributors of the JHotDraw project ("the copyright holders").
- * You may not use, copy or modify this software, except in
- * accordance with the license agreement you entered into with
- * the copyright holders. For details see accompanying license terms.
+ * You may not use, copy or modify this file, except in compliance with the
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.samples.svg.gui;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.*;
 import java.beans.*;
 import java.util.LinkedList;
@@ -27,12 +25,12 @@ import org.jhotdraw.util.prefs.PreferencesUtil;
  * AbstractToolBar.
  *
  * @author Werner Randelshofer
- * @version $Id$
+ * @version $Id$
  */
 public /*abstract*/ class AbstractToolBar extends JDisclosureToolBar implements Disposable {
 
-    protected DrawingEditor editor;
-    private JComponent[] panels;
+    @Nullable protected DrawingEditor editor;
+    @Nullable private JComponent[] panels;
     protected Preferences prefs;
     protected PropertyChangeListener eventHandler;
     protected LinkedList<Disposable> disposables = new LinkedList<Disposable>();
@@ -84,7 +82,7 @@ public /*abstract*/ class AbstractToolBar extends JDisclosureToolBar implements 
         return eventHandler;
     }
 
-    public void setEditor(DrawingEditor editor) {
+    public void setEditor(@Nullable DrawingEditor editor) {
         if (this.editor != null) {
             this.removePropertyChangeListener(getEventHandler());
             for (Disposable d : disposables) {
@@ -101,7 +99,7 @@ public /*abstract*/ class AbstractToolBar extends JDisclosureToolBar implements 
         }
     }
 
-    public DrawingEditor getEditor() {
+    @Nullable public DrawingEditor getEditor() {
         return editor;
     }
 
@@ -120,6 +118,7 @@ public /*abstract*/ class AbstractToolBar extends JDisclosureToolBar implements 
         return panels[state];
     }
 
+    @Nullable
     /*abstract*/ protected JComponent createDisclosedComponent(int state) {
         return null;
     }

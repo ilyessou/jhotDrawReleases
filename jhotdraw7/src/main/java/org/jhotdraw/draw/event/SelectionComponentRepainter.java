@@ -1,18 +1,16 @@
 /**
  * @(#)SelectionComponentRepainter.java
  *
- * Copyright (c) 2008-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.event;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.beans.*;
 import javax.swing.*;
 import org.jhotdraw.app.Disposable;
@@ -23,13 +21,13 @@ import org.jhotdraw.draw.*;
  * and of its views based on the current selection.
  *
  * @author Werner Randelshofer
- * @version $Id$
+ * @version $Id$
  */
 public class SelectionComponentRepainter extends FigureAdapter
         implements PropertyChangeListener, FigureSelectionListener, Disposable {
 
-    private DrawingEditor editor;
-    private JComponent component;
+    @Nullable private DrawingEditor editor;
+    @Nullable private JComponent component;
 
     public SelectionComponentRepainter(DrawingEditor editor, JComponent component) {
         this.editor = editor;

@@ -1,15 +1,12 @@
 /*
  * @(#)DiamondFigure.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw;
 
@@ -65,10 +62,7 @@ public class DiamondFigure extends AbstractAttributedFigure {
         }
 
         double grow = AttributeKeys.getPerpendicularFillGrowth(this);
-        double growx, growy;
-        if (grow == 0d) {
-            growx = growy = 0d;
-        } else {
+        if (grow != 0d) {
             double w = r.width / 2d;
             double h = r.height / 2d;
             double lineLength = Math.sqrt(w * w + h * h);
@@ -76,6 +70,7 @@ public class DiamondFigure extends AbstractAttributedFigure {
             double yb = scale * w;
             double xa = scale * h;
 
+            double growx, growy;
             growx = ((yb * yb) / xa + xa);
             growy = ((xa * xa) / yb + yb);
 
@@ -102,10 +97,8 @@ public class DiamondFigure extends AbstractAttributedFigure {
         }
 
         double grow = AttributeKeys.getPerpendicularDrawGrowth(this);
-        double growx, growy;
-        if (grow == 0d) {
-            growx = growy = 0d;
-        } else {
+        if (grow != 0d) {
+            double growx, growy;
             double w = r.width / 2d;
             double h = r.height / 2d;
             double lineLength = Math.sqrt(w * w + h * h);
@@ -145,10 +138,7 @@ public class DiamondFigure extends AbstractAttributedFigure {
             r.width = r.height = side;
         }
         double grow = AttributeKeys.getPerpendicularHitGrowth(this);
-        double growx, growy;
-        if (grow == 0d) {
-            growx = growy = 0d;
-        } else {
+        if (grow != 0d) {
             double w = r.width / 2d;
             double h = r.height / 2d;
             double lineLength = Math.sqrt(w * w + h * h);
@@ -156,6 +146,7 @@ public class DiamondFigure extends AbstractAttributedFigure {
             double yb = scale * w;
             double xa = scale * h;
 
+            double growx, growy;
             growx = ((yb * yb) / xa + xa);
             growy = ((xa * xa) / yb + yb);
 
@@ -180,10 +171,7 @@ public class DiamondFigure extends AbstractAttributedFigure {
         //   if (r.contains(p)) {
 
         double grow = AttributeKeys.getPerpendicularFillGrowth(this);
-        double growx, growy;
-        if (grow == 0d) {
-            growx = growy = 0d;
-        } else {
+        if (grow != 0d) {
             double w = r.width / 2d;
             double h = r.height / 2d;
             double lineLength = Math.sqrt(w * w + h * h);
@@ -191,6 +179,7 @@ public class DiamondFigure extends AbstractAttributedFigure {
             double yb = scale * w;
             double xa = scale * h;
 
+            double growx, growy;
             growx = ((yb * yb) / xa + xa);
             growy = ((xa * xa) / yb + yb);
 

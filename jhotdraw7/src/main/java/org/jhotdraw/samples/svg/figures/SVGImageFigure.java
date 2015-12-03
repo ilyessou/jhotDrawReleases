@@ -1,18 +1,16 @@
  /*
  * @(#)SVGImage.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.samples.svg.figures;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.handle.TransformHandleKit;
 import org.jhotdraw.draw.handle.ResizeHandleKit;
 import org.jhotdraw.draw.handle.Handle;
@@ -47,20 +45,24 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
     /**
      * This is used to perform faster drawing.
      */
+    @Nullable
     private transient Shape cachedTransformedShape;
     /**
      * This is used to perform faster hit testing.
      */
+    @Nullable
     private transient Shape cachedHitShape;
     /**
      * The image data. This can be null, if the image was created from a
      * BufferedImage.
      */
+    @Nullable
     private byte[] imageData;
     /**
      * The buffered image. This can be null, if we haven't yet parsed the
      * imageData.
      */
+    @Nullable
     private BufferedImage bufferedImage;
 
     /** Creates a new instance. */
@@ -358,6 +360,11 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
 
     /**
      * Sets the image.
+     * <p>
+     * Note: For performance reasons this method stores a reference to the
+     * imageData array instead of cloning it. Do not modify the imageData
+     * array after invoking this method.
+     *
      *
      * @param imageData The image data. If this is null, a buffered image must
      * be provided.
@@ -375,6 +382,10 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
     /**
      * Sets the image data.
      * This clears the buffered image.
+     * <p>
+     * Note: For performance reasons this method stores a reference to the
+     * imageData array instead of cloning it. Do not modify the imageData
+     * array after invoking this method.
      */
     public void setImageData(byte[] imageData) {
         willChange();
@@ -400,6 +411,7 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
      * image from the image data.
      */
     @Override
+    @Nullable
     public BufferedImage getBufferedImage() {
         if (bufferedImage == null && imageData != null) {
             //System.out.println("recreateing bufferedImage");
@@ -419,8 +431,13 @@ public class SVGImageFigure extends SVGAttributedFigure implements SVGFigure, Im
     /**
      * Gets the image data. If necessary, this method creates the image
      * data from the buffered image.
+     * <p>
+     * Note: For performance reasons this method returns a reference to
+     * the internally used image data array instead of cloning it. Do not
+     * modify this array.
      */
     @Override
+    @Nullable
     public byte[] getImageData() {
         if (bufferedImage != null && imageData == null) {
             try {

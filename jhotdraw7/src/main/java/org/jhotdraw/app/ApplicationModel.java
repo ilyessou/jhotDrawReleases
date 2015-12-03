@@ -1,23 +1,19 @@
 /*
  * @(#)ApplicationModel.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.app;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.*;
 import javax.swing.*;
-import org.jhotdraw.annotations.NotNull;
-import org.jhotdraw.annotations.Nullable;
 import org.jhotdraw.gui.URIChooser;
 /**
  * {@code ApplicationModel} provides meta-data for an {@link Application},
@@ -36,7 +32,6 @@ import org.jhotdraw.gui.URIChooser;
  * @author Werner Randelshofer.
  * @version $Id$
  */
-@NotNull
 public interface ApplicationModel {
     /**
      * Returns the name of the application.
@@ -91,23 +86,8 @@ public interface ApplicationModel {
      */
     public List<JToolBar> createToolBars(Application a, @Nullable View v);
     
-    /**
-     * Creates menus.
-     * <p>
-     * Depending on the document interface of the application, this method
-     * may be invoked only once for the application, or for each opened view.
-     * <p>
-     * If this method creates a menu with the same title as a standard menu
-     * created by {@code Application}, the menu created by this method is used.
-     * This method can create a standard menu from scratch, or call one of the
-     * createMenu-methods in {@code Application} and add additional items
-     * to the menu.
-     * 
-     * @param a Application.
-     * @param v The view for which the toolbars need to be created, or null
-     * if the menus are shared by multiple views.
-     */
-    public List<JMenu> createMenus(Application a, @Nullable View v);
+    /** Returns the abstract factory for building application menus. */
+    public MenuBuilder getMenuBuilder();
 
     /**
      * Creates an open chooser.

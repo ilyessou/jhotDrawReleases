@@ -1,18 +1,16 @@
 /*
  * @(#)PasteAction.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.app.action.edit;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
@@ -51,7 +49,7 @@ public class PasteAction extends AbstractSelectionAction {
      * @param target The target of the action. Specify null for the currently
      * focused component.
      */
-    public PasteAction(JComponent target) {
+    public PasteAction(@Nullable JComponent target) {
         super(target);
         ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
         labels.configureAction(this, ID);

@@ -1,18 +1,16 @@
 /*
  * @(#)TextAreaFigure.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.tool.TextAreaEditingTool;
 import org.jhotdraw.draw.tool.Tool;
 import org.jhotdraw.draw.handle.Handle;
@@ -68,7 +66,7 @@ public class TextAreaFigure extends AbstractAttributedDecoratedFigure implements
     /**
      * This is a cached value to improve the performance of method isTextOverflow();
      */
-    private Boolean isTextOverflow;
+    @Nullable private Boolean isTextOverflow;
 
     /** Creates a new instance. */
     public TextAreaFigure() {
@@ -148,7 +146,7 @@ public class TextAreaFigure extends AbstractAttributedDecoratedFigure implements
      *        values
      * @return Returns the actual bounds of the paragraph.
      */
-    private Rectangle2D.Double drawParagraph(Graphics2D g, AttributedCharacterIterator styledText,
+    private Rectangle2D.Double drawParagraph(@Nullable Graphics2D g, AttributedCharacterIterator styledText,
             float verticalPos, float maxVerticalPos, float leftMargin, float rightMargin, float[] tabStops, int tabCount) {
         // This method is based on the code sample given
         // in the class comment of java.awt.font.LineBreakMeasurer, 

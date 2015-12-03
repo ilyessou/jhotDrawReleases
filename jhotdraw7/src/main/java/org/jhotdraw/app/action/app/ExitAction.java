@@ -1,18 +1,16 @@
 /*
  * @(#)ExitAction.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.app.action.app;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.gui.*;
 import org.jhotdraw.gui.Worker;
 import org.jhotdraw.gui.event.*;
@@ -97,7 +95,7 @@ public class ExitAction extends AbstractApplicationAction {
                     Object[] options = {labels.getString("application.exit.saveOption"), labels.getString("application.exit.cancelOption"), labels.getString("application.exit.dontSaveOption")};
                     pane.setOptions(options);
                     pane.setInitialValue(options[0]);
-                    pane.putClientProperty("Quaqua.OptionPane.destructiveOption", new Integer(2));
+                    pane.putClientProperty("Quaqua.OptionPane.destructiveOption", 2);
                     JSheet.showSheet(pane, unsavedView.getComponent(), new SheetListener() {
 
                     @Override
@@ -127,7 +125,7 @@ public class ExitAction extends AbstractApplicationAction {
                     pane.setOptions(options);
                     pane.setInitialValue(options[0]);
                     pane.putClientProperty(
-                            "Quaqua.OptionPane.destructiveOption", new Integer(2));
+                            "Quaqua.OptionPane.destructiveOption", 2);
                     JDialog dialog = pane.createDialog(app.getComponent(), null);
                     Rectangle screenBounds = dialog.getGraphicsConfiguration().getBounds();
                     if (app.getComponent() == null || !screenBounds.contains(app.getComponent().getBounds())) {
@@ -198,7 +196,7 @@ public class ExitAction extends AbstractApplicationAction {
             Object[] options = {labels.getString("application.exit.saveOption"), labels.getString("application.exit.cancelOption"), labels.getString("application.exit.dontSaveOption")};
             pane.setOptions(options);
             pane.setInitialValue(options[0]);
-            pane.putClientProperty("Quaqua.OptionPane.destructiveOption", new Integer(2));
+            pane.putClientProperty("Quaqua.OptionPane.destructiveOption", 2);
             JSheet.showSheet(pane, unsavedView.getComponent(), new SheetListener() {
 
                 @Override
@@ -267,7 +265,7 @@ public class ExitAction extends AbstractApplicationAction {
         }
     }
 
-    protected void saveToFile(final URI uri, final URIChooser chooser) {
+    protected void saveToFile(final URI uri, @Nullable final URIChooser chooser) {
         final View v = unsavedView;
         v.execute(new Worker() {
 
@@ -304,7 +302,7 @@ public class ExitAction extends AbstractApplicationAction {
         });
     }
 
-    protected void saveToFileAndReviewNext(final URI uri, final URIChooser chooser) {
+    protected void saveToFileAndReviewNext(final URI uri, @Nullable final URIChooser chooser) {
         final View v = unsavedView;
         v.execute(new Worker() {
 

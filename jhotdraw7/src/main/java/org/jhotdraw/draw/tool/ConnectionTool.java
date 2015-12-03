@@ -1,18 +1,16 @@
 /*
  * @(#)ConnectionTool.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.tool;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.connector.Connector;
 import javax.swing.undo.*;
@@ -51,18 +49,22 @@ public class ConnectionTool extends AbstractTool {
      * These attributes override the default attributes of the
      * DrawingEditor.
      */
+    @Nullable
     private Map<AttributeKey, Object> prototypeAttributes;
     /**
      * The Connector at the start point of the connection.
      */
+    @Nullable
     protected Connector startConnector;
     /**
      * The Connector at the end point of the connection.
      */
+    @Nullable
     protected Connector endConnector;
     /**
      * The created figure.
      */
+    @Nullable
     protected ConnectionFigure createdFigure;
     /**
      * the prototypical figure that is used to create new
@@ -72,12 +74,14 @@ public class ConnectionTool extends AbstractTool {
     /**
      * The figure for which we enabled drawing of connectors.
      */
+    @Nullable
     protected Figure targetFigure;
     protected Collection<Connector> connectors = Collections.emptyList();
     /**
      * A localized name for this tool. The presentationName is displayed by the
      * UndoableEdit.
      */
+    @Nullable
     private String presentationName;
     /**
      * If this is set to false, the CreationTool does not fire toolDone
@@ -92,11 +96,11 @@ public class ConnectionTool extends AbstractTool {
         this(prototype, null, null);
     }
 
-    public ConnectionTool(ConnectionFigure prototype, Map<AttributeKey, Object> attributes) {
+    public ConnectionTool(ConnectionFigure prototype, @Nullable Map<AttributeKey, Object> attributes) {
         this(prototype, attributes, null);
     }
 
-    public ConnectionTool(ConnectionFigure prototype, Map<AttributeKey, Object> attributes, String presentationName) {
+    public ConnectionTool(ConnectionFigure prototype, @Nullable Map<AttributeKey, Object> attributes, @Nullable String presentationName) {
         this.prototype = prototype;
         this.prototypeAttributes = attributes;
         if (presentationName == null) {
@@ -110,7 +114,7 @@ public class ConnectionTool extends AbstractTool {
         this(prototypeClassName, null, null);
     }
 
-    public ConnectionTool(String prototypeClassName, Map<AttributeKey, Object> attributes, String presentationName) {
+    public ConnectionTool(String prototypeClassName, @Nullable Map<AttributeKey, Object> attributes, @Nullable String presentationName) {
         try {
             this.prototype = (ConnectionFigure) Class.forName(prototypeClassName).newInstance();
         } catch (Exception e) {
@@ -304,8 +308,9 @@ public class ConnectionTool extends AbstractTool {
             r.grow(ANCHOR_WIDTH, ANCHOR_WIDTH);
             fireAreaInvalidated(r);
             startConnector = endConnector = null;
+            Figure finishedFigure = createdFigure;
             createdFigure = null;
-            creationFinished(createdFigure);
+            creationFinished(finishedFigure);
         } else {
             if (isToolDoneAfterCreation()) {
                 fireToolDone();

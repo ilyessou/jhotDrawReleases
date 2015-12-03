@@ -1,18 +1,16 @@
 /*
  * @(#)ColorIcon.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.action;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import org.jhotdraw.util.Images;
@@ -26,7 +24,7 @@ import org.jhotdraw.util.ResourceBundleUtil;
  */
 public class ColorIcon implements javax.swing.Icon {
 
-    private Color fillColor;
+    @Nullable private Color fillColor;
     private static BufferedImage noColorImage;
     private int width;
     private int height;
@@ -37,7 +35,7 @@ public class ColorIcon implements javax.swing.Icon {
         this(new Color(rgb));
     }
 
-    public ColorIcon(Color color) {
+    public ColorIcon(@Nullable Color color) {
         this(color, (color==null)?  ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels").getToolTipTextProperty("attribute.color.noColor") :color.getRed() + "," + color.getGreen() + "," + color.getBlue(), 14, 14);
     }
 
@@ -45,11 +43,11 @@ public class ColorIcon implements javax.swing.Icon {
         this(new Color(rgb), name, 14, 14);
     }
 
-    public ColorIcon(Color color, String name) {
+    public ColorIcon(@Nullable Color color, String name) {
         this(color, name, 14, 14);
     }
 
-    public ColorIcon(Color color, String name, int width, int height) {
+    public ColorIcon(@Nullable Color color, String name, int width, int height) {
         this.fillColor = color;
         this.name = name;
         this.width = width;

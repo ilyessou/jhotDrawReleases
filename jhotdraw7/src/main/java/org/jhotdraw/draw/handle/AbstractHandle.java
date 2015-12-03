@@ -1,18 +1,16 @@
 /*
  * @(#)AbstractHandle.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.handle;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.event.HandleListener;
 import org.jhotdraw.draw.event.HandleEvent;
@@ -34,14 +32,14 @@ import java.util.*;
 public abstract class AbstractHandle implements Handle, FigureListener {
 
     final private Figure owner;
-    protected DrawingView view;
+    @Nullable protected DrawingView view;
     /** Holds the tool tip text. By default a handle has no tool tip text. */
     private String toolTipText;
     protected EventListenerList listenerList = new EventListenerList();
     /**
      * The bounds of the abstract handle.
      */
-    private Rectangle bounds;
+    @Nullable private Rectangle bounds;
 
     /** Creates a new instance. */
     public AbstractHandle(Figure owner) {
@@ -78,11 +76,11 @@ public abstract class AbstractHandle implements Handle, FigureListener {
     }
 
     @Override
-    public void setView(DrawingView view) {
+    public void setView(@Nullable DrawingView view) {
         this.view = view;
     }
 
-    public DrawingView getView() {
+    @Nullable public DrawingView getView() {
         return view;
     }
 

@@ -1,21 +1,20 @@
 /*
  * @(#)QuadTree.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 
 package org.jhotdraw.geom;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.geom.*;
+import java.io.Serializable;
 import java.util.*;
 /**
  * A QuadTree allows to quickly find an object on a two-dimensional space.
@@ -28,7 +27,7 @@ import java.util.*;
  * @author  Werner Randelshofer
  * @version $Id$
  */
-public class QuadTree<T> {
+public class QuadTree<T> implements Serializable {
     private HashMap<T,Rectangle2D.Double> outside = new HashMap<T,Rectangle2D.Double>();
     private QuadNode root;
     private int maxCapacity = 32;
@@ -113,7 +112,7 @@ public class QuadTree<T> {
         return result;
     }
     
-    private class QuadNode {
+    private class QuadNode implements Serializable {
         private Rectangle2D.Double bounds;
         /**
          * We store an object into this map, if 1) the bounds of the object
@@ -124,10 +123,10 @@ public class QuadTree<T> {
          */
         private HashMap<T,Rectangle2D.Double> objects;
         
-        private QuadNode northEast;
-        private QuadNode northWest;
-        private QuadNode southEast;
-        private QuadNode southWest;
+        @Nullable private QuadNode northEast;
+        @Nullable private QuadNode northWest;
+        @Nullable private QuadNode southEast;
+        @Nullable private QuadNode southWest;
         
         
         public QuadNode(Rectangle2D.Double bounds) {
@@ -237,7 +236,6 @@ public class QuadTree<T> {
         }
         public void findIntersects(Rectangle2D.Double r, HashSet<T> result) {
             if (bounds.intersects(r)) {
-                int oldSize = result.size();
                 for (Map.Entry<T,Rectangle2D.Double> entry : objects.entrySet()) {
                     if (entry.getValue().intersects(r)) {
                         result.add(entry.getKey());

@@ -1,15 +1,12 @@
 /**
  * @(#)PaletteTextComponentBorder.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.gui.plaf.palette;
 
@@ -29,7 +26,7 @@ import javax.swing.plaf.UIResource;
  * PaletteTextComponentBorder.
  *
  * @author Werner Randelshofer
- * @version $Id$
+ * @version $Id$
  */
 public class PaletteTextComponentBorder implements Border, UIResource {
 
@@ -39,7 +36,6 @@ public class PaletteTextComponentBorder implements Border, UIResource {
     @Override
     public void paintBorder(Component c, Graphics gr, int x, int y, int width, int height) {
         Graphics2D g = (Graphics2D) gr;
-        JComponent jc = (JComponent) c;
         int borderColor;
         float[] stops;
         Color[] stopColors;

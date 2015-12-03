@@ -1,23 +1,24 @@
 /*
  * @(#)AbstractApplication.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its 
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.app;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.Container;
 import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jhotdraw.beans.*;
 import org.jhotdraw.gui.Worker;
 import org.jhotdraw.util.*;
@@ -38,6 +39,10 @@ import org.jhotdraw.util.prefs.PreferencesUtil;
 
 /**
  * This abstract class can be extended to implement an {@link Application}.
+ * <p>
+ * {@code AbstractApplication} supports the command line parameter
+ * {@code -open filename} to open views for specific URI's upon launch of
+ * the application.
  *
  * @author Werner Randelshofer
  * @version $Id$
@@ -50,6 +55,7 @@ public abstract class AbstractApplication extends AbstractBean implements Applic
     protected ResourceBundleUtil labels;
     protected ApplicationModel model;
     private Preferences prefs;
+    @Nullable
     private View activeView;
     public final static String VIEW_COUNT_PROPERTY = "viewCount";
     private LinkedList<URI> recentFiles = new LinkedList<URI>();
@@ -81,29 +87,57 @@ public abstract class AbstractApplication extends AbstractBean implements Applic
     }
 
     @Override
-    public void start() {
-        final View v = createView();
-        add(v);
-        v.setEnabled(false);
-        show(v);
+    public void start(List<URI> uris) {
+        if (uris.isEmpty()) {
+            final View v = createView();
+            add(v);
+            v.setEnabled(false);
+            show(v);
 
-        // Set the start view immediately active, so that
-        // ApplicationOpenFileAction picks it up on Mac OS X.
-        setActiveView(v);
+            // Set the start view immediately active, so that
+            // ApplicationOpenFileAction picks it up on Mac OS X.
+            setActiveView(v);
 
-        v.execute(new Worker<Object>() {
+            v.execute(new Worker<Object>() {
 
-            @Override
-            public Object construct() {
-                v.clear();
-                return null;
+                @Override
+                public Object construct() {
+                    v.clear();
+                    return null;
+                }
+
+                @Override
+                public void finished() {
+                    v.setEnabled(true);
+                }
+            });
+        } else {
+            for (final URI uri : uris) {
+                final View v = createView();
+                add(v);
+                v.setEnabled(false);
+                show(v);
+
+                // Set the start view immediately active, so that
+                // ApplicationOpenFileAction picks it up on Mac OS X.
+                setActiveView(v);
+
+                v.execute(new Worker<Object>() {
+
+                    @Override
+                    public Object construct() throws Exception {
+                        v.read(uri, null);
+                        return null;
+                    }
+
+                    @Override
+                    public void finished() {
+                        v.setURI(uri);
+                        v.setEnabled(true);
+                    }
+                });
             }
-
-            @Override
-            public void finished() {
-                v.setEnabled(true);
-            }
-        });
+        }
     }
 
     @Override
@@ -135,7 +169,7 @@ public abstract class AbstractApplication extends AbstractBean implements Applic
      * 
      * @param newValue Active view, can be null.
      */
-    public void setActiveView(View newValue) {
+    public void setActiveView(@Nullable View newValue) {
         View oldValue = activeView;
         if (activeView != null) {
             activeView.deactivate();
@@ -153,6 +187,7 @@ public abstract class AbstractApplication extends AbstractBean implements Applic
      * @return The active view can be null.
      */
     @Override
+    @Nullable
     public View getActiveView() {
         return activeView;
     }
@@ -243,17 +278,55 @@ public abstract class AbstractApplication extends AbstractBean implements Applic
         return new JFrame();
     }
 
+    /** Launches the application.
+     *
+     * @param args This implementation supports the command-line parameter "-open"
+     * which can be followed by one or more filenames or URI's.
+     */
     @Override
     public void launch(String[] args) {
         configure(args);
+
+        // Get URI's from command line
+        final List<URI> uris = getOpenURIsFromMainArgs(args);
+
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override
             public void run() {
                 init();
-                start();
+                start(uris);
             }
         });
+    }
+
+    /** Parses the arguments to the main method and returns a list of URI's
+     * for which views need to be opened upon launch of the application.
+     * <p>
+     * This implementation supports the command-line parameter "-open"
+     * which can be followed by one or more filenames or URI's.
+     * <p>
+     * This method is invoked from the {@code Application.launch} method.
+     *
+     * @param args Arguments to the main method.
+     * @return A list of URI's parsed from the arguments. Returns an empty list
+     * if no URI's shall be opened.
+     */
+    protected List<URI> getOpenURIsFromMainArgs(String[] args) {
+        LinkedList<URI> uris = new LinkedList<URI>();
+        for (int i = 0; i < args.length; ++i) {
+            if (args[i].equals("-open")) {
+                for (++i; i < args.length; ++i) {
+                    if (args[i].startsWith("-")) {
+                        break;
+                    }
+                    URI uri;
+                    uri = new File(args[i]).toURI();
+                    uris.add(uri);
+                }
+            }
+        }
+        return uris;
     }
 
     protected void initLabels() {
@@ -277,15 +350,15 @@ public abstract class AbstractApplication extends AbstractBean implements Applic
     }
 
     @Override
-    public void addWindow(Window window, View p) {
+    public void addWindow(Window window, @Nullable View p) {
     }
 
-    protected Action getAction(View view, String actionID) {
+    protected Action getAction(@Nullable View view, String actionID) {
         return getActionMap(view).get(actionID);
     }
 
     /** Adds the specified action as a menu item to the supplied menu. */
-    protected void addAction(JMenu m, View view, String actionID) {
+    protected void addAction(JMenu m, @Nullable View view, String actionID) {
         addAction(m, getAction(view, actionID));
     }
 
@@ -315,9 +388,13 @@ public abstract class AbstractApplication extends AbstractBean implements Applic
     }
 
     /** Adds a separator to the supplied menu. The separator will only
-    be added, if additional items are added using addAction. */
+    be added, if the previous item is not a separator. */
     protected void maybeAddSeparator(JMenu m) {
-        m.putClientProperty("needsSeparator", Boolean.TRUE);
+        JPopupMenu pm = m.getPopupMenu();
+        if (pm.getComponentCount() > 0 //
+                && !(pm.getComponent(pm.getComponentCount() - 1) instanceof JSeparator)) {
+            m.addSeparator();
+        }
     }
 
     @Override
@@ -361,7 +438,7 @@ public abstract class AbstractApplication extends AbstractBean implements Applic
                 Collections.unmodifiableList(recentFiles));
     }
 
-    protected JMenu createOpenRecentFileMenu(View view) {
+    protected JMenu createOpenRecentFileMenu(@Nullable View view) {
         JMenuItem mi;
         JMenu m;
 
@@ -375,7 +452,7 @@ public abstract class AbstractApplication extends AbstractBean implements Applic
         m.setIcon(null);
         m.add(getAction(view, ClearRecentFilesMenuAction.ID));
 
-        OpenRecentMenuHandler handler = new OpenRecentMenuHandler(m, view);
+        new OpenRecentMenuHandler(m, view);
         return m;
     }
 
@@ -384,9 +461,10 @@ public abstract class AbstractApplication extends AbstractBean implements Applic
 
         private JMenu openRecentMenu;
         private LinkedList<Action> openRecentActions = new LinkedList<Action>();
+        @Nullable
         private View view;
 
-        public OpenRecentMenuHandler(JMenu openRecentMenu, View view) {
+        public OpenRecentMenuHandler(JMenu openRecentMenu, @Nullable View view) {
             this.openRecentMenu = openRecentMenu;
             this.view = view;
             if (view != null) {
@@ -559,7 +637,7 @@ public abstract class AbstractApplication extends AbstractBean implements Applic
      * Gets the action map.
      */
     @Override
-    public ActionMap getActionMap(View v) {
+    public ActionMap getActionMap(@Nullable View v) {
         return (v == null) ? actionMap : v.getActionMap();
     }
 }

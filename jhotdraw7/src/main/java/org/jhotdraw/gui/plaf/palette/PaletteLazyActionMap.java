@@ -1,19 +1,17 @@
 /**
  * @(#)QuaquaLazyActionMap.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.gui.plaf.palette;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.lang.reflect.*;
 import javax.swing.*;
 import javax.swing.plaf.*;
@@ -22,14 +20,14 @@ import javax.swing.plaf.*;
  * QuaquaLazyActionMap.
  *
  * @author Werner Randelshofer
- * @version $Id$
+ * @version $Id$
  */
 public class PaletteLazyActionMap extends ActionMapUIResource {
     /**
      * Object to invoke <code>loadActionMap</code> on. This may be
      * a Class object.
      */
-    private transient Object _loader;
+    @Nullable private transient Object loader;
 
     /**
      * Installs an ActionMap that will be populated by invoking the
@@ -78,7 +76,7 @@ public class PaletteLazyActionMap extends ActionMapUIResource {
 
 
     private PaletteLazyActionMap(Class loader) {
-        _loader = loader;
+        this.loader = loader;
     }
 
     public void put(Action action) {
@@ -135,11 +133,11 @@ public class PaletteLazyActionMap extends ActionMapUIResource {
 
     @SuppressWarnings("unchecked")
     private void loadIfNecessary() {
-        if (_loader != null) {
-            Object loader = _loader;
+        if (loader != null) {
+            Object ldr = loader;
 
-            _loader = null;
-            Class klass = (Class)loader;
+            loader = null;
+            Class klass = (Class)ldr;
             try {
                 Method method = klass.getDeclaredMethod("loadActionMap",
                                       new Class[] { PaletteLazyActionMap.class  });

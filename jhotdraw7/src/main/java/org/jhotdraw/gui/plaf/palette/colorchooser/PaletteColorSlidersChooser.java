@@ -1,15 +1,12 @@
 /*
  * @(#)PaletteColorSlidersChooser.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and
- * contributors of the JHotDraw project ("the copyright holders").
- * You may not use, copy or modify this software, except in
- * accordance with the license agreement you entered into with
- * the copyright holders. For details see accompanying license terms.
+ * You may not use, copy or modify this file, except in compliance with the
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.gui.plaf.palette.colorchooser;
@@ -21,6 +18,7 @@ import javax.swing.colorchooser.*;
 import javax.swing.plaf.*;
 import org.jhotdraw.gui.plaf.palette.PaletteLookAndFeel;
 import org.jhotdraw.gui.plaf.palette.PalettePanelUI;
+
 /**
  * The ColorSlidersChooser contains four individual color slider pages: gray
  * slider, RGB sliders, CMYK sliders, and HTML sliders.
@@ -72,9 +70,9 @@ implements UIResource {
         
         slidersComboBox.setFont(laf.getFont("ColorChooser.font"));
 
-        slidersHolder.add(new PaletteRGBChooser(),laf.getString("ColorChooser.rgbSliders"));
-        slidersHolder.add(new PaletteCMYKChooser(),laf.getString("ColorChooser.cmykSliders"));
-        slidersHolder.add(new PaletteHSBChooser(),laf.getString("ColorChooser.hsbSliders"));
+        slidersHolder.add(new PaletteRGBChooser(),""+laf.getString("ColorChooser.rgbSliders"));
+        slidersHolder.add(new PaletteCMYKChooser(),""+laf.getString("ColorChooser.cmykSliders"));
+        slidersHolder.add(new PaletteHSBChooser(),""+laf.getString("ColorChooser.hsbSliders"));
         DefaultComboBoxModel cbm = new DefaultComboBoxModel();
         cbm.addElement(laf.getString("ColorChooser.rgbSliders"));
         cbm.addElement(laf.getString("ColorChooser.cmykSliders"));

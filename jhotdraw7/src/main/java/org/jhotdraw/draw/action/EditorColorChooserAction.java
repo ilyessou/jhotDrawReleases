@@ -1,23 +1,22 @@
 /*
  * @(#)EditorColorChooserAction.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.action;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.event.FigureSelectionEvent;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
 import org.jhotdraw.draw.*;
+import org.jhotdraw.util.ResourceBundleUtil;
 
 /**
  * EditorColorChooserAction.
@@ -29,36 +28,37 @@ import org.jhotdraw.draw.*;
  * @version $Id$
  */
 public class EditorColorChooserAction extends AttributeAction {
-    protected AttributeKey<Color> key;
 
+    protected AttributeKey<Color> key;
     protected static JColorChooser colorChooser;
 
     /** Creates a new instance. */
     public EditorColorChooserAction(DrawingEditor editor, AttributeKey<Color> key) {
         this(editor, key, null, null);
+        updateEnabledState();
     }
 
     /** Creates a new instance. */
-    public EditorColorChooserAction(DrawingEditor editor, AttributeKey<Color> key, Icon icon) {
+    public EditorColorChooserAction(DrawingEditor editor, AttributeKey<Color> key, @Nullable Icon icon) {
         this(editor, key, null, icon);
     }
 
     /** Creates a new instance. */
-    public EditorColorChooserAction(DrawingEditor editor, AttributeKey<Color> key, String name) {
+    public EditorColorChooserAction(DrawingEditor editor, AttributeKey<Color> key, @Nullable String name) {
         this(editor, key, name, null);
     }
 
-    public EditorColorChooserAction(DrawingEditor editor, final AttributeKey<Color> key, String name, Icon icon) {
+    public EditorColorChooserAction(DrawingEditor editor, final AttributeKey<Color> key, @Nullable String name, @Nullable Icon icon) {
         this(editor, key, name, icon, new HashMap<AttributeKey, Object>());
     }
 
-    public EditorColorChooserAction(DrawingEditor editor, final AttributeKey<Color> key, String name, Icon icon,
-            Map<AttributeKey, Object> fixedAttributes) {
+    public EditorColorChooserAction(DrawingEditor editor, final AttributeKey<Color> key, @Nullable String name, @Nullable Icon icon,
+            @Nullable Map<AttributeKey, Object> fixedAttributes) {
         super(editor, fixedAttributes, name, icon);
         this.key = key;
         putValue(AbstractAction.NAME, name);
         putValue(AbstractAction.SMALL_ICON, icon);
-        setEnabled(true);
+        updateEnabledState();
     }
 
     @Override
@@ -68,6 +68,8 @@ public class EditorColorChooserAction extends AttributeAction {
         }
         Color initialColor = getInitialColor();
         // FIXME - Reuse colorChooser object instead of calling static method here.
+        ResourceBundleUtil labels =
+                ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
         Color chosenColor = JColorChooser.showDialog((Component) e.getSource(), labels.getString("attribute.color.text"), initialColor);
         if (chosenColor != null) {
             HashMap<AttributeKey, Object> attr = new HashMap<AttributeKey, Object>(attributes);

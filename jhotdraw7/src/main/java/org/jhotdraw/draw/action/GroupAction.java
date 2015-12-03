@@ -1,21 +1,19 @@
 /*
  * @(#)GroupAction.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.action;
 
 import org.jhotdraw.draw.*;
 import java.util.*;
 import javax.swing.undo.*;
+import org.jhotdraw.util.ResourceBundleUtil;
 
 /**
  * GroupAction.
@@ -46,6 +44,8 @@ public class GroupAction extends AbstractSelectedAction {
         super(editor);
         this.prototype = prototype;
         this.isGroupingAction = isGroupingAction;
+        ResourceBundleUtil labels =
+                ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
         labels.configureAction(this, ID);
         updateEnabledState();
     }
@@ -64,10 +64,10 @@ public class GroupAction extends AbstractSelectedAction {
     }
 
     protected boolean canUngroup() {
-        return getView() != null &&
-                getView().getSelectionCount() == 1 &&
-                prototype != null && 
-                getView().getSelectedFigures().iterator().next().getClass().equals(
+        return getView() != null
+                && getView().getSelectionCount() == 1
+                && prototype != null
+                && getView().getSelectedFigures().iterator().next().getClass().equals(
                 prototype.getClass());
     }
 
@@ -82,6 +82,8 @@ public class GroupAction extends AbstractSelectedAction {
 
                     @Override
                     public String getPresentationName() {
+                        ResourceBundleUtil labels =
+                                ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
                         return labels.getString("edit.groupSelection.text");
                     }
 
@@ -114,6 +116,8 @@ public class GroupAction extends AbstractSelectedAction {
 
                     @Override
                     public String getPresentationName() {
+                        ResourceBundleUtil labels =
+                                ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
                         return labels.getString("edit.ungroupSelection.text");
                     }
 

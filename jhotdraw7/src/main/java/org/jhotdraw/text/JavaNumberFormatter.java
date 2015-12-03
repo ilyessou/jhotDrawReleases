@@ -1,24 +1,21 @@
 /*
  * @(#)JavaNumberFormatter.java
  * 
- * Copyright (c) 2009-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2009-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  * 
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.text;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.util.Locale;
-import java.util.logging.Logger;
 import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 import javax.swing.text.DefaultFormatter;
 import javax.swing.text.DefaultFormatterFactory;
@@ -38,7 +35,7 @@ public class JavaNumberFormatter extends DefaultFormatter {
     private boolean allowsNullValue = false;
     private Comparable min;
     private Comparable max;
-    private String unit;
+    @Nullable private String unit;
     private DecimalFormat decimalFormat;
     private DecimalFormat scientificFormat;
     private double multiplier = 1;
@@ -76,7 +73,7 @@ public class JavaNumberFormatter extends DefaultFormatter {
     /**
      * Creates a NumberFormatter with the specified Format instance.
      */
-    public JavaNumberFormatter(double min, double max, double multiplier, boolean allowsNullValue, String unit) {
+    public JavaNumberFormatter(double min, double max, double multiplier, boolean allowsNullValue, @Nullable String unit) {
         super();
         initFormats();
         setMinimum(min);
@@ -285,11 +282,11 @@ public class JavaNumberFormatter extends DefaultFormatter {
                 if (valueClass == Integer.class) {
                     int v = Integer.parseInt(text);
                     v = (int) (v / multiplier);
-                    value = new Integer(v);
+                    value = v;
                 } else if (valueClass == Long.class) {
                     long v = Long.parseLong(text);
                     v = (long) (v / multiplier);
-                    value = new Long(v);
+                    value = v;
                 } else if (valueClass == Float.class) {
                     float v = Float.parseFloat(text);
                     v = (float) (v / multiplier);
@@ -301,11 +298,11 @@ public class JavaNumberFormatter extends DefaultFormatter {
                 } else if (valueClass == Byte.class) {
                     byte v = Byte.parseByte(text);
                     v = (byte) (v / multiplier);
-                    value = new Byte(v);
+                    value = v;
                 } else if (valueClass == Short.class) {
                     short v = Short.parseShort(text);
                     v = (short) (v / multiplier);
-                    value = new Short(v);
+                    value = v;
                 } else {
                     throw new ParseException("Unsupported value class " + valueClass, 0);
                 }
@@ -360,12 +357,12 @@ public class JavaNumberFormatter extends DefaultFormatter {
     }
 
     /** If non-null the unit string is appended to the value. */
-    public void setUnit(String value) {
+    public void setUnit(@Nullable String value) {
         unit = value;
     }
 
     /** If non-null the unit string is appended to the value. */
-    public String getUnit() {
+    @Nullable public String getUnit() {
         return unit;
     }
 
@@ -487,7 +484,7 @@ public class JavaNumberFormatter extends DefaultFormatter {
      * Convenience method for creating a formatter factory with a
      * {@code ScalableNumberFormatter} and a Java-style DecimalFormat.
      */
-    public static AbstractFormatterFactory createFormatterFactory(double min, double max, double multiplier, boolean allowsNullValue, String unit) {
+    public static AbstractFormatterFactory createFormatterFactory(double min, double max, double multiplier, boolean allowsNullValue, @Nullable String unit) {
         JavaNumberFormatter formatter = new JavaNumberFormatter(min, max, multiplier, allowsNullValue, unit);
         return new DefaultFormatterFactory(formatter);
     }

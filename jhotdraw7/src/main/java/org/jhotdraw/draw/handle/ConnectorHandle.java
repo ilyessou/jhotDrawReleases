@@ -1,18 +1,16 @@
 /*
  * @(#)ConnectorHandle.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.handle;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.draw.connector.Connector;
 import org.jhotdraw.draw.ConnectionFigure;
@@ -27,14 +25,14 @@ import java.awt.geom.*;
  * new {@link ConnectionFigure} by dragging the handle to another connector.
  *
  * @author Werner Randelshofer.
- * @version $Id: ConnectorHandle.java -1   $
+ * @version $Id$
  */
 public class ConnectorHandle extends AbstractHandle {
 
     /**
      * Holds the ConnectionFigure which is currently being created.
      */
-    private ConnectionFigure createdConnection;
+    @Nullable private ConnectionFigure createdConnection;
     /**
      * The prototype for the ConnectionFigure to be created
      */
@@ -46,11 +44,11 @@ public class ConnectorHandle extends AbstractHandle {
     /**
      * The current connectable Figure.
      */
-    private Figure connectableFigure;
+    @Nullable private Figure connectableFigure;
     /**
      * The current connectable Connector.
      */
-    private Connector connectableConnector;
+    @Nullable private Connector connectableConnector;
     /**
      * All connectors of the connectable Figure.
      */
@@ -98,8 +96,6 @@ public class ConnectorHandle extends AbstractHandle {
     @Override
     public void trackStart(Point anchor, int modifiersEx) {
         setConnection(createConnection());
-
-        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
 
         Point2D.Double p = getLocationOnDrawing();
         getConnection().setStartPoint(p);
@@ -194,23 +190,23 @@ public class ConnectorHandle extends AbstractHandle {
         return (ConnectionFigure) prototype.clone();
     }
 
-    protected void setConnection(ConnectionFigure newConnection) {
+    protected void setConnection(@Nullable ConnectionFigure newConnection) {
         createdConnection = newConnection;
     }
 
-    protected ConnectionFigure getConnection() {
+    @Nullable protected ConnectionFigure getConnection() {
         return createdConnection;
     }
 
-    protected Figure getTargetFigure() {
+    @Nullable protected Figure getTargetFigure() {
         return connectableFigure;
     }
 
-    protected void setTargetFigure(Figure newTargetFigure) {
+    protected void setTargetFigure(@Nullable Figure newTargetFigure) {
         connectableFigure = newTargetFigure;
     }
 
-    private Figure findConnectableFigure(Point2D.Double p, Drawing drawing) {
+    @Nullable private Figure findConnectableFigure(Point2D.Double p, Drawing drawing) {
         for (Figure figure : drawing.getFiguresFrontToBack()) {
             if (!figure.includes(getConnection()) &&
                     figure.isConnectable() &&
@@ -225,7 +221,7 @@ public class ConnectorHandle extends AbstractHandle {
     /**
      * Finds a connection end figure.
      */
-    protected Connector findConnectableConnector(Figure connectableFigure, Point2D.Double p) {
+    @Nullable protected Connector findConnectableConnector(Figure connectableFigure, Point2D.Double p) {
         Connector target = (connectableFigure == null) ? null : connectableFigure.findConnector(p, getConnection());
 
         if ((connectableFigure != null) && connectableFigure.isConnectable() && !connectableFigure.includes(getOwner()) && getConnection().canConnect(connector, target)) {

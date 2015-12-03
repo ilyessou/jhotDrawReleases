@@ -1,18 +1,16 @@
 /*
  * @(#)AbstractSelectedAction.java
  *
- * Copyright (c) 2003-2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2003-2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.action;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.DrawingView;
@@ -47,10 +45,9 @@ import org.jhotdraw.beans.WeakPropertyChangeListener;
 public abstract class AbstractSelectedAction
         extends AbstractAction implements Disposable {
 
+    @Nullable
     private DrawingEditor editor;
-    transient private DrawingView activeView;
-    protected ResourceBundleUtil labels =
-            ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
+    @Nullable transient private DrawingView activeView;
 
     private class EventHandler implements PropertyChangeListener, FigureSelectionListener, Serializable {
 
@@ -83,14 +80,14 @@ public abstract class AbstractSelectedAction
 
         }
     };
-    private EventHandler eventHandler = new EventHandler();
+    @Nullable private EventHandler eventHandler = new EventHandler();
 
     /** Creates an action which acts on the selected figures on the current view
      * of the specified editor.
      */
     public AbstractSelectedAction(DrawingEditor editor) {
         setEditor(editor);
-        updateEnabledState();
+        //updateEnabledState();
     }
 
     /** Updates the enabled state of this action to reflect the enabled state
@@ -99,8 +96,8 @@ public abstract class AbstractSelectedAction
      */
     protected void updateEnabledState() {
         if (getView() != null) {
-            setEnabled(getView().isEnabled() &&
-                    getView().getSelectionCount() > 0);
+            setEnabled(getView().isEnabled()
+                    && getView().getSelectionCount() > 0);
         } else {
             setEnabled(false);
         }
@@ -111,7 +108,7 @@ public abstract class AbstractSelectedAction
         setEditor(null);
     }
 
-    public void setEditor(DrawingEditor editor) {
+    public void setEditor(@Nullable DrawingEditor editor) {
         if (eventHandler != null) {
             unregisterEventHandler();
         }
@@ -122,14 +119,17 @@ public abstract class AbstractSelectedAction
         }
     }
 
+    @Nullable
     public DrawingEditor getEditor() {
         return editor;
     }
 
+    @Nullable
     protected DrawingView getView() {
         return (editor == null) ? null : editor.getActiveView();
     }
 
+    @Nullable
     protected Drawing getDrawing() {
         return (getView() == null) ? null : getView().getDrawing();
     }

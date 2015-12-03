@@ -1,18 +1,16 @@
 /*
  * @(#)DefaultApplicationModel.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.app;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.app.action.file.SaveFileAsAction;
 import org.jhotdraw.app.action.file.SaveFileAction;
 import org.jhotdraw.app.action.file.NewFileAction;
@@ -63,6 +61,7 @@ import org.jhotdraw.app.action.edit.ClearSelectionAction;
  */
 public class DefaultApplicationModel
         extends AbstractApplicationModel {
+    @Nullable private MenuBuilder menuBuilder;
 
     /**
      * Does nothing.
@@ -76,7 +75,7 @@ public class DefaultApplicationModel
      * class comments).
      */
     @Override
-    public ActionMap createActionMap(Application a, View v) {
+    public ActionMap createActionMap(Application a, @Nullable View v) {
         ActionMap m=new ActionMap();
         m.put(NewFileAction.ID, new NewFileAction(a));
         m.put(OpenFileAction.ID, new OpenFileAction(a));
@@ -98,55 +97,25 @@ public class DefaultApplicationModel
 
     /** Returns an empty unmodifiable list. */
     @Override
-    public List<JToolBar> createToolBars(Application app, View p) {
+    public List<JToolBar> createToolBars(Application app, @Nullable View p) {
         return Collections.emptyList();
     }
 
-    /** Returns an empty modifiable list. */
+    /** Creates the DefaultMenuBuilder. */
+    protected MenuBuilder createMenuBuilder() {
+        return new DefaultMenuBuilder();
+    }
+
     @Override
-    public List<JMenu> createMenus(Application a, View v) {
-        LinkedList<JMenu> menus = new LinkedList<JMenu>();
-        JMenu m;
-        if ((m = createFileMenu(a, v)) != null) {
-            menus.add(m);
+    public MenuBuilder getMenuBuilder() {
+        if (menuBuilder==null) {
+            menuBuilder=createMenuBuilder();
         }
-        if ((m = createEditMenu(a, v)) != null) {
-            menus.add(m);
-        }
-        if ((m = createViewMenu(a, v)) != null) {
-            menus.add(m);
-        }
-        if ((m = createWindowMenu(a, v)) != null) {
-            menus.add(m);
-        }
-        if ((m = createHelpMenu(a, v)) != null) {
-            menus.add(m);
-        }
-        return menus;
+        return menuBuilder;
     }
 
-    /** Returns null. */
-    protected JMenu createFileMenu(Application app, View view) {
-        return null;
+    public void setMenuBuilder(@Nullable MenuBuilder newValue) {
+        menuBuilder = newValue;
     }
 
-    /** Returns null. */
-    protected JMenu createEditMenu(Application app, View view) {
-        return null;
-    }
-
-    /** Returns null. */
-    protected JMenu createViewMenu(Application app, View view) {
-        return null;
-    }
-
-    /** Returns null. */
-    protected JMenu createWindowMenu(Application app, View view) {
-        return null;
-    }
-
-    /** Returns null. */
-    protected JMenu createHelpMenu(Application app, View view) {
-        return null;
-    }
 }

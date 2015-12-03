@@ -1,21 +1,17 @@
 /*
  * @(#)FocusWindowAction.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
-
 package org.jhotdraw.app.action.window;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.util.*;
-
 import java.beans.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -31,37 +27,39 @@ import org.jhotdraw.net.URIUtil;
  * @version $Id$
  */
 public class FocusWindowAction extends AbstractAction {
+
     public final static String ID = "window.focus";
-    private View view;
+    @Nullable private View view;
     private PropertyChangeListener ppc;
-    
+
     /** Creates a new instance. */
-    public FocusWindowAction(View view) {
+    public FocusWindowAction(@Nullable View view) {
         this.view = view;
         ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
         labels.configureAction(this, ID);
         //setEnabled(false);
         setEnabled(view != null);
-        
-        view.addPropertyChangeListener(ppc = new PropertyChangeListener() {
+
+        ppc = new PropertyChangeListener() {
+
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
                 String name = evt.getPropertyName();
                 if (name.equals(View.TITLE_PROPERTY)) {
-                    putValue(Action.NAME,
-                            evt.getNewValue()
-                                );
+                    putValue(Action.NAME, evt.getNewValue());
                 }
             }
-        });
+        };
+        if (view != null) {
+            view.addPropertyChangeListener(ppc);
+        }
     }
 
     public void dispose() {
         setView(null);
     }
 
-    public void setView(View newValue) {
+    public void setView(@Nullable View newValue) {
         if (view != null) {
             view.removePropertyChangeListener(ppc);
         }
@@ -79,7 +77,7 @@ public class FocusWindowAction extends AbstractAction {
             return super.getValue(key);
         }
     }
-    
+
     private String getTitle() {
         ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
         String title = labels.getString("unnamedFile");
@@ -93,37 +91,38 @@ public class FocusWindowAction extends AbstractAction {
             if (view.hasUnsavedChanges()) {
                 title += "*";
             }
-            title = (labels.getFormatted("internalFrame.title", title, view.getApplication().getName(), view.getMultipleOpenId()));
+            title = (labels.getFormatted("internalFrame.title", title,
+                    view.getApplication() == null?"":view.getApplication().getName(), view.getMultipleOpenId()));
         }
         return title;
-        
+
     }
+
     private JFrame getFrame() {
         return (JFrame) SwingUtilities.getWindowAncestor(
-                view.getComponent()
-                );
+                view.getComponent());
     }
+
     private Component getRootPaneContainer() {
         return SwingUtilities.getRootPane(
-                view.getComponent()
-                ).getParent();
+                view.getComponent()).getParent();
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent evt) {
         /*
         JFrame frame = getFrame();
         if (frame != null) {
-            frame.setExtendedState(frame.getExtendedState() & ~Frame.ICONIFIED);
-            frame.toFront();
-            frame.requestFocus();
-            JRootPane rp = SwingUtilities.getRootPane(view.getComponent());
-            if (rp != null && (rp.getParent() instanceof JInternalFrame)) {
-                ((JInternalFrame) rp.getParent()).toFront();
-            }
-            view.getComponent().requestFocus();
+        frame.setExtendedState(frame.getExtendedState() & ~Frame.ICONIFIED);
+        frame.toFront();
+        frame.requestFocus();
+        JRootPane rp = SwingUtilities.getRootPane(view.getComponent());
+        if (rp != null && (rp.getParent() instanceof JInternalFrame)) {
+        ((JInternalFrame) rp.getParent()).toFront();
+        }
+        view.getComponent().requestFocus();
         } else {
-            Toolkit.getDefaultToolkit().beep();
+        Toolkit.getDefaultToolkit().beep();
         }*/
         Component rpContainer = getRootPaneContainer();
         if (rpContainer instanceof Frame) {

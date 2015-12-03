@@ -1,26 +1,22 @@
 /*
  * @(#)View.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.app;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.gui.URIChooser;
 import java.io.*;
 import java.beans.*;
 import java.net.URI;
 import javax.swing.*;
-import org.jhotdraw.annotations.NotNull;
-import org.jhotdraw.annotations.Nullable;
 
 /**
  * A <em>view</em> paints a document on a {@code JComponent} within an
@@ -83,7 +79,6 @@ import org.jhotdraw.annotations.Nullable;
  * @author Werner Randelshofer
  * @version $Id$
  */
-@NotNull
 public interface View extends Disposable {
     /**
      * The name of the uri property.
@@ -116,7 +111,7 @@ public interface View extends Disposable {
     /**
      * Gets the application to which this view belongs.
      */
-    public Application getApplication();
+    @Nullable public Application getApplication();
     
     /**
      * Sets the application of the view.
@@ -124,7 +119,7 @@ public interface View extends Disposable {
      * Application.remove().
      * This is a bound property.
      */
-    public void setApplication(Application newValue);
+    public void setApplication(@Nullable Application newValue);
     
     /**
      * Returns the visual component of the view.
@@ -161,6 +156,20 @@ public interface View extends Disposable {
      */
     public void clear();
     
+    /**
+     * Whether the view is empty. A view is considered empty if the application
+     * has implicit consent from the user to reuse or destroy the view at any
+     * time. For example, an application may open an empty view immediately
+     * after startup. If the user chooses to open a document, the document is
+     * opened in this view rather than in a new view.
+     * <p>
+     * If this method returns true, {@link org.jhotdraw.app.action.file.OpenFileAction}
+     * and similar actions will open a file in this view, instead of
+     * opening a new view.
+     * 
+     * @return True if the view can be reused by open actions.
+     */
+    public boolean isEmpty();
     
     /**
      * Returns true, if the view has unsaved changes.

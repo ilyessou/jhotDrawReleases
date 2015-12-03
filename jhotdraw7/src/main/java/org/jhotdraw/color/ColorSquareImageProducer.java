@@ -1,15 +1,12 @@
 /*
  * @(#)ColorSquareImageProducer.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.color;
 
@@ -53,14 +50,6 @@ public class ColorSquareImageProducer extends AbstractColorWheelImageProducer {
         radials = new float[w * h];
         angulars = new float[w * h];
         alphas = new int[w * h];
-        float radius = getRadius();
-
-        // blend is used to create a linear alpha gradient of two extra pixels
-        float blend = (radius + 2f) / radius - 1f;
-
-        // Center of the color wheel circle
-        int cx = w / 2;
-        int cy = h / 2;
 
         float maxR = colorSpace.getMaxValue(radialIndex);
         float minR = colorSpace.getMinValue(radialIndex);
@@ -109,7 +98,6 @@ public class ColorSquareImageProducer extends AbstractColorWheelImageProducer {
         }
 
         float[] components = new float[colorSpace.getNumComponents()];
-        float radius = (float) Math.min(w, h);
         for (int index = 0; index < pixels.length; index++) {
             if (alphas[index] != 0) {
                 components[angularIndex] = angulars[index];

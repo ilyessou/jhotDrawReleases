@@ -1,18 +1,16 @@
 /*
  * @(#)AbstractConnectionHandle.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.handle;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.liner.Liner;
 import org.jhotdraw.draw.connector.Connector;
 import org.jhotdraw.draw.*;
@@ -35,7 +33,7 @@ import java.util.*;
 public abstract class AbstractConnectionHandle extends AbstractHandle {
 
     private Connector savedTarget;
-    private Connector connectableConnector;
+    @Nullable private Connector connectableConnector;
     private Figure connectableFigure;
     private Point start;
     /**
@@ -144,8 +142,8 @@ public abstract class AbstractConnectionHandle extends AbstractHandle {
     public void trackEnd(Point anchor, Point lead, int modifiersEx) {
         ConnectionFigure f = getOwner();
         // Change node type
-        if ((modifiersEx & (InputEvent.META_DOWN_MASK | InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK)) != 0 &&
-                (modifiersEx & InputEvent.BUTTON2_DOWN_MASK) == 0) {
+        if ((modifiersEx & (InputEvent.META_DOWN_MASK | InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK)) != 0
+                && (modifiersEx & InputEvent.BUTTON2_DOWN_MASK) == 0) {
             f.willChange();
             int index = getBezierNodeIndex();
             BezierPath.Node v = f.getNode(index);
@@ -179,6 +177,7 @@ public abstract class AbstractConnectionHandle extends AbstractHandle {
         connectors = Collections.emptyList();
     }
 
+    @Nullable
     private Connector findConnectionTarget(Point2D.Double p, Drawing drawing) {
         Figure targetFigure = findConnectableFigure(p, drawing);
 
@@ -187,7 +186,6 @@ public abstract class AbstractConnectionHandle extends AbstractHandle {
         } else if (targetFigure != null) {
             Connector target = findConnector(p, targetFigure, getOwner());
             if ((targetFigure != null) && targetFigure.isConnectable()//
-                    && targetFigure != savedTarget //
                     && !targetFigure.includes(getOwner()) //
                     && (canConnect(getSource(), target))) {
                 return target;
@@ -226,6 +224,7 @@ public abstract class AbstractConnectionHandle extends AbstractHandle {
         }
     }
 
+    @Nullable
     private Figure findConnectableFigure(Point2D.Double p, Drawing drawing) {
         for (Figure f : drawing.getFiguresFrontToBack()) {
             if (!f.includes(getOwner()) && f.isConnectable() && f.contains(p)) {
@@ -259,13 +258,13 @@ public abstract class AbstractConnectionHandle extends AbstractHandle {
             int index = getBezierNodeIndex();
             BezierFigure f = getBezierFigure();
             BezierPath.Node v = f.getNode(index);
-            if ((v.mask & BezierPath.C1_MASK) != 0 &&
-                    (index != 0 || f.isClosed())) {
+            if ((v.mask & BezierPath.C1_MASK) != 0
+                    && (index != 0 || f.isClosed())) {
                 list.add(new BezierControlPointHandle(f, index, 1));
             }
-            if ((v.mask & BezierPath.C2_MASK) != 0 &&
-                    (index < f.getNodeCount() - 1 ||
-                    f.isClosed())) {
+            if ((v.mask & BezierPath.C2_MASK) != 0
+                    && (index < f.getNodeCount() - 1
+                    || f.isClosed())) {
                 list.add(new BezierControlPointHandle(f, index, 2));
             }
             if (index > 0 || f.isClosed()) {
@@ -286,12 +285,14 @@ public abstract class AbstractConnectionHandle extends AbstractHandle {
         return list;
     }
 
+    @Nullable
     protected BezierPath.Node getBezierNode() {
         int index = getBezierNodeIndex();
         return getBezierFigure().getNodeCount() > index ? getBezierFigure().getNode(index) : null;
     }
 
     @Override
+    @Nullable
     public String getToolTipText(Point p) {
         ConnectionFigure f = (ConnectionFigure) getOwner();
         if (f.getLiner() == null && savedLiner == null) {

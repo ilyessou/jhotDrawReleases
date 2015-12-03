@@ -1,25 +1,24 @@
 /*
  * @(#)Application.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.app;
 
-import java.awt.*;
-import java.beans.*;
-import java.util.*;
-import javax.swing.*;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import java.awt.Component;
+import java.awt.Window;
+import java.beans.PropertyChangeListener;
 import java.net.URI;
-import org.jhotdraw.annotations.NotNull;
-import org.jhotdraw.annotations.Nullable;
+import java.util.Collection;
+import java.util.List;
+import javax.swing.ActionMap;
+import javax.swing.JMenu;
 import org.jhotdraw.gui.URIChooser;
 
 /**
@@ -65,12 +64,17 @@ import org.jhotdraw.gui.URIChooser;
  * classes in the org.jhotddraw.app.action package define the contracts of a
  * framework for document oriented applications:<br>
  * Contract: {@link Application}, {@link ApplicationModel}, {@link View}.
+ *
+ * <p><em>Abstract Factory</em><br>
+ * {@code MenuBuilder} is used by {@code Application} for creating menu items.
+ * The {@code MenuBuilder} is provided by {@code ApplicationModel}.
+ * Abstract Factory: {@link MenuBuilder}<br>
+ * Client: {@link Application}.
  * <hr>
  *
  * @author Werner Randelshofer
  * @version $Id$
  */
-@NotNull
 public interface Application {
 
     /**
@@ -105,10 +109,13 @@ public interface Application {
 
     /**
      * Starts the application.
-     * This usually creates a new view, and adds it to the application.
+     * This usually creates at least one view, and adds it to the application.
      * <code>init()</code> must have been invoked before the application is started.
+     *
+     * @param uris Upon launch, the application may be requested to open views
+     *             for a given list of URI's.
      */
-    public void start();
+    public void start(List<URI> uris);
 
     /**
      * Stops the application without saving any unsaved views.
@@ -169,7 +176,7 @@ public interface Application {
      * <p>
      * This is a bound property. 
      */
-    public View getActiveView();
+    @Nullable public View getActiveView();
 
     /**
      * Returns the enabled state of the application.

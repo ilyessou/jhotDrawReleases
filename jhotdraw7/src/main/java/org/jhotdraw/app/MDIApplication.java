@@ -1,18 +1,16 @@
 /*
  * @(#)MDIApplication.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.app;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.app.action.app.AbstractPreferencesAction;
 import org.jhotdraw.app.action.window.ToggleToolBarAction;
 import org.jhotdraw.app.action.window.FocusWindowAction;
@@ -86,14 +84,20 @@ import org.jhotdraw.net.URIUtil;
  *
  * The <b>file menu</b> has the following standard menu items:
  * <pre>
+ *  Clear ({@link ClearFileAction#ID}})
  *  New ({@link NewFileAction#ID}})
+ *  New Window ({@link NewWindowAction#ID}})
+ *  Load... ({@link LoadFileAction#ID}})
  *  Open... ({@link OpenFileAction#ID}})
- *  Open Recent &gt; "Filename" ({@link org.jhotdraw.app.action.file.OpenRecentFileAction#ID}})
+ *  Load Directory... ({@link LoadDirectoryAction#ID}})
+ *  Open Directory... ({@link OpenDirectoryAction#ID}})
+ *  Load Recent &gt; "Filename" ({@link org.jhotdraw.app.action.file.LoadRecentFileAction#ID})
+ *  Open Recent &gt; "Filename" ({@link org.jhotdraw.app.action.file.OpenRecentFileAction#ID})
  *  -
  *  Close ({@link CloseFileAction#ID})
  *  Save ({@link SaveFileAction#ID})
  *  Save As... ({@link SaveFileAsAction#ID})
- *  -
+ *  Export... ({@link ExportFileAction#ID})
  *  Print... ({@link PrintFileAction#ID})
  *  -
  *  Exit ({@link ExitAction#ID})
@@ -101,15 +105,32 @@ import org.jhotdraw.net.URIUtil;
  *
  * The <b>edit menu</b> has the following standard menu items:
  * <pre>
+ *  Undo ({@link UndoAction#ID}})
+ *  Redo ({@link RedoAction#ID}})
+ *  -
+ *  Cut ({@link CutAction#ID}})
+ *  Copy ({@link CopyAction#ID}})
+ *  Paste ({@link PasteAction#ID}})
+ *  Duplicate ({@link DuplicateAction#ID}})
+ *  Delete... ({@link DeleteAction#ID}})
+ *  -
+ *  Select All ({@link SelectAllAction#ID}})
+ *  Clear Selection ({@link ClearSelectionAction#ID}})
+ *  -
+ *  Find ({@link AbstractFindAction#ID}})
+ *  -
  *  Settings ({@link AbstractPreferencesAction#ID})
  * </pre>
  *
  * The <b>window menu</b> has the following standard menu items:
  * <pre>
- *  Minimize ({@link MinimizeWindowAction#ID})
- *  Maximize ({@link MaximizeWindowAction#ID})
+ *  Arrange Cascade ({@link ArrangeWindowsAction#CASCADE_ID})
+ *  Arrange Vertical ({@link ArrangeWindowsAction#VERTICAL_ID})
+ *  Arrange Horizontal ({@link ArrangeWindowsAction#HORIZONTAL_ID})
  *  -
- *  "Filename" ({@link FocusWindowAction#ID})
+ *  "Filename" ({@link FocusWindowAction})
+ *  -
+ *  "Toolbar" ({@link ToggleToolBarAction})
  * </pre>
  *
  * The <b>help menu</b> has the following standard menu items:
@@ -342,6 +363,9 @@ public class MDIApplication extends AbstractApplication {
     public void hide(View v) {
         if (v.isShowing()) {
             JInternalFrame f = (JInternalFrame) SwingUtilities.getRootPane(v.getComponent()).getParent();
+            if (getActiveView() == v) {
+                setActiveView(null);
+            }
             f.setVisible(false);
             f.remove(v.getComponent());
 
@@ -387,7 +411,7 @@ public class MDIApplication extends AbstractApplication {
     /**
      * Creates a menu bar.
      */
-    protected JMenuBar createMenuBar(View v) {
+    protected JMenuBar createMenuBar(@Nullable View v) {
         JMenuBar mb = new JMenuBar();
 
         // Get menus from application model
@@ -401,7 +425,9 @@ public class MDIApplication extends AbstractApplication {
         String viewMenuText = labels.getString("view.text");
         String windowMenuText = labels.getString("window.text");
         String helpMenuText = labels.getString("help.text");
-        for (JMenu mm : getModel().createMenus(this, v)) {
+        LinkedList<JMenu> ll = new LinkedList<JMenu>();
+        getModel().getMenuBuilder().addOtherMenus(ll, this, v);
+        for (JMenu mm : ll) {
             String text = mm.getText();
             if (text == null) {
                 mm.setText("-null-");
@@ -462,20 +488,19 @@ public class MDIApplication extends AbstractApplication {
     }
 
     @Override
+    @Nullable
     public JMenu createFileMenu(View view) {
-        JMenuBar mb = new JMenuBar();
         JMenu m;
 
         m = new JMenu();
         labels.configureMenu(m, "file");
-        addAction(m, view, ClearFileAction.ID);
-        addAction(m, view, NewFileAction.ID);
-        addAction(m, view, NewWindowAction.ID);
+        MenuBuilder mb = model.getMenuBuilder();
+        mb.addClearFileItems(m, this, view);
+        mb.addNewFileItems(m, this, view);
+        mb.addNewWindowItems(m, this, view);
 
-        addAction(m, view, LoadFileAction.ID);
-        addAction(m, view, OpenFileAction.ID);
-        addAction(m, view, LoadDirectoryAction.ID);
-        addAction(m, view, OpenDirectoryAction.ID);
+        mb.addLoadFileItems(m, this, view);
+        mb.addOpenFileItems(m, this, view);
 
         if (getAction(view, LoadFileAction.ID) != null ||//
                 getAction(view, OpenFileAction.ID) != null ||//
@@ -484,16 +509,18 @@ public class MDIApplication extends AbstractApplication {
             m.add(createOpenRecentFileMenu(view));
         }
         maybeAddSeparator(m);
-        addAction(m, view, CloseFileAction.ID);
-        addAction(m, view, SaveFileAction.ID);
-        addAction(m, view, SaveFileAsAction.ID);
-        addAction(m, view, ExportFileAction.ID);
-        addAction(m, view, PrintFileAction.ID);
+
+        mb.addCloseFileItems(m, this, view);
+        mb.addSaveFileItems(m, this, view);
+        mb.addExportFileItems(m, this, view);
+        mb.addPrintFileItems(m, this, view);
+
+        mb.addOtherFileItems(m, this, view);
 
         maybeAddSeparator(m);
-        addAction(m, view, ExitAction.ID);
+        mb.addExitItems(m, this, view);
 
-        return m;
+        return (m.getItemCount() == 0) ? null : m;
     }
 
     /**
@@ -518,14 +545,20 @@ public class MDIApplication extends AbstractApplication {
     }
 
     @Override
-    public JMenu createViewMenu(View v) {
-        return null;
+    @Nullable
+    public JMenu createViewMenu(final View view) {
+        JMenu m = new JMenu();
+        labels.configureMenu(m, "view");
+
+        MenuBuilder mb = model.getMenuBuilder();
+        mb.addOtherViewItems(m, this, view);
+
+        return (m.getItemCount() > 0) ? m : null;
     }
 
     @Override
+    @Nullable
     public JMenu createWindowMenu(View view) {
-        ApplicationModel mo = getModel();
-
         JMenu m;
         JMenuItem mi;
 
@@ -549,12 +582,16 @@ public class MDIApplication extends AbstractApplication {
             }
         }
 
+        MenuBuilder mb = model.getMenuBuilder();
+        mb.addOtherWindowItems(m, this, view);
+
         addPropertyChangeListener(new WindowMenuHandler(windowMenu, view));
 
-        return m;
+        return (m.getItemCount() == 0) ? null : m;
     }
 
     @Override
+    @Nullable
     public JMenu createEditMenu(View view) {
 
         JMenu m;
@@ -562,46 +599,40 @@ public class MDIApplication extends AbstractApplication {
         Action a;
         m = new JMenu();
         labels.configureMenu(m, "edit");
-        addAction(m, view, UndoAction.ID);
-        addAction(m, view, RedoAction.ID);
-
+        MenuBuilder mb = model.getMenuBuilder();
+        mb.addUndoItems(m, this, view);
         maybeAddSeparator(m);
-
-        addAction(m, view, CutAction.ID);
-        addAction(m, view, CopyAction.ID);
-        addAction(m, view, PasteAction.ID);
-        addAction(m, view, DuplicateAction.ID);
-        addAction(m, view, DeleteAction.ID);
+        mb.addClipboardItems(m, this, view);
         maybeAddSeparator(m);
-        addAction(m, view, SelectAllAction.ID);
-        addAction(m, view, ClearSelectionAction.ID);
+        mb.addSelectionItems(m, this, view);
         maybeAddSeparator(m);
-        addAction(m, view, AbstractFindAction.ID);
+        mb.addFindItems(m, this, view);
         maybeAddSeparator(m);
-        addAction(m, view, AbstractPreferencesAction.ID);
-        return (m.getPopupMenu().getComponentCount() == 0) ? null : m;
+        mb.addOtherEditItems(m, this, view);
+        maybeAddSeparator(m);
+        mb.addPreferencesItems(m, this, view);
+        return (m.getItemCount() == 0) ? null : m;
     }
 
     @Override
     public JMenu createHelpMenu(View view) {
-        ApplicationModel mo = getModel();
-
-        JMenu m;
-        JMenuItem mi;
-
-        m = new JMenu();
+        JMenu m = new JMenu();
         labels.configureMenu(m, "help");
-        addAction(m, view, AboutAction.ID);
-        return m;
+
+        MenuBuilder mb = model.getMenuBuilder();
+        mb.addHelpItems(m, this, view);
+        mb.addAboutItems(m, this, view);
+
+        return (m.getItemCount() == 0) ? null : m;
     }
 
     /** Updates the menu items in the "Window" menu. */
     private class WindowMenuHandler implements PropertyChangeListener {
 
         private JMenu windowMenu;
-        private View view;
+        @Nullable private View view;
 
-        public WindowMenuHandler(JMenu windowMenu, View view) {
+        public WindowMenuHandler(JMenu windowMenu, @Nullable View view) {
             this.windowMenu = windowMenu;
             this.view = view;
             MDIApplication.this.addPropertyChangeListener(this);
@@ -618,13 +649,10 @@ public class MDIApplication extends AbstractApplication {
 
         protected void updateWindowMenu() {
             JMenu m = windowMenu;
-            ApplicationModel mo = getModel();
             m.removeAll();
-
             m.add(getAction(view, ArrangeWindowsAction.CASCADE_ID));
             m.add(getAction(view, ArrangeWindowsAction.VERTICAL_ID));
             m.add(getAction(view, ArrangeWindowsAction.HORIZONTAL_ID));
-
             m.addSeparator();
             for (Iterator i = views().iterator(); i.hasNext();) {
                 View pr = (View) i.next();

@@ -1,18 +1,16 @@
 /*
  * @(#)DrawingView.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.event.FigureSelectionListener;
 import org.jhotdraw.draw.handle.Handle;
 import java.awt.*;
@@ -21,8 +19,6 @@ import java.awt.event.*;
 import java.util.*;
 import java.beans.*;
 import javax.swing.*;
-import org.jhotdraw.annotations.NotNull;
-import org.jhotdraw.annotations.Nullable;
 
 /**
  * A <em>drawing view</em> paints a {@link Drawing} on a {@code JComponent}.
@@ -109,7 +105,6 @@ import org.jhotdraw.annotations.Nullable;
  * Observer: {@link org.jhotdraw.draw.event.HandleListener};
  * Event: {@link org.jhotdraw.draw.event.HandleEvent};
  * Concrete Observer: {@link DrawingView}.
- * <hr>
  *
  * <p><em>Strategy</em><br>
  * Editing can be constrained by a constrainer which is associated to a
@@ -120,7 +115,6 @@ import org.jhotdraw.annotations.Nullable;
  * @author Werner Randelshofer
  * @version $Id$
  */
-@NotNull
 public interface DrawingView {
 
     /**
@@ -175,8 +169,7 @@ public interface DrawingView {
      * Sets and installs another drawing in the view.
      * This is a bound property.
      */
-    @Nullable
-    public void setDrawing(Drawing d);
+    public void setDrawing(@Nullable Drawing d);
 
     /**
      * Sets the cursor of the DrawingView.
@@ -246,7 +239,7 @@ public interface DrawingView {
     /**
      * Sets the active handle.
      */
-    public void setActiveHandle(Handle newValue);
+    public void setActiveHandle(@Nullable Handle newValue);
 
     /**
      * Gets the active handle.

@@ -1,19 +1,17 @@
 /*
  * @(#)DrawingEditorProxy.java
  *
- * Copyright (c) 2007-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2007-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.draw;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.tool.Tool;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -42,7 +40,7 @@ import org.jhotdraw.beans.AbstractBean;
  * @version $Id$
  */
 public class DrawingEditorProxy extends AbstractBean implements DrawingEditor {
-    private DrawingEditor target;
+    @Nullable private DrawingEditor target;
 
     private class Forwarder implements PropertyChangeListener, Serializable {
     @Override
@@ -60,7 +58,7 @@ public class DrawingEditorProxy extends AbstractBean implements DrawingEditor {
     /**
      * Sets the target of the proxy.
      */
-    public void setTarget(DrawingEditor newValue) {
+    public void setTarget(@Nullable DrawingEditor newValue) {
         if (target != null) {
             target.removePropertyChangeListener(forwarder);
         }
@@ -72,7 +70,7 @@ public class DrawingEditorProxy extends AbstractBean implements DrawingEditor {
     /**
      * Gets the target of the proxy.
      */
-    public DrawingEditor getTarget() {
+    @Nullable public DrawingEditor getTarget() {
         return target;
     }
     
@@ -101,7 +99,8 @@ public class DrawingEditorProxy extends AbstractBean implements DrawingEditor {
     public void setActiveView(DrawingView newValue) {
         target.setActiveView(newValue);
     }
-    
+
+    @Nullable
     public DrawingView getFocusedView() {
         return (target == null) ? null : target.getActiveView();
     }

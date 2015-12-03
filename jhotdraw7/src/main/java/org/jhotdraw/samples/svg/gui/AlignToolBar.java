@@ -1,18 +1,16 @@
 /*
  * @(#)AlignToolBar.java
  *
- * Copyright (c) 2007-2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2007-2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.samples.svg.gui;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.event.SelectionComponentDisplayer;
 import javax.swing.border.*;
 import org.jhotdraw.util.*;
@@ -31,7 +29,7 @@ import org.jhotdraw.gui.plaf.palette.*;
  */
 public class AlignToolBar extends AbstractToolBar {
 
-    private SelectionComponentDisplayer displayer;
+    @Nullable private SelectionComponentDisplayer displayer;
 
     /** Creates new instance. */
     public AlignToolBar() {
@@ -41,7 +39,6 @@ public class AlignToolBar extends AbstractToolBar {
 
     @Override
     public void setEditor(DrawingEditor newValue) {
-        DrawingEditor oldValue = getEditor();
         if (displayer != null) {
             displayer.dispose();
             displayer = null;

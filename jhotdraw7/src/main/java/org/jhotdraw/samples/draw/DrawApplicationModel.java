@@ -1,18 +1,16 @@
 /*
  * @(#)DrawApplicationModel.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.samples.draw;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.tool.CreationTool;
 import org.jhotdraw.draw.tool.BezierTool;
 import org.jhotdraw.draw.tool.TextCreationTool;
@@ -60,7 +58,7 @@ public class DrawApplicationModel extends DefaultApplicationModel {
     }
 
     @Override
-    public void initView(Application a, View p) {
+    public void initView(Application a,View p) {
         if (a.isSharingToolsAmongViews()) {
             ((DrawView) p).setEditor(getSharedEditor());
         }
@@ -72,7 +70,7 @@ public class DrawApplicationModel extends DefaultApplicationModel {
      * values.
      */
     @Override
-    public List<JToolBar> createToolBars(Application a, View pr) {
+    public List<JToolBar> createToolBars(Application a, @Nullable View pr) {
         ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
         DrawView p = (DrawView) pr;
 
@@ -142,14 +140,14 @@ public class DrawApplicationModel extends DefaultApplicationModel {
     }
 
     @Override
-    public URIChooser createOpenChooser(Application a, View v) {
+    public URIChooser createOpenChooser(Application a, @Nullable View v) {
         JFileURIChooser c = new JFileURIChooser();
         c.addChoosableFileFilter(new ExtensionFileFilter("Drawing .xml","xml"));
         return c;
     }
 
     @Override
-    public URIChooser createSaveChooser(Application a, View v) {
+    public URIChooser createSaveChooser(Application a, @Nullable View v) {
         JFileURIChooser c = new JFileURIChooser();
         c.addChoosableFileFilter(new ExtensionFileFilter("Drawing .xml","xml"));
         return c;

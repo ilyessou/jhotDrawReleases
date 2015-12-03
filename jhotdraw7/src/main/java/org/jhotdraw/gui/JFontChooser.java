@@ -1,18 +1,16 @@
 /*
  * @(#)JFontChooser.java
  *
- * Copyright (c) 2008 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2008 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.gui;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
@@ -61,11 +59,11 @@ public class JFontChooser extends JComponent {
     /**
      * Holds the selected path of the JFontChooser.
      */
-    private TreePath selectionPath;
+    @Nullable private TreePath selectionPath;
     /**
      * Holds the selected font of the JFontChooser.
      */
-    private Font selectedFont;
+    @Nullable private Font selectedFont;
     /**
      * Holds the model of the JFontChooser.
      */
@@ -87,7 +85,7 @@ public class JFontChooser extends JComponent {
     public static final int ERROR_OPTION = -1;
     private int returnValue = ERROR_OPTION;
     // DIALOG
-    private JDialog dialog = null;
+    @Nullable private JDialog dialog = null;
     /**
      * This future is used to load fonts lazily
      */
@@ -126,8 +124,6 @@ public class JFontChooser extends JComponent {
     @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName() == "ancestor" && evt.getNewValue() != null) {
-                    Component ancestor = (Component) evt.getNewValue();
-
                     try {
                         ((DefaultFontChooserModel) model).setFonts(getAllFonts());
                     } catch (Exception ex) {
@@ -284,7 +280,7 @@ public class JFontChooser extends JComponent {
      * 
      * @return The selected font, or null, if no font is selected.
      */
-    public TreePath getSelectionPath() {
+    @Nullable public TreePath getSelectionPath() {
         return selectionPath;
     }
 
@@ -299,7 +295,7 @@ public class JFontChooser extends JComponent {
      * @param newValue The new selected font, or null if no font is to be
      * selected..
      */
-    public void setSelectionPath(TreePath newValue) {
+    public void setSelectionPath(@Nullable TreePath newValue) {
         TreePath oldValue = selectionPath;
         this.selectionPath = newValue;
         firePropertyChange(SELECTION_PATH_PROPERTY, oldValue, newValue);
@@ -318,10 +314,7 @@ public class JFontChooser extends JComponent {
 
     @Override
                 public Font[] call() throws Exception {
-                    long start = System.currentTimeMillis();
                     Font[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
-                    long end = System.currentTimeMillis();
-                    //System.out.println("JFontChooser has loaded all fonts. Elapsed:"+(end-start));
 
                     // get rid of bogus fonts
                     ArrayList<Font> goodFonts = new ArrayList<Font>(fonts.length);
@@ -367,7 +360,7 @@ public class JFontChooser extends JComponent {
      * 
      * @return The selected font, or null, if no font is selected.
      */
-    public Font getSelectedFont() {
+    @Nullable public Font getSelectedFont() {
         return selectedFont;
     }
 
@@ -383,7 +376,7 @@ public class JFontChooser extends JComponent {
      * @param newValue The new selected font, or null if no font is to be
      * selected.
      */
-    public void setSelectedFont(Font newValue) {
+    public void setSelectedFont(@Nullable Font newValue) {
         Font oldValue = selectedFont;
         this.selectedFont = newValue;
         firePropertyChange(SELECTED_FONT_PROPERTY, oldValue, newValue);
@@ -398,7 +391,7 @@ public class JFontChooser extends JComponent {
      * 
      * @param newValue
      */
-    protected void updateSelectionPath(Font newValue) {
+    protected void updateSelectionPath(@Nullable Font newValue) {
         if (newValue == null || selectionPath == null || selectionPath.getPathCount() != 4 ||
                 !((FontFaceNode) selectionPath.getLastPathComponent()).getFont().getFontName().equals(newValue.getFontName())) {
             if (newValue == null) {

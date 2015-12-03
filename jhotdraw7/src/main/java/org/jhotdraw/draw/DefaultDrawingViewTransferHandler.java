@@ -1,18 +1,16 @@
 /*
  * @(#)DefaultDrawingViewTransferHandler.java
  *
- * Copyright (c) 2007-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2007-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.io.InputFormat;
 import org.jhotdraw.draw.io.OutputFormat;
 import org.jhotdraw.draw.event.CompositeFigureEvent;
@@ -55,6 +53,7 @@ public class DefaultDrawingViewTransferHandler extends TransferHandler {
      * We keep the exported figures in this list, so that we don't need to
      * rely on figure selection, when method exportDone is called.
      */
+    @Nullable
     private HashSet<Figure> exportedFigures;
 
     /** Creates a new instance. */
@@ -73,7 +72,7 @@ public class DefaultDrawingViewTransferHandler extends TransferHandler {
 
     /** Imports data and stores the transferred figures into the supplied transferFigures collection. */
     @SuppressWarnings("unchecked")
-    protected boolean importData(final JComponent comp, Transferable t, final HashSet<Figure> transferFigures, final Point dropPoint) {
+    protected boolean importData(final JComponent comp, Transferable t, final HashSet<Figure> transferFigures, @Nullable final Point dropPoint) {
         if (DEBUG) {
             System.out.println("DefaultDrawingViewTransferHandler.importData(comp,t)");
         }
@@ -373,6 +372,7 @@ public class DefaultDrawingViewTransferHandler extends TransferHandler {
         return retValue;
     }
 
+    @Nullable
     protected Transferable createTransferable(DrawingView view, java.util.Set<Figure> transferFigures) {
         if (DEBUG) {
             System.out.println("DefaultDrawingViewTransferHandler .createTransferable(" + view + "," + transferFigures + ")");
@@ -380,8 +380,7 @@ public class DefaultDrawingViewTransferHandler extends TransferHandler {
 
         Transferable retValue;
         Drawing drawing = view.getDrawing();
-        exportedFigures =
-                null;
+        exportedFigures = null;
 
         if (drawing.getOutputFormats() == null
                 || drawing.getOutputFormats().size() == 0) {

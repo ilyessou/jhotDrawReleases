@@ -1,18 +1,16 @@
 /*
  * @(#)DoubleStroke.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.geom;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.*;
 import java.awt.geom.*;
 
@@ -38,7 +36,7 @@ public class DoubleStroke implements Stroke {
         this(innerWidth, outlineWidth, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL, 10f, null, 0f);
     }
 
-    public DoubleStroke(double innerWidth, double outlineWidth, int cap, int join, double miterLimit, float[] dashes, float dashPhase) {
+    public DoubleStroke(double innerWidth, double outlineWidth, int cap, int join, double miterLimit, @Nullable float[] dashes, float dashPhase) {
         this.innerWidth = innerWidth;
         this.outlineWidth = outlineWidth;
         this.miterLimit = miterLimit;

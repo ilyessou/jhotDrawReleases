@@ -1,18 +1,16 @@
 /*
  * @(#)DefaultDragTracker.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.draw.tool;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.draw.event.TransformEdit;
 import org.jhotdraw.draw.*;
 import java.awt.*;
@@ -43,14 +41,16 @@ import java.util.*;
  * @see SelectionTool
  *
  * @author Werner Randelshofer
- * @version $Id: DefaultDragTracker.java -1   $
+ * @version $Id$
  */
 public class DefaultDragTracker extends AbstractTool implements DragTracker {
 
+    @Nullable
     protected Figure anchorFigure;
     /**
      * The drag rectangle encompasses the bounds of all dragged figures.
      */
+    @Nullable
     protected Rectangle2D.Double dragRect;
     /**
      * The previousOrigin holds the origin of all dragged figures of the
@@ -76,6 +76,8 @@ public class DefaultDragTracker extends AbstractTool implements DragTracker {
      */
     protected Point2D.Double anchorPoint;
     private boolean isDragging;
+    @Nullable
+    private HashSet<Figure> transformedFigures;
 
     /** Creates a new instance. */
     public DefaultDragTracker(Figure figure) {
@@ -110,24 +112,29 @@ public class DefaultDragTracker extends AbstractTool implements DragTracker {
         if (!view.getSelectedFigures().isEmpty()) {
 
             dragRect = null;
+            transformedFigures = new HashSet<Figure>();
             for (Figure f : view.getSelectedFigures()) {
-                if (dragRect == null) {
-                    dragRect = f.getBounds();
-                } else {
-                    dragRect.add(f.getBounds());
+                if (f.isTransformable()) {
+                    transformedFigures.add(f);
+                    if (dragRect == null) {
+                        dragRect = f.getBounds();
+                    } else {
+                        dragRect.add(f.getBounds());
+                    }
                 }
             }
 
-
-            anchorPoint = previousPoint = view.viewToDrawing(anchor);
-            anchorOrigin = previousOrigin = new Point2D.Double(dragRect.x, dragRect.y);
+            if (dragRect != null) {
+                anchorPoint = previousPoint = view.viewToDrawing(anchor);
+                anchorOrigin = previousOrigin = new Point2D.Double(dragRect.x, dragRect.y);
+            }
         }
     }
 
     @Override
     public void mouseDragged(MouseEvent evt) {
         DrawingView view = getView();
-        if (!view.getSelectedFigures().isEmpty()) {
+        if (!transformedFigures.isEmpty()) {
             if (isDragging == false) {
                 isDragging = true;
                 updateCursor(editor.findView((Container) evt.getSource()), new Point(evt.getX(), evt.getY()));
@@ -147,8 +154,7 @@ public class DefaultDragTracker extends AbstractTool implements DragTracker {
             tx.translate(
                     constrainedRect.x - previousOrigin.x,
                     constrainedRect.y - previousOrigin.y);
-            Constrainer c = view.getConstrainer();
-            for (Figure f : view.getSelectedFigures()) {
+            for (Figure f : transformedFigures) {
                 f.willChange();
                 f.transform(tx);
                 f.changed();
@@ -163,24 +169,22 @@ public class DefaultDragTracker extends AbstractTool implements DragTracker {
     public void mouseReleased(MouseEvent evt) {
         super.mouseReleased(evt);
         DrawingView view = getView();
-        if (!view.getSelectedFigures().isEmpty()) {
+        if (transformedFigures == null && !transformedFigures.isEmpty()) {
             isDragging = false;
             int x = evt.getX();
             int y = evt.getY();
             updateCursor(editor.findView((Container) evt.getSource()), new Point(x, y));
             Point2D.Double newPoint = view.viewToDrawing(new Point(x, y));
 
-            Collection<Figure> draggedFigures = new LinkedList<Figure>(view.getSelectedFigures());
-            Figure dropTarget = getDrawing().findFigureExcept(newPoint, draggedFigures);
+            Figure dropTarget = getDrawing().findFigureExcept(newPoint, transformedFigures);
             if (dropTarget != null) {
-                boolean snapBack = dropTarget.handleDrop(newPoint, draggedFigures, view);
+                boolean snapBack = dropTarget.handleDrop(newPoint, transformedFigures, view);
                 if (snapBack) {
                     AffineTransform tx = new AffineTransform();
                     tx.translate(
                             anchorOrigin.x - previousOrigin.x,
                             anchorOrigin.y - previousOrigin.y);
-                    Constrainer c = view.getConstrainer();
-                    for (Figure f : draggedFigures) {
+                    for (Figure f : transformedFigures) {
                         f.willChange();
                         f.transform(tx);
                         f.changed();
@@ -199,12 +203,13 @@ public class DefaultDragTracker extends AbstractTool implements DragTracker {
                     -anchorOrigin.y + previousOrigin.y);
             if (!tx.isIdentity()) {
                 getDrawing().fireUndoableEditHappened(new TransformEdit(
-                        draggedFigures, tx));
+                        transformedFigures, tx));
             }
         }
         Rectangle r = new Rectangle(anchor.x, anchor.y, 0, 0);
         r.add(evt.getX(), evt.getY());
         maybeFireBoundsInvalidated(r);
+        transformedFigures = null;
         fireToolDone();
     }
 

@@ -1,15 +1,12 @@
 /*
  * @(#)CombinePathsAction.java
  *
- * Copyright (c) 2007 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 2007 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.samples.odg.action;
 
@@ -28,12 +25,12 @@ import java.util.*;
 public class CombineAction extends GroupAction {
 
     public final static String ID = "edit.combinePaths";
+    private ResourceBundleUtil labels =
+            ResourceBundleUtil.getBundle("org.jhotdraw.samples.odg.Labels");
 
     /** Creates a new instance. */
     public CombineAction(DrawingEditor editor) {
         super(editor, new ODGPathFigure());
-
-        labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.odg.Labels");
         labels.configureAction(this, ID);
     }
 

@@ -1,19 +1,17 @@
 /*
  * @(#)SVGAttributeKeys.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 
 package org.jhotdraw.samples.svg;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.awt.*;
 import org.jhotdraw.draw.*;
 import org.jhotdraw.util.ResourceBundleUtil;
@@ -120,6 +118,7 @@ public class SVGAttributeKeys extends AttributeKeys {
      * FILL_GRADIENT, FILL_OPACITY, FILL_PAINT and the bounds of the figure.
      * Returns null if the figure is not filled.
      */
+    @Nullable
     public static Paint getFillPaint(Figure f) {
         double opacity = f.get(FILL_OPACITY);
         if (f.get(FILL_GRADIENT) != null) {
@@ -140,6 +139,7 @@ public class SVGAttributeKeys extends AttributeKeys {
      * STROKE_GRADIENT, STROKE_OPACITY, STROKE_PAINT and the bounds of the figure.
      * Returns null if the figure is not filled.
      */
+    @Nullable
     public static Paint getStrokePaint(Figure f) {
         double opacity = f.get(STROKE_OPACITY);
         if (f.get(STROKE_GRADIENT) != null) {

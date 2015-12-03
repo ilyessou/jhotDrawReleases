@@ -1,18 +1,16 @@
 /*
  * @(#)SVGOutputFormat.java
  *
- * Copyright (c) 1996-2010 by the original authors of JHotDraw
- * and all its contributors.
- * All rights reserved.
+ * Copyright (c) 1996-2010 by the original authors of JHotDraw and all its
+ * contributors. All rights reserved.
  *
- * The copyright of this software is owned by the authors and  
- * contributors of the JHotDraw project ("the copyright holders").  
- * You may not use, copy or modify this software, except in  
- * accordance with the license agreement you entered into with  
- * the copyright holders. For details see accompanying license terms. 
+ * You may not use, copy or modify this file, except in compliance with the 
+ * license agreement you entered into with the copyright holders. For details
+ * see accompanying license terms.
  */
 package org.jhotdraw.samples.svg.io;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jhotdraw.gui.filechooser.ExtensionFileFilter;
 import org.jhotdraw.draw.io.OutputFormat;
 import java.awt.*;
@@ -41,8 +39,6 @@ import static org.jhotdraw.samples.svg.SVGConstants.*;
  * @version $Id$
  */
 public class SVGOutputFormat implements OutputFormat {
-
-    private URL url;
     /**
      * This is a counter used to create the next unique identification.
      */
@@ -342,7 +338,6 @@ public class SVGOutputFormat implements OutputFormat {
 
     protected void writePolygonElement(IXMLElement parent, SVGPathFigure f) throws IOException {
         LinkedList<Point2D.Double> points = new LinkedList<Point2D.Double>();
-        BezierPath[] beziers = new BezierPath[f.getChildCount()];
         for (int i = 0, n = f.getChildCount(); i < n; i++) {
             BezierPath bezier = ((BezierFigure) f.getChild(i)).getBezierPath();
             for (BezierPath.Node node : bezier) {
@@ -370,7 +365,6 @@ public class SVGOutputFormat implements OutputFormat {
 
     protected void writePolylineElement(IXMLElement parent, SVGPathFigure f) throws IOException {
         LinkedList<Point2D.Double> points = new LinkedList<Point2D.Double>();
-        BezierPath[] beziers = new BezierPath[f.getChildCount()];
         for (int i = 0, n = f.getChildCount(); i < n; i++) {
             BezierPath bezier = ((BezierFigure) f.getChild(i)).getBezierPath();
             for (BezierPath.Node node : bezier) {
@@ -971,11 +965,11 @@ public class SVGOutputFormat implements OutputFormat {
 
     }
 
-    protected void writeAttribute(IXMLElement elem, String name, String value, String defaultValue) {
+    protected void writeAttribute(IXMLElement elem, String name, String value, @Nullable String defaultValue) {
         writeAttribute(elem, name, SVG_NAMESPACE, value, defaultValue);
     }
 
-    protected void writeAttribute(IXMLElement elem, String name, String namespace, String value, String defaultValue) {
+    protected void writeAttribute(IXMLElement elem, String name, String namespace, String value, @Nullable String defaultValue) {
         if (!value.equals(defaultValue)) {
             elem.setAttribute(name, value);
         }
