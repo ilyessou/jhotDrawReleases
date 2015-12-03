@@ -2,14 +2,14 @@
  * @(#)DrawingPageable.java  1.0  January 1, 2007
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw;
@@ -76,14 +76,14 @@ public class DrawingPageable implements Pageable {
         if (pageIndex < 0 || pageIndex >= getNumberOfPages()) {
             return Printable.NO_SUCH_PAGE;
         }
-        if (drawing.getFigureCount() > 0) {
+        if (drawing.getChildCount() > 0) {
             
             Graphics2D g = (Graphics2D) graphics;
             setRenderingHints(g);
             
             // Determine the draw bounds of the drawing
             Rectangle2D.Double drawBounds = null;
-            for (Figure f : drawing.getFigures()) {
+            for (Figure f : drawing.getChildren()) {
                 if (drawBounds == null) {
                     drawBounds = f.getDrawingArea();
                 } else {

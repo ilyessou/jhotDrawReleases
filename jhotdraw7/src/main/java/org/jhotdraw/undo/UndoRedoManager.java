@@ -2,14 +2,14 @@
  * @(#)UndoRedoManager.java 1.3.1  2006-04-12
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.undo;
@@ -83,7 +83,7 @@ public class UndoRedoManager extends UndoManager {//javax.swing.undo.UndoManager
     private class UndoAction
             extends AbstractAction {
         public UndoAction() {
-            labels.configureAction(this, "undo");
+            labels.configureAction(this, "edit.undo");
             setEnabled(false);
         }
         
@@ -107,7 +107,7 @@ public class UndoRedoManager extends UndoManager {//javax.swing.undo.UndoManager
     private class RedoAction
             extends AbstractAction {
         public RedoAction() {
-            labels.configureAction(this, "redo");
+            labels.configureAction(this, "edit.redo");
             setEnabled(false);
         }
         
@@ -131,7 +131,7 @@ public class UndoRedoManager extends UndoManager {//javax.swing.undo.UndoManager
     
     public static ResourceBundleUtil getLabels() {
         if (labels == null) {
-            labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.undo.Labels");
+            labels = ResourceBundleUtil.getBundle("org.jhotdraw.undo.Labels");
         }
         return labels;
     }
@@ -144,7 +144,7 @@ public class UndoRedoManager extends UndoManager {//javax.swing.undo.UndoManager
     }
     
     public void setLocale(Locale l) {
-        labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.undo.Labels", l);
+        labels = ResourceBundleUtil.getBundle("org.jhotdraw.undo.Labels", l);
     }
     
     /**
@@ -228,7 +228,7 @@ public class UndoRedoManager extends UndoManager {//javax.swing.undo.UndoManager
             label = getUndoPresentationName();
         } else {
             undoAction.setEnabled(false);
-            label = labels.getString("undo");
+            label = labels.getString("edit.undo.text");
         }
         undoAction.putValue(Action.NAME, label);
         undoAction.putValue(Action.SHORT_DESCRIPTION, label);
@@ -238,7 +238,7 @@ public class UndoRedoManager extends UndoManager {//javax.swing.undo.UndoManager
             label = getRedoPresentationName();
         } else {
             redoAction.setEnabled(false);
-            label = labels.getString("redo");
+            label = labels.getString("edit.redo.text");
         }
         redoAction.putValue(Action.NAME, label);
         redoAction.putValue(Action.SHORT_DESCRIPTION, label);

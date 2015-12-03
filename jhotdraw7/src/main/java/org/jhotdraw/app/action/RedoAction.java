@@ -2,14 +2,14 @@
  * @(#)RedoAction.java  2.0  2006-06-15
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.app.action;
@@ -21,20 +21,20 @@ import java.beans.*;
 import java.util.*;
 import org.jhotdraw.util.*;
 import org.jhotdraw.app.Application;
-import org.jhotdraw.app.Project;
+import org.jhotdraw.app.View;
 /**
  * Redoes the last user action.
- * In order to work, this action requires that the Project returns a project
- * specific undo action when invoking getAction("redo") on the Project.
+ * In order to work, this action requires that the View returns a project
+ * specific undo action when invoking getAction("redo") on the View.
  *
  *
  * @author Werner Randelshofer
  * @version 2.0 2006-06-15 Reworked.
  * <br>1.0 October 9, 2005 Created.
  */
-public class RedoAction extends AbstractProjectAction {
-    public final static String ID = "redo";
-    private ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.app.Labels");
+public class RedoAction extends AbstractViewAction {
+    public final static String ID = "edit.redo";
+    private ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
     
     private PropertyChangeListener redoActionPropertyListener = new PropertyChangeListener() {
         public void propertyChange(PropertyChangeEvent evt) {
@@ -62,30 +62,30 @@ public class RedoAction extends AbstractProjectAction {
         setEnabled(isEnabled);
     }
     
-    @Override protected void updateProject(Project oldValue, Project newValue) {
-        super.updateProject(oldValue, newValue);
-        if (newValue != null && newValue.getAction("redo") !=  null) {
-            putValue(AbstractAction.NAME, newValue.getAction("redo").
+    @Override protected void updateView(View oldValue, View newValue) {
+        super.updateView(oldValue, newValue);
+        if (newValue != null && newValue.getAction(ID) !=  null) {
+            putValue(AbstractAction.NAME, newValue.getAction(ID).
                     getValue(AbstractAction.NAME));
             updateEnabledState();
         }
     }
     /**
-     * Installs listeners on the project object.
+     * Installs listeners on the view object.
      */
-    @Override protected void installProjectListeners(Project p) {
-        super.installProjectListeners(p);
-        if (p.getAction("redo") != null) {
-        p.getAction("redo").addPropertyChangeListener(redoActionPropertyListener);
+    @Override protected void installViewListeners(View p) {
+        super.installViewListeners(p);
+        if (p.getAction(ID) != null) {
+        p.getAction(ID).addPropertyChangeListener(redoActionPropertyListener);
         }
     }
     /**
-     * Installs listeners on the project object.
+     * Installs listeners on the view object.
      */
-    @Override protected void uninstallProjectListeners(Project p) {
-        super.uninstallProjectListeners(p);
-        if (p.getAction("redo") != null) {
-        p.getAction("redo").removePropertyChangeListener(redoActionPropertyListener);
+    @Override protected void uninstallViewListeners(View p) {
+        super.uninstallViewListeners(p);
+        if (p.getAction(ID) != null) {
+        p.getAction(ID).removePropertyChangeListener(redoActionPropertyListener);
         }
     }
     
@@ -97,7 +97,7 @@ public class RedoAction extends AbstractProjectAction {
     }
     
     private Action getRealRedoAction() {
-        return (getCurrentProject() == null) ? null : getCurrentProject().getAction("redo");
+        return (getActiveView() == null) ? null : getActiveView().getAction(ID);
     }
     
 }

@@ -2,14 +2,14 @@
  * @(#)AbstractAttributedFigure.java  4.1  2007-05-18
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw;
@@ -39,6 +39,9 @@ import org.jhotdraw.xml.DOMOutput;
  * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
  */
 public abstract class AbstractAttributedFigure extends AbstractFigure {
+    /**
+     * Holds the attributes of the figure.
+     */
     private HashMap<AttributeKey, Object> attributes = new HashMap<AttributeKey,Object>();
     /**
      * Forbidden attributes can't be set by the setAttribute() operation.
@@ -65,6 +68,7 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
         return forbiddenAttributes == null || ! forbiddenAttributes.contains(key);
     }
     
+    @SuppressWarnings("unchecked")
     public void setAttributes(Map<AttributeKey, Object> map) {
         for (Map.Entry<AttributeKey, Object> entry : map.entrySet()) {
             setAttribute(entry.getKey(), entry.getValue());
@@ -76,6 +80,7 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
     public Object getAttributesRestoreData() {
         return getAttributes();
     }
+    @SuppressWarnings("unchecked")
     public void restoreAttributesTo(Object restoreData) {
         attributes.clear();
         setAttributes((HashMap<AttributeKey,Object>) restoreData);
@@ -85,18 +90,18 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
      * AttributeKey name and semantics are defined by the class implementing
      * the figure interface.
      */
-    public void setAttribute(AttributeKey key, Object newValue) {
+    public <T> void setAttribute(AttributeKey<T> key, T newValue) {
         if (forbiddenAttributes == null
                 || ! forbiddenAttributes.contains(key)) {
-            Object oldValue = attributes.put(key, newValue);
+            T oldValue = (T) key.put(attributes, newValue);
             fireAttributeChanged(key, oldValue, newValue);
         }
     }
     /**
      * Gets an attribute from the figure.
      */
-    public Object getAttribute(AttributeKey key) {
-        return hasAttribute(key) ? attributes.get(key) : key.getDefaultValue();
+    public <T> T getAttribute(AttributeKey<T> key) {
+        return hasAttribute(key) ? key.get(attributes) : key.getDefaultValue();
     }
     
     
@@ -208,6 +213,7 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
             out.closeElement();
         }
     }
+    @SuppressWarnings("unchecked")
     protected void readAttributes(DOMInput in) throws IOException {
         if (in.getElementCount("a") > 0) {
             in.openElement("a");
@@ -236,9 +242,10 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
     /**
      * Applies all attributes of this figure to that figure.
      */
+    @SuppressWarnings("unchecked")
     protected void applyAttributesTo(Figure that) {
         for (Map.Entry<AttributeKey, Object> entry : attributes.entrySet()) {
-            that.setAttribute(entry.getKey(), entry.getValue());
+            entry.getKey().basicSet(that, entry.getValue());
         }
     }
     
@@ -261,9 +268,9 @@ public abstract class AbstractAttributedFigure extends AbstractFigure {
         readAttributes(in);
     }
     
-    public void removeAttribute(AttributeKey key) {
+    public <T> void removeAttribute(AttributeKey<T> key) {
         if (hasAttribute(key)) {
-            Object oldValue = getAttribute(key);
+            T oldValue = key.get(this);
             attributes.remove(key);
             fireAttributeChanged(key, oldValue, key.getDefaultValue());
         }

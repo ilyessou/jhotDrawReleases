@@ -2,14 +2,14 @@
  * @(#)ApplicationModel.java  1.0  June 10, 2006
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.app;
@@ -37,11 +37,11 @@ public interface ApplicationModel {
     public String getCopyright();
     
     /**
-     * Creates a new project for the application.
+     * Creates a new view for the application.
      */
-    public Project createProject();
+    public View createView();
     
-    public void initProject(Application a, Project p);
+    public void initView(Application a, View v);
     
     public void initApplication(Application a);
     /**
@@ -56,23 +56,23 @@ public interface ApplicationModel {
      * Creates tool bars.
      * <p>
      * Depending on the document interface of the application, this method
-     * may be invoked only once for the application, or for each opened project.
+     * may be invoked only once for the application, or for each opened view.
      * <p>
      * @param a Application.
-     * @param p The project for which the toolbars need to be created, or null
-     * if the toolbar needs to be shared with multiple projects.
+     * @param v The view for which the toolbars need to be created, or null
+     * if the toolbar needs to be shared with multiple views.
      */
-    public List<JToolBar> createToolBars(Application a, Project p);
+    public List<JToolBar> createToolBars(Application a, View v);
     
     /**
      * Creates menus.
      * <p>
      * Depending on the document interface of the application, this method
-     * may be invoked only once for the application, or for each opened project.
+     * may be invoked only once for the application, or for each opened view.
      * <p>
      * @param a Application.
-     * @param p The project for which the toolbars need to be created, or null
-     * if the toolbar needs to be shared with multiple projects.
+     * @param v The view for which the toolbars need to be created, or null
+     * if the toolbar needs to be shared with multiple views.
      */
-    public List<JMenu> createMenus(Application a, Project p);
+    public List<JMenu> createMenus(Application a, View v);
 }

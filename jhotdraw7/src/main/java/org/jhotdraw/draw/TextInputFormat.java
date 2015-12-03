@@ -1,15 +1,15 @@
 /*
- * @(#)TextInputFormat.java  1.0  2007-04-12
+ * @(#)TextInputFormat.java  1.2  2008-05-24
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw;
@@ -36,7 +36,12 @@ import org.jhotdraw.io.*;
  * For text that spans multiple lines, TextInputFormat can either add all the
  * text to the same Figure, or it can create a new Figure for each line.
  *
- * @author Werner Randelshoer 1.0 2007-04-12 Created.
+ * @author Werner Randelshofer 
+ * @version 1.2 2008-05-24 Adapted to changes in InputFormat.
+ * <br>1.1.1 2008-03-19 Throw an IOException if we are unable to read
+ * text from the input stream. 
+ * <br>1.1 2007-12-16 Adapted to changes in InputFormat.
+ * <br>1.0 2007-04-12 Created.
  * @see org.jhotdraw.draw.TextHolderFigure
  */
 public class TextInputFormat implements InputFormat {
@@ -102,15 +107,22 @@ public class TextInputFormat implements InputFormat {
     }
     
     public void read(File file, Drawing drawing) throws IOException {
-        read(new FileInputStream(file), drawing);
+        read(file, drawing, true);
     }
     
-    public void read(InputStream in, Drawing drawing) throws IOException {
+    public void read(File file, Drawing drawing, boolean replace) throws IOException {
+        read(new FileInputStream(file), drawing, replace);
+    }
+    
+    public void read(InputStream in, Drawing drawing, boolean replace) throws IOException {
+        if (replace) {
+            drawing.removeAllChildren();
+        }
         drawing.basicAddAll(0, createTextHolderFigures(in));
     }
     
     public LinkedList<Figure> createTextHolderFigures(InputStream in) throws IOException {
-        LinkedList list = new LinkedList<Figure>();
+        LinkedList<Figure> list = new LinkedList<Figure>();
         
         BufferedReader r = new BufferedReader(new InputStreamReader(in, "UTF8"));
         
@@ -145,7 +157,9 @@ public class TextInputFormat implements InputFormat {
                 y += s.height;
             }
         }
-        
+        if (list.size() == 0) {
+            throw new IOException("No text found");
+        }
         return list;
     }
     
@@ -153,10 +167,10 @@ public class TextInputFormat implements InputFormat {
         return flavor.equals(DataFlavor.stringFlavor);
     }
     
-    public java.util.List<Figure> readFigures(Transferable t) throws UnsupportedFlavorException, IOException {
+    public void read(Transferable t, Drawing drawing, boolean replace) throws UnsupportedFlavorException, IOException {
         String text = (String) t.getTransferData(DataFlavor.stringFlavor);
         
-        LinkedList list = new LinkedList<Figure>();
+        LinkedList<Figure> list = new LinkedList<Figure>();
         if (isMultiline) {
             TextHolderFigure figure = (TextHolderFigure) prototype.clone();
             figure.setText(text);
@@ -186,6 +200,9 @@ public class TextInputFormat implements InputFormat {
                 list.add(figure);
             }
         }
-        return list;
+        if (replace) {
+            drawing.removeAllChildren();
+        }
+        drawing.addAll(list);
     }
 }

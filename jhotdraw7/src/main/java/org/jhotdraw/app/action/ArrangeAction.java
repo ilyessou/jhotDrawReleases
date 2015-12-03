@@ -2,14 +2,14 @@
  * @(#)ArrangeAction.java  1.0  7. Februar 2006
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.app.action;
@@ -28,9 +28,9 @@ import java.awt.*;
  * @version 1.0 7. Februar 2006 Created.
  */
 public class ArrangeAction extends AbstractAction {
-    public final static String VERTICAL_ID = "arrangeVertical";
-    public final static String HORIZONTAL_ID = "arrangeHorizontal";
-    public final static String CASCADE_ID = "arrangeCascade";
+    public final static String VERTICAL_ID = "window.arrangeVertical";
+    public final static String HORIZONTAL_ID = "window.arrangeHorizontal";
+    public final static String CASCADE_ID = "window.arrangeCascade";
     private Arrangeable arrangeable;
     private Arrangeable.Arrangement arrangement;
     
@@ -38,7 +38,7 @@ public class ArrangeAction extends AbstractAction {
     public ArrangeAction(Arrangeable arrangeable, Arrangeable.Arrangement arrangement) {
         this.arrangeable = arrangeable;
         this.arrangement = arrangement;
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.app.Labels");
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
         String labelID;
         switch (arrangement) {
             case VERTICAL : labelID = VERTICAL_ID; break;

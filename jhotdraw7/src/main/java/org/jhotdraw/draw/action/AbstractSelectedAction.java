@@ -1,15 +1,15 @@
 /*
- * @(#)AbstractSelectedAction.java  3.1.1  2006-07-09
+ * @(#)AbstractSelectedAction.java  3.1.2  2008-06-08
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 2003-2008 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw.action;
@@ -21,6 +21,7 @@ import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
 import javax.swing.*;
 import java.beans.*;
+import java.io.Serializable;
 import javax.swing.undo.*;
 import org.jhotdraw.util.*;
 import java.util.*;
@@ -30,7 +31,9 @@ import java.util.*;
  *
  * @author Werner Randelshofer
  *
- * @version 3.1.1. 2006-07-09 Fixed enabled state. 
+ * @version 3.1.2 2008-06-08 Method setEditor did not register the EventHandler
+ * to the active view of the editor.
+ * <br>3.1.1. 2006-07-09 Fixed enabled state. 
  * <br>3.1 2006-03-15 Support for enabled state of view added.
  * <br>3.0 2006-02-24 Changed to support multiple views.
  * <br>2.0 2006-02-14 Updated to work with multiple views.
@@ -40,28 +43,23 @@ public abstract class AbstractSelectedAction
         extends AbstractAction  {
     private DrawingEditor editor;
     protected ResourceBundleUtil labels =
-            ResourceBundleUtil.getLAFBundle("org.jhotdraw.draw.Labels", Locale.getDefault());
-    private PropertyChangeListener propertyChangeHandler = new PropertyChangeListener() {
-        public void propertyChange(PropertyChangeEvent evt) {
-            if (evt.getPropertyName().equals("enabled")) {
-                updateEnabledState();
-            }
-        }
-    };
+            ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels", Locale.getDefault());
     
-    private class EventHandler implements PropertyChangeListener, FigureSelectionListener {
+    private class EventHandler implements PropertyChangeListener, FigureSelectionListener, Serializable {
         public void propertyChange(PropertyChangeEvent evt) {
-            if (evt.getPropertyName() == DrawingEditor.PROP_ACTIVE_VIEW) {
+            if (evt.getPropertyName() == DrawingEditor.ACTIVE_VIEW_PROPERTY) {
                 if (evt.getOldValue() != null) {
                     DrawingView view = ((DrawingView) evt.getOldValue());
                     view.removeFigureSelectionListener(this);
-                    view.removePropertyChangeListener(propertyChangeHandler);
+                    view.removePropertyChangeListener(this);
                 }
                 if (evt.getNewValue() != null) {
                     DrawingView view = ((DrawingView) evt.getNewValue());
                     view.addFigureSelectionListener(this);
-                    view.addPropertyChangeListener(propertyChangeHandler);
+                    view.addPropertyChangeListener(this);
                 }
+                updateEnabledState();
+            } else if (evt.getPropertyName().equals("enabled")) {
                 updateEnabledState();
             }
         }
@@ -105,15 +103,20 @@ public abstract class AbstractSelectedAction
     public void setEditor(DrawingEditor editor) {
         if (this.editor != null) {
             this.editor.removePropertyChangeListener(eventHandler);
-            if (getView() != null) {
-                getView().removeFigureSelectionListener(eventHandler);
+            if (this.editor.getActiveView() != null) {
+                this.editor.getActiveView().removeFigureSelectionListener(eventHandler);
             }
         }
         this.editor = editor;
         if (this.editor != null) {
             this.editor.addPropertyChangeListener(eventHandler);
+            if (this.editor.getActiveView() != null) {
+                this.editor.getActiveView().addFigureSelectionListener(eventHandler);
+            }
         }
+        updateEnabledState();
     }
+    
     public DrawingEditor getEditor() {
         return editor;
     }

@@ -2,14 +2,14 @@
  * @(#)DrawLiveConnectApplet.java  2.0  2006-01-15
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.samples.draw;
@@ -17,18 +17,14 @@ package org.jhotdraw.samples.draw;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.gui.*;
-import org.jhotdraw.util.*;
 
 import java.awt.*;
 import java.awt.geom.*;
-import java.awt.event.*;
 import java.io.*;
 import java.net.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.event.*;
 
-import netscape.javascript.*;
+import netscape.javascript.JSObject;
 import org.jhotdraw.xml.*;
 /**
  * DrawLiveConnectApplet. Supports loading and saving of images to JavaScript.
@@ -146,7 +142,7 @@ public class DrawLiveConnectApplet extends JApplet {
                 NanoXMLDOMInput domi = new NanoXMLDOMInput(new DrawFigureFactory(), in);
                 setDrawing((Drawing) domi.readObject(0));
             } catch (Throwable e) {
-                getDrawing().clear();
+                getDrawing().removeAllChildren();
                 TextFigure tf = new TextFigure();
                 tf.setText(e.getMessage());
                 tf.setBounds(new Point2D.Double(10,10), new Point2D.Double(100,100));
@@ -186,9 +182,9 @@ public class DrawLiveConnectApplet extends JApplet {
     public String getAppletInfo() {
         return NAME +
                 "\nVersion "+VERSION +
-                "\n\nCopyright 1996-2007 (c) by the authors of JHotDraw" +
+                "\n\nCopyright 1996-2008 (c) by the authors of JHotDraw" +
                 "\nThis software is licensed under LGPL or" +
-                "\nCreative Commons 2.5 BY";
+                "\nCreative Commons 3.0 BY";
     }
     /** This method is called from within the init() method to
      * initialize the form.

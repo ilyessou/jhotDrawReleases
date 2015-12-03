@@ -2,14 +2,14 @@
  * @(#)CompositeModel.java 1.1  2006-06-20
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.undo;
@@ -21,7 +21,7 @@ import java.util.*;
  * it has a slightly different behaviour:
  * The compound edit ends, when it is added to itself. This way it
  * can be fired two times to an UndoManager: The first time, when
- * a sequence of compuondable edits starts, end the last time, when
+ * a sequence of compoundable edits starts, end the last time, when
  * the sequence is over.
  * <p>
  * For example:
@@ -105,7 +105,7 @@ public class CompositeEdit extends CompoundEdit {
      * @see javax.swing.undo.CompoundEdit#getUndoPresentationName()
      */
     public String getUndoPresentationName() {
-        return ((presentationName != null) ? UndoRedoManager.getLabels().getString("undo")+" "+presentationName : super.getUndoPresentationName());
+        return ((presentationName != null) ? UndoRedoManager.getLabels().getString("edit.undo.text")+" "+presentationName : super.getUndoPresentationName());
     }
     /**
      * Returns the redo presentation name.
@@ -114,7 +114,7 @@ public class CompositeEdit extends CompoundEdit {
      * @see javax.swing.undo.CompoundEdit#getRedoPresentationName()
      */
     public String getRedoPresentationName() {
-        return ((presentationName != null) ? UndoRedoManager.getLabels().getString("redo")+" "+presentationName : super.getRedoPresentationName());
+        return ((presentationName != null) ? UndoRedoManager.getLabels().getString("edit.redo.text")+" "+presentationName : super.getRedoPresentationName());
     }
     
     /**

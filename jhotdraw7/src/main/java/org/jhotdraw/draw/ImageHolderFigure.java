@@ -1,15 +1,15 @@
 /*
- * @(#)ImageHolderFigure.java  1.0  December 14, 2006
+ * @(#)ImageHolderFigure.java  2.0  2008-05-24
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw;
@@ -21,7 +21,8 @@ import java.io.*;
  * The interface of a figure that has some editable image contents.
  *
  * @author Werner Randelshofer
- * @version 1.0 December 14, 2006 Created.
+ * @version 2.0 2008-05-24 Added setImage and getImageData methods. 
+ * <br>1.0 December 14, 2006 Created.
  */
 public interface ImageHolderFigure extends Figure {
     /**
@@ -44,4 +45,22 @@ public interface ImageHolderFigure extends Figure {
      * Sets the buffered image for the figure.
      */
     public void setBufferedImage(BufferedImage image);
+    
+    /**
+     * Sets the image.
+     *
+     * @param imageData The image data. If this is null, a buffered image must
+     * be provided.
+     * @param bufferedImage An image constructed from the imageData. If this
+     * is null, imageData must be provided.
+     */
+    public void setImage(byte[] imageData, BufferedImage bufferedImage) throws IOException;
+    /**
+     * Gets the image data.
+     *
+     * @return imageData The image data, or null, if the ImageHolderFigure does
+     * not have an image.
+     */
+    public byte[] getImageData();
+
 }

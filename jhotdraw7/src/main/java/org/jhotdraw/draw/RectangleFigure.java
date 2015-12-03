@@ -2,14 +2,14 @@
  * @(#)RectangleFigure.java  2.3  2006-12-23
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 
@@ -41,10 +41,6 @@ public class RectangleFigure extends AbstractAttributedFigure {
     
     public RectangleFigure(double x, double y, double width, double height) {
         rectangle = new Rectangle2D.Double(x, y, width, height);
-        /*
-        FILL_COLOR.set(this, Color.white);
-        STROKE_COLOR.set(this, Color.black);
-         */
     }
     
     // DRAWING
@@ -68,7 +64,7 @@ public class RectangleFigure extends AbstractAttributedFigure {
         return bounds;
     }
     
-    public Rectangle2D.Double getDrawingArea() {
+    @Override public Rectangle2D.Double getDrawingArea() {
         Rectangle2D.Double r = (Rectangle2D.Double) rectangle.clone();
         double grow = AttributeKeys.getPerpendicularHitGrowth(this) + 1d;
         Geom.grow(r, grow, grow);

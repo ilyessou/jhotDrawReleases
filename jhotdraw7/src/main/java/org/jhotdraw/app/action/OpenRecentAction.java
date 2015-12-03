@@ -1,17 +1,16 @@
 /*
- * @(#)OpenRecentAction.java  1.0  June 15, 2006
+ * @(#)OpenRecentAction.java  1.1  2008-03-19
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
-
 package org.jhotdraw.app.action;
 
 import org.jhotdraw.gui.Worker;
@@ -26,109 +25,123 @@ import java.util.prefs.*;
 import javax.swing.*;
 import java.io.*;
 import org.jhotdraw.app.Application;
-import org.jhotdraw.app.Project;
+import org.jhotdraw.app.View;
+
 /**
  * OpenRecentAction.
  *
  * @author Werner Randelshofer.
- * @version 1.0 June 15, 2006 Created.
+ * @version 1.1 2008-03-19 Check whether file exists before attempting to
+ * open it. 
+ * <br>1.0 June 15, 2006 Created.
  */
 public class OpenRecentAction extends AbstractApplicationAction {
-    public final static String ID = "openRecent";
+
+    public final static String ID = "file.openRecent";
     private File file;
-    
+
     /** Creates a new instance. */
     public OpenRecentAction(Application app, File file) {
         super(app);
         this.file = file;
         putValue(Action.NAME, file.getName());
     }
-    
+
     public void actionPerformed(ActionEvent evt) {
         final Application app = getApplication();
         if (app.isEnabled()) {
             app.setEnabled(false);
-            // Search for an empty project
-            Project emptyProject = app.getCurrentProject();
-            if (emptyProject == null ||
-                    emptyProject.getFile() != null ||
-                    emptyProject.hasUnsavedChanges()) {
-                emptyProject = null;
+            // Search for an empty view
+            View emptyView = app.getActiveView();
+            if (emptyView == null ||
+                    emptyView.getFile() != null ||
+                    emptyView.hasUnsavedChanges()) {
+                emptyView = null;
             }
-            
-            final Project p;
-            if (emptyProject == null) {
-                p = app.createProject();
+
+            final View p;
+            if (emptyView == null) {
+                p = app.createView();
                 app.add(p);
                 app.show(p);
             } else {
-                p = emptyProject;
+                p = emptyView;
             }
             openFile(p);
         }
     }
-    
-    protected void openFile(final Project project) {
+
+    protected void openFile(final View view) {
         final Application app = getApplication();
         app.setEnabled(true);
-        
-        
-        // If there is another project with we set the multiple open
-        // id of our project to max(multiple open id) + 1.
+
+
+        // If there is another view with we set the multiple open
+        // id of our view to max(multiple open id) + 1.
         int multipleOpenId = 1;
-        for (Project aProject : app.projects()) {
-            if (aProject != project &&
-                    aProject.getFile() != null &&
-                    aProject.getFile().equals(file)) {
-                multipleOpenId = Math.max(multipleOpenId, aProject.getMultipleOpenId() + 1);
+        for (View aView : app.views()) {
+            if (aView != view &&
+                    aView.getFile() != null &&
+                    aView.getFile().equals(file)) {
+                multipleOpenId = Math.max(multipleOpenId, aView.getMultipleOpenId() + 1);
             }
         }
-        project.setMultipleOpenId(multipleOpenId);
-        project.setEnabled(false);
-        
+        view.setMultipleOpenId(multipleOpenId);
+        view.setEnabled(false);
+
         // Open the file
-        project.execute(new Worker() {
+        view.execute(new Worker() {
+
             public Object construct() {
                 try {
-                    project.read(file);
-                    return null;
+                    if (file.exists()) {
+                        view.read(file);
+                        return null;
+                    } else {
+                        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
+                        return new IOException(labels.getFormatted("file.open.fileDoesNotExist.message", file.getName()));
+                    }
                 } catch (Throwable e) {
                     return e;
                 }
             }
+
             public void finished(Object value) {
-                fileOpened(project, file, value);
+                fileOpened(view, file, value);
             }
         });
     }
-    protected void fileOpened(final Project project, File file, Object value) {
-        final Application app = getApplication();
+
+    protected void fileOpened(final View view, File file, Object value) {
         if (value == null) {
-            project.setFile(file);
-            project.setEnabled(true);
-            Frame w = (Frame) SwingUtilities.getWindowAncestor(project.getComponent());
+            view.setFile(file);
+            Frame w = (Frame) SwingUtilities.getWindowAncestor(view.getComponent());
             if (w != null) {
                 w.setExtendedState(w.getExtendedState() & ~Frame.ICONIFIED);
                 w.toFront();
             }
-            project.getComponent().requestFocus();
-            if (app != null) {
-                app.setEnabled(true);
-            }
+            view.setEnabled(true);
+            view.getComponent().requestFocus();
         } else {
+            String message = null;
             if (value instanceof Throwable) {
                 ((Throwable) value).printStackTrace();
-            }
-            JSheet.showMessageSheet(project.getComponent(),
-                    "<html>"+UIManager.getString("OptionPane.css")+
-                    "<b>Couldn't open the file \""+file+"\".</b><br>"+
-                    value,
-                    JOptionPane.ERROR_MESSAGE, new SheetListener() {
-                public void optionSelected(SheetEvent evt) {
-                    // app.dispose(project);
+                message = ((Throwable) value).getMessage();
+                if (message == null) {
+                    message = value.toString();
                 }
             }
-            );
+            ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
+            JSheet.showMessageSheet(view.getComponent(),
+                    "<html>" + UIManager.getString("OptionPane.css") +
+                    "<b>" + labels.getFormatted("file.open.couldntOpen.message", file.getName()) + "</b><br>" +
+                    (message == null ? "" : message),
+                    JOptionPane.ERROR_MESSAGE, new SheetListener() {
+
+                public void optionSelected(SheetEvent evt) {
+                    view.setEnabled(true);
+                }
+            });
         }
     }
 }

@@ -2,14 +2,14 @@
  * @(#)NetApplicationModel.java  1.0  2006-06-18
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.samples.net;
@@ -47,7 +47,7 @@ public class NetApplicationModel extends DefaultApplicationModel {
         }
     }
     /**
-     * This editor is shared by all projects.
+     * This editor is shared by all views.
      */
     private DefaultDrawingEditor sharedEditor;
     
@@ -58,16 +58,16 @@ public class NetApplicationModel extends DefaultApplicationModel {
     }
     
     public void initApplication(Application a) {
-        ResourceBundleUtil drawLabels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.draw.Labels");
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.samples.net.Labels");
+        ResourceBundleUtil drawLabels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.net.Labels");
         AbstractAction aa;
         
         putAction(ExportAction.ID, new ExportAction(a));
-        putAction("toggleGrid", aa = new ToggleProjectPropertyAction(a, "gridVisible"));
-        drawLabels.configureAction(aa, "alignGrid");
+        putAction("view.toggleGrid", aa = new ToggleViewPropertyAction(a, NetView.GRID_VISIBLE_PROPERTY));
+        drawLabels.configureAction(aa, "view.toggleGrid");
         for (double sf : scaleFactors) {
             putAction((int) (sf*100)+"%",
-                    aa = new ProjectPropertyAction(a, "scaleFactor", Double.TYPE, new Double(sf))
+                    aa = new ViewPropertyAction(a, "scaleFactor", Double.TYPE, new Double(sf))
                     );
             aa.putValue(Action.NAME, (int) (sf*100)+" %");
             
@@ -81,17 +81,17 @@ public class NetApplicationModel extends DefaultApplicationModel {
         return sharedEditor;
     }
     
-    public void initProject(Application a, Project p) {
-        if (a.isSharingToolsAmongProjects()) {
-            ((NetProject) p).setDrawingEditor(getSharedEditor());
+    public void initView(Application a, View p) {
+        if (a.isSharingToolsAmongViews()) {
+            ((NetView) p).setDrawingEditor(getSharedEditor());
         }
     }
     private void addCreationButtonsTo(JToolBar tb, final DrawingEditor editor) {
         // AttributeKeys for the entitie sets
         HashMap<AttributeKey,Object> attributes;
         
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.samples.net.Labels");
-        ResourceBundleUtil drawLabels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.draw.Labels");
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.net.Labels");
+        ResourceBundleUtil drawLabels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
         
         ButtonFactory.addSelectionToolTo(tb, editor);
         tb.addSeparator();
@@ -100,21 +100,21 @@ public class NetApplicationModel extends DefaultApplicationModel {
         attributes.put(AttributeKeys.FILL_COLOR, Color.white);
         attributes.put(AttributeKeys.STROKE_COLOR, Color.black);
         attributes.put(AttributeKeys.TEXT_COLOR, Color.black);
-        ButtonFactory.addToolTo(tb, editor, new TextTool(new NodeFigure(), attributes), "createNode", labels);
+        ButtonFactory.addToolTo(tb, editor, new TextCreationTool(new NodeFigure(), attributes), "edit.createNode", labels);
 
         attributes = new HashMap<AttributeKey,Object>();
         attributes.put(AttributeKeys.STROKE_COLOR, new Color(0x000099));
-        ButtonFactory.addToolTo(tb, editor, new ConnectionTool(new LineConnectionFigure(), attributes), "createLink", labels);
+        ButtonFactory.addToolTo(tb, editor, new ConnectionTool(new LineConnectionFigure(), attributes), "edit.createLink", labels);
     }
     /**
      * Creates toolbars for the application.
      * This class always returns an empty list. Subclasses may return other
      * values.
      */
-    public java.util.List<JToolBar> createToolBars(Application a, Project pr) {
-        ResourceBundleUtil drawLabels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.draw.Labels");
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.samples.net.Labels");
-        NetProject p = (NetProject) pr;
+    public java.util.List<JToolBar> createToolBars(Application a, View pr) {
+        ResourceBundleUtil drawLabels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.net.Labels");
+        NetView p = (NetView) pr;
         
         DrawingEditor editor;
         if (p == null) {
@@ -127,23 +127,23 @@ public class NetApplicationModel extends DefaultApplicationModel {
         JToolBar tb;
         tb = new JToolBar();
         addCreationButtonsTo(tb, editor);
-        tb.setName(drawLabels.getString("drawToolBarTitle"));
+        tb.setName(drawLabels.getString("window.drawToolBar.title"));
         list.add(tb);
         tb = new JToolBar();
         ButtonFactory.addAttributesButtonsTo(tb, editor);
-        tb.setName(drawLabels.getString("attributesToolBarTitle"));
+        tb.setName(drawLabels.getString("window.attributesToolBar.title"));
         list.add(tb);
         tb = new JToolBar();
         ButtonFactory.addAlignmentButtonsTo(tb, editor);
-        tb.setName(drawLabels.getString("alignmentToolBarTitle"));
+        tb.setName(drawLabels.getString("window.alignmentToolBar.title"));
         list.add(tb);
         return list;
     }
     
-    public java.util.List<JMenu> createMenus(Application a, Project pr) {
+    public java.util.List<JMenu> createMenus(Application a, View pr) {
         // FIXME - Add code for unconfiguring the menus!! We leak memory!
-        NetProject p = (NetProject) pr;
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.app.Labels");
+        NetView p = (NetView) pr;
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
         
         //  JMenuBar mb = new JMenuBar();
         LinkedList<JMenu> mb =  new LinkedList<JMenu>();
@@ -157,8 +157,8 @@ public class NetApplicationModel extends DefaultApplicationModel {
         
         m = new JMenu();
         labels.configureMenu(m, "view");
-        cbmi = new JCheckBoxMenuItem(getAction("toggleGrid"));
-        Actions.configureJCheckBoxMenuItem(cbmi, getAction("toggleGrid"));
+        cbmi = new JCheckBoxMenuItem(getAction("view.toggleGrid"));
+        Actions.configureJCheckBoxMenuItem(cbmi, getAction("view.toggleGrid"));
         m.add(cbmi);
         m2 = new JMenu("Zoom");
         for (double sf : scaleFactors) {

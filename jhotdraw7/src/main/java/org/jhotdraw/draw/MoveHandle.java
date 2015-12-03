@@ -1,45 +1,44 @@
 /*
- * @(#)MoveHandle.java  2.0  2006-01-14
+ * @(#)MoveHandle.java  2.1  2008-02-28
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
-�
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
-
-
 package org.jhotdraw.draw;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.geom.*;
 import java.util.*;
+
 /**
- * A handle that changes the location of the owning figure. Its only purpose is
- * to show feedback that a figure is selected.
+ * A handle that changes the location of the owning figure, if the figure is
+ * transformable. 
  *
  * @author Werner Randelshofer
- * @version 2.0 2006-01-14 Changed to support double precision coordinates.
+ * @version 2.1 2008-02-28 Only move a figure, if it is transformable. 
+ * <br>2.0 2006-01-14 Changed to support double precision coordinates.
  * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
  */
 public class MoveHandle extends LocatorHandle {
+
     /**
      * The previously handled x and y coordinates.
      */
     private Point2D.Double oldPoint;
-    
-    private Object geometry;
-    
+
     /** Creates a new instance. */
     public MoveHandle(Figure owner, Locator locator) {
         super(owner, locator);
     }
-    
+
     /**
      * Creates handles for each corner of a
      * figure and adds them to the provided collection.
@@ -50,65 +49,136 @@ public class MoveHandle extends LocatorHandle {
         handles.add(northEast(f));
         handles.add(northWest(f));
     }
+
     /**
      * Draws this handle.
-     * Null Handles are drawn as unfilled rectangles.
+     * <p>
+     * If the figure is transformable, the handle is drawn as a filled rectangle.
+     * If the figure is not transformable, the handle is drawn as an unfilled
+     * rectangle.
      */
+    @Override
     public void draw(Graphics2D g) {
-        drawRectangle(g, Color.white, Color.black);
+        if (getOwner().isTransformable()) {
+            drawRectangle(g,
+                    (Color) getEditor().getHandleAttribute(HandleAttributeKeys.MOVE_HANDLE_FILL_COLOR),
+                    (Color) getEditor().getHandleAttribute(HandleAttributeKeys.MOVE_HANDLE_STROKE_COLOR));
+        } else {
+            drawRectangle(g,
+                    (Color) getEditor().getHandleAttribute(HandleAttributeKeys.NULL_HANDLE_FILL_COLOR),
+                    (Color) getEditor().getHandleAttribute(HandleAttributeKeys.NULL_HANDLE_STROKE_COLOR));
+        }
     }
+
+    /**
+     * Returns a cursor for the handle. 
+     * 
+     * @return Returns a move cursor, if the figure
+     * is transformable. Returns a default cursor otherwise. 
+     */
+    @Override
+    public Cursor getCursor() {
+        return Cursor.getPredefinedCursor(
+                getOwner().isTransformable() ? Cursor.MOVE_CURSOR : Cursor.DEFAULT_CURSOR);
+    }
+
     public void trackStart(Point anchor, int modifiersEx) {
-        // geometry = owner.getGeometry();
         oldPoint = view.getConstrainer().constrainPoint(view.viewToDrawing(anchor));
     }
+
     public void trackStep(Point anchor, Point lead, int modifiersEx) {
         Figure f = getOwner();
-        Point2D.Double newPoint = view.getConstrainer().constrainPoint(view.viewToDrawing(lead));
-        AffineTransform tx = new AffineTransform();
-        tx.translate(newPoint.x - oldPoint.x, newPoint.y - oldPoint.y);
-        f.willChange();
-        f.transform(tx);
-        f.changed();
-        
-        oldPoint = newPoint;
+        if (f.isTransformable()) {
+            Point2D.Double newPoint = view.getConstrainer().constrainPoint(view.viewToDrawing(lead));
+            AffineTransform tx = new AffineTransform();
+            tx.translate(newPoint.x - oldPoint.x, newPoint.y - oldPoint.y);
+            f.willChange();
+            f.transform(tx);
+            f.changed();
+
+            oldPoint = newPoint;
+        }
     }
+
     public void trackEnd(Point anchor, Point lead, int modifiersEx) {
-        AffineTransform tx = new AffineTransform();
-        tx.translate(lead.x - anchor.x, lead.y - anchor.y);
-        fireUndoableEditHappened(
-                new TransformEdit(getOwner(),tx)
-                );
+        if (getOwner().isTransformable()) {
+            AffineTransform tx = new AffineTransform();
+            tx.translate(lead.x - anchor.x, lead.y - anchor.y);
+            fireUndoableEditHappened(
+                    new TransformEdit(getOwner(), tx));
+        }
     }
-    
-    static public Handle south(Figure owner) {
+
+    @Override
+    public void keyPressed(KeyEvent evt) {
+        Figure f = getOwner();
+        if (f.isTransformable()) {
+            AffineTransform tx = new AffineTransform();
+
+            switch (evt.getKeyCode()) {
+                case KeyEvent.VK_UP:
+                    tx.translate(0, -1);
+                    evt.consume();
+                    break;
+                case KeyEvent.VK_DOWN:
+                    tx.translate(0, +1);
+                    evt.consume();
+                    break;
+                case KeyEvent.VK_LEFT:
+                    tx.translate(-1, 0);
+                    evt.consume();
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    tx.translate(+1, 0);
+                    evt.consume();
+                    break;
+            }
+            f.willChange();
+            f.transform(tx);
+            f.changed();
+            fireUndoableEditHappened(
+                    new TransformEdit(f, tx));
+        }
+
+    }
+
+    static public Handle south(
+            Figure owner) {
         return new MoveHandle(owner, RelativeLocator.south());
     }
-    
-    static public Handle southEast(Figure owner) {
+
+    static public Handle southEast(
+            Figure owner) {
         return new MoveHandle(owner, RelativeLocator.southEast());
     }
-    
-    static public Handle southWest(Figure owner) {
+
+    static public Handle southWest(
+            Figure owner) {
         return new MoveHandle(owner, RelativeLocator.southWest());
     }
-    
-    static public Handle north(Figure owner) {
+
+    static public Handle north(
+            Figure owner) {
         return new MoveHandle(owner, RelativeLocator.north());
     }
-    
-    static public Handle northEast(Figure owner) {
+
+    static public Handle northEast(
+            Figure owner) {
         return new MoveHandle(owner, RelativeLocator.northEast());
     }
-    
-    static public Handle northWest(Figure owner) {
+
+    static public Handle northWest(
+            Figure owner) {
         return new MoveHandle(owner, RelativeLocator.northWest());
     }
-    
-    static public Handle east(Figure owner) {
+
+    static public Handle east(
+            Figure owner) {
         return new MoveHandle(owner, RelativeLocator.east());
     }
-    
-    static public Handle west(Figure owner) {
+
+    static public Handle west(
+            Figure owner) {
         return new MoveHandle(owner, RelativeLocator.west());
     }
 }

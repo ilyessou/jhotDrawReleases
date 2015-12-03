@@ -1,15 +1,15 @@
 /*
- * @(#)BezierFigure.java 3.0  2007-05-12
+ * @(#)BezierFigure.java 3.2  2008-07-06
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw;
@@ -28,10 +28,23 @@ import org.jhotdraw.xml.DOMOutput;
 /**
  * A BezierFigure can be used to draw arbitrary shapes using a <code>BezierPath</code>.
  * It can be used to draw an open path or a closed shape.
+ * <p>
+ * A BezierFigure can have straight path segments and curved segments.
+ * A straight path segment can be added by clicking on the drawing area.
+ * Curved segments can be added by dragging the mouse pointer over the
+ * drawing area.
+ * <p> 
+ * To creation of the BezierFigure can be finished by adding a segment
+ * which closes the path, or by double clicking on the drawing area, or by
+ * selecting a different tool in the DrawingEditor.
+ * 
  *
  * @see org.jhotdraw.geom.BezierPath
  *
- * @version 3.0 2007-05-12 Got rid of basic methods.
+ * @version 3.2 2008-07-06 Create BezierOutlineHandle on mouse over. 
+ * <br>3.1 2008-05-23 Added method findSegment with tolerance parameter.
+ * <br>3.0.1 2007-11-30 Changed method removeNode from protected to public. 
+ * <br>3.0 2007-05-12 Got rid of basic methods.
  * <br>2.2.1 2007-04-22 Method contains did not work as expected for filled
  * unclosed beziers with thick line widths.
  * <br>2.2 2007-04-14 Added BezierContourHandle. We fill now open
@@ -203,12 +216,17 @@ public class BezierFigure extends AbstractAttributedFigure {
      * Checks if this figure can be connected. By default
      * filled BezierFigures can be connected.
      */
+    @Override
     public boolean canConnect() {
         return isClosed();
     }
+    @Override
     public Collection<Handle> createHandles(int detailLevel) {
         LinkedList<Handle> handles = new LinkedList<Handle>();
         switch (detailLevel % 2) {
+            case -1 : // Mouse hover handles
+                handles.add(new BezierOutlineHandle(this, true));
+                break;
             case 0 :
                 handles.add(new BezierOutlineHandle(this));
                 for (int i=0, n = path.size(); i < n; i++) {
@@ -225,11 +243,9 @@ public class BezierFigure extends AbstractAttributedFigure {
     
     public Rectangle2D.Double getBounds() {
         Rectangle2D.Double bounds =path.getBounds2D();
-        // Make sure, bounds are not empty
-        bounds.width = Math.max(1, bounds.width);
-        bounds.height = Math.max(1, bounds.height);
         return bounds;
     }
+    @Override
     public Rectangle2D.Double getDrawingArea() {
         Rectangle2D.Double r = super.getDrawingArea();
         
@@ -249,6 +265,7 @@ public class BezierFigure extends AbstractAttributedFigure {
         return r;
     }
     
+    @Override
     protected void validate() {
         super.validate();
         path.invalidatePath();
@@ -264,7 +281,7 @@ public class BezierFigure extends AbstractAttributedFigure {
         return (BezierPath) path.clone();
     }
     public void setBezierPath(BezierPath newValue) {
-        path = newValue.clone();
+        path = (BezierPath) newValue.clone();
         this.setClosed(newValue.isClosed());
     }
     
@@ -278,7 +295,8 @@ public class BezierFigure extends AbstractAttributedFigure {
     public void setClosed(boolean newValue) {
         CLOSED.set(this, newValue);
     }
-    public void setAttribute(AttributeKey key, Object newValue) {
+    @Override
+    public <T> void setAttribute(AttributeKey<T> key, T newValue) {
         if (key == CLOSED) {
             path.setClosed((Boolean) newValue);
         } else if (key == WINDING_RULE) {
@@ -294,6 +312,7 @@ public class BezierFigure extends AbstractAttributedFigure {
      * If the BezierFigure has not at least two nodes, nodes are added
      * to the figure until the BezierFigure has at least two nodes.
      */
+    @Override
     public void setBounds(Point2D.Double anchor, Point2D.Double lead) {
         setStartPoint(anchor);
         setEndPoint(lead);
@@ -303,6 +322,7 @@ public class BezierFigure extends AbstractAttributedFigure {
         path.transform(tx);
         invalidate();
     }
+    @Override
     public void invalidate() {
         super.invalidate();
         path.invalidatePath();
@@ -451,12 +471,14 @@ public class BezierFigure extends AbstractAttributedFigure {
     /**
      * Convenience method for getting the start point.
      */
+    @Override
     public Point2D.Double getStartPoint() {
         return getPoint(0, 0);
     }
     /**
      * Convenience method for getting the end point.
      */
+    @Override
     public Point2D.Double getEndPoint() {
         return getPoint(getNodeCount() - 1, 0);
     }
@@ -478,32 +500,26 @@ public class BezierFigure extends AbstractAttributedFigure {
     /**
      * Gets the segment of the polyline that is hit by
      * the given Point2D.Double.
+     * 
+     * @param find a Point on the bezier path
+     * @param tolerance a tolerance, tolerance should take into account
+     * the line width, plus 2 divided by the zoom factor. 
      * @return the index of the segment or -1 if no segment was hit.
-     *
-     * XXX - Move this to BezierPath
      */
-    public int findSegment(Point2D.Double find) {
-        // Fixme - use path iterator
-        
-        Point2D.Double p1, p2;
-        for (int i = 0, n = getNodeCount() - 1; i < n; i++) {
-            p1 = path.get(i, 0);
-            p2 = path.get(i+1, 0);
-            if (Geom.lineContainsPoint(p1.x, p1.y, p2.x, p2.y, find.x, find.y, 3d)) {
-                return i;
-            }
-        }
-        return -1;
+    public int findSegment(Point2D.Double find, double tolerance) {
+        return getBezierPath().findSegment(find, tolerance);
     }
     /**
      * Joins two segments into one if the given Point2D.Double hits a node
      * of the polyline.
      * @return true if the two segments were joined.
      *
-     * XXX - Move this to BezierPath
+     * @param join a Point at a node on the bezier path
+     * @param tolerance a tolerance, tolerance should take into account
+     * the line width, plus 2 divided by the zoom factor. 
      */
-    public boolean joinSegments(Point2D.Double join) {
-        int i = findSegment(join);
+    public boolean joinSegments(Point2D.Double join, double tolerance) {
+        int i = findSegment(join, tolerance);
         if (i != -1 && i > 1) {
             removeNode(i);
             return true;
@@ -514,10 +530,12 @@ public class BezierFigure extends AbstractAttributedFigure {
      * Splits the segment at the given Point2D.Double if a segment was hit.
      * @return the index of the segment or -1 if no segment was hit.
      *
-     * XXX - Move this to BezierPath
+     * @param split a Point on (or near) a line segment on the bezier path
+     * @param tolerance a tolerance, tolerance should take into account
+     * the line width, plus 2 divided by the zoom factor. 
      */
-    public int splitSegment(Point2D.Double split) {
-        int i = findSegment(split);
+    public int splitSegment(Point2D.Double split, double tolerance) {
+        int i = findSegment(split, tolerance);
         if (i != -1) {
             addNode(i + 1, new BezierPath.Node(split));
         }
@@ -526,7 +544,7 @@ public class BezierFigure extends AbstractAttributedFigure {
     /**
      * Removes the Node at the specified index.
      */
-    protected BezierPath.Node removeNode(int index) {
+    public BezierPath.Node removeNode(int index) {
        return path.remove(index);
     }
     /**
@@ -542,6 +560,7 @@ public class BezierFigure extends AbstractAttributedFigure {
         return path.size();
     }
     
+    @Override
     public BezierFigure clone() {
         BezierFigure that = (BezierFigure) super.clone();
         that.path = (BezierPath) this.path.clone();
@@ -605,10 +624,12 @@ public class BezierFigure extends AbstractAttributedFigure {
             if (index != -1) {
                 final BezierPath.Node newNode = getNode(index);
                 fireUndoableEditHappened(new AbstractUndoableEdit() {
+                    @Override
                     public String getPresentationName() {
-                        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.draw.Labels");
-                        return labels.getString("bezierPath.splitSegment");
+                        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
+                        return labels.getString("edit.bezierPath.splitSegment.text");
                     }
+                    @Override
                     public void redo() throws CannotRedoException {
                         super.redo();
                         willChange();
@@ -616,6 +637,7 @@ public class BezierFigure extends AbstractAttributedFigure {
                         changed();
                     }
                     
+                    @Override
                     public void undo() throws CannotUndoException {
                         super.undo();
                         willChange();
@@ -632,6 +654,7 @@ public class BezierFigure extends AbstractAttributedFigure {
         return false;
     }
     
+    @Override
     public void write(DOMOutput out) throws IOException {
         writePoints(out);
         writeAttributes(out);

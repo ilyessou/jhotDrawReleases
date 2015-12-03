@@ -2,14 +2,14 @@
  * @(#)GrowStroke.java  1.1  2006-12-09
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.geom;
@@ -33,11 +33,12 @@ public class GrowStroke extends DoubleStroke {
     private float grow;
     
     public GrowStroke(float grow, float miterLimit) {
-        super(grow * 2, 1f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL, miterLimit, null, 0f);
+        super(grow * 2f, 1f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL, miterLimit, null, 0f);
    this.grow = grow;
     }
     
     public Shape createStrokedShape(Shape s) {
+
     BezierPath bp = new BezierPath();
         GeneralPath left = new GeneralPath();
         GeneralPath right = new GeneralPath();
@@ -85,7 +86,7 @@ public class GrowStroke extends DoubleStroke {
         }
         
         
-        if (left.getBounds2D().contains(right.getBounds2D())) {
+        if (Geom.contains(left.getBounds2D(),right.getBounds2D())) {
             return (grow > 0) ? left : right;
         } else {
             return (grow > 0) ? right : left;

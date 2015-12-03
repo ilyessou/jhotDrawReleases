@@ -2,14 +2,14 @@
  * @(#)LabelFigure.java  2.0  2006-01-14
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw;
@@ -59,14 +59,14 @@ public class LabelFigure extends TextFigure implements FigureListener {
      * <p>Returns null, if no specialized tool is available.
      */
     public Tool getTool(Point2D.Double p) {
-        return (target != null && contains(p)) ? new TextTool(target) : null;
+        return (target != null && contains(p)) ? new TextEditingTool(target) : null;
     }
     
     
-    public void figureAreaInvalidated(FigureEvent e) {
+    public void areaInvalidated(FigureEvent e) {
     }
     
-    public void figureAttributeChanged(FigureEvent e) {
+    public void attributeChanged(FigureEvent e) {
     }
     
     public void figureAdded(FigureEvent e) {
@@ -85,8 +85,9 @@ public class LabelFigure extends TextFigure implements FigureListener {
     public void figureRequestRemove(FigureEvent e) {
     }
     
-    public void remap(HashMap oldToNew) {
-        super.remap(oldToNew);
+    @Override
+    public void remap(Map<Figure,Figure> oldToNew, boolean disconnectIfNotInMap) {
+        super.remap(oldToNew, disconnectIfNotInMap);
         if (target != null) {
             Figure newTarget = (Figure) oldToNew.get(target);
             if (newTarget != null) {

@@ -1,70 +1,55 @@
 /*
- * @(#)ToggleGridAction.java  1.2 2007-04-16
+ * @(#)ToggleGridAction.java  2.0 2007-07-31
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw.action;
 
-import org.jhotdraw.util.*;
-import javax.swing.*;
-import javax.swing.undo.*;
+import org.jhotdraw.app.action.*;
 import org.jhotdraw.draw.*;
+import org.jhotdraw.util.ResourceBundleUtil;
 /**
- * ToggleGridAction.
+ * Toggles the grid of the current view.
  *
  * @author  Werner Randelshofer
- * @version 1.2 2007-04-16 Added getOffConstrainer, getOnConstrainer methods. 
+ * @version 2.0 2007-07-31 Rewritten to act on a GridProject instead
+ * of acting directly on DrawingView.
+ * <br>1.2 2007-04-16 Added getOffConstrainer, getOnConstrainer methods.
  * <br>1.1 2006-04-21 Constructor with DrawingEditor paremeter added.
  * <br>1.0 January 16, 2006 Created.
  */
-public class ToggleGridAction extends AbstractViewAction {
-    public final static String ID = "alignGrid";
-    private String label;
-    private Constrainer onConstrainer, offConstrainer;
+public class ToggleGridAction extends AbstractDrawingEditorAction {
+    public final static String ID = "view.toggleGrid";
     /**
      * Creates a new instance.
      */
     public ToggleGridAction(DrawingEditor editor) {
-        this(editor, new GridConstrainer(10,10),  new GridConstrainer(1,1));
-    }
-    public ToggleGridAction(DrawingEditor editor, Constrainer onConstrainer, Constrainer offConstrainer) {
-        this((DrawingView) null, new GridConstrainer(10,10),  new GridConstrainer(1,1));
-        setEditor(editor);
-    }
-    /**
-     * Creates a new instance.
-     */
-    public ToggleGridAction(DrawingView view, Constrainer onConstrainer, Constrainer offConstrainer) {
-        super(view);
-        this.onConstrainer = onConstrainer;
-        this.offConstrainer = offConstrainer;
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.draw.Labels");
+        super(editor);
+        ResourceBundleUtil labels =
+                ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
         labels.configureAction(this, ID);
+        updateViewState();
     }
-    
-    public Constrainer getOnConstrainer() {
-        return onConstrainer;
-    }
-    public Constrainer getOffConstrainer() {
-        return offConstrainer;
-    }
-    
     
     public void actionPerformed(java.awt.event.ActionEvent e) {
-        if (getView().getConstrainer() == onConstrainer) {
-            getView().setConstrainer(offConstrainer);
-        } else {
-            getView().setConstrainer(onConstrainer);
+        DrawingView view = getView();
+        if (view != null) {
+            view.setConstrainerVisible(! view.isConstrainerVisible());
         }
     }
     
+    @Override
+    protected void updateViewState() {
+        DrawingView view = getView();
+        putValue(Actions.SELECTED_KEY, view != null && view.isConstrainerVisible());
+    }
 }

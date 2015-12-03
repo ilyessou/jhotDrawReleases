@@ -1,15 +1,15 @@
 /*
- * @(#)TeddyApplicationModel.java  1.0  March 10, 2007
+ * @(#)TeddyApplicationModel.java  1.1  2008-08-24
  *
- * Copyright (c) 2006 Werner Randelshofer
- * Staldenmattweg 2, CH-6405 Immensee, Switzerland
+ * Copyright (c) 2007-2008 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * Werner Randelshofer. ("Confidential Information").  You shall not
- * disclose such Confidential Information and shall use it only in
- * accordance with the terms of the license agreement you entered into
- * with Werner Randelshofer.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.samples.teddy;
@@ -25,7 +25,8 @@ import org.jhotdraw.util.*;
  * TeddyApplicationModel.
  *
  * @author Werner Randelshofer
- * @version 1.0 March 10, 2007 Created.
+ * @version 1.1 2008-08-24 Suppress toolbar.
+ * <br>1.0 March 10, 2007 Created.
  */
 public class TeddyApplicationModel extends DefaultApplicationModel {
     
@@ -41,13 +42,13 @@ public class TeddyApplicationModel extends DefaultApplicationModel {
         putAction(PrintAction.ID, null);
     }
     
-    @Override public void initProject(Application a, Project p) {
+    @Override public void initView(Application a, View p) {
     }
     
-    @Override public List<JMenu> createMenus(Application a, Project p) {
+    @Override public List<JMenu> createMenus(Application a, View p) {
         LinkedList<JMenu> mb = new LinkedList<JMenu>();
         
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.samples.teddy.Labels");
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.teddy.Labels");
         
         JMenu m;
         JCheckBoxMenuItem cbmi;
@@ -55,7 +56,7 @@ public class TeddyApplicationModel extends DefaultApplicationModel {
         mb.add(createEditMenu(a, p));
         
         m = new JMenu();
-        labels.configureMenu(m, "format");
+        labels.configureMenu(m, "view");
         cbmi = new JCheckBoxMenuItem(getAction(ToggleLineWrapAction.ID));
         Actions.configureJCheckBoxMenuItem(cbmi, getAction(ToggleLineWrapAction.ID));
         m.add(cbmi);
@@ -68,5 +69,13 @@ public class TeddyApplicationModel extends DefaultApplicationModel {
         mb.add(m);
         
         return mb;
+    }
+    
+    /**
+     * Creates toolbars for the application.
+     * This class returns an empty list - we don't want toolbars in a text editor.
+     */
+    public List<JToolBar> createToolBars(Application app, View p) {
+        return Collections.emptyList();
     }
 }

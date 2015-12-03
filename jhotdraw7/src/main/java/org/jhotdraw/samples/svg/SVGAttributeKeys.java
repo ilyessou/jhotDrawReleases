@@ -1,40 +1,72 @@
 /*
- * @(#)SVGAttributeKeys.java  1.2  2007-04-22
+ * @(#)SVGAttributeKeys.java  1.3  2007-12-16
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.samples.svg;
 
 import java.awt.*;
-import java.awt.geom.*;
 import org.jhotdraw.draw.*;
+import org.jhotdraw.util.ResourceBundleUtil;
 
 /**
  * SVGAttributeKeys.
  *
  * @author Werner Randelshofer
- * @version 1.2 2007-04-22 Attribute Key LINK added. 
+ * @version 1.3 2007-12-16 Added TITLE and DESCRIPTION. 
+ * <br>1.2 2007-04-22 Attribute Key LINK added. 
  * <br>1.1 2007-04-10 Attribute key TEXT_ALIGN added. 
  * <br>1.0 December 9, 2006 Created.
  */
 public class SVGAttributeKeys extends AttributeKeys {
-    
+     private final static ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.svg.Labels");
+   
     public enum TextAnchor {
         START, MIDDLE, END
     }
+    
+    /**
+     * Specifies the title of an SVG drawing.
+     * This attribute can be null, to indicate that the drawing has no title.
+     */
+    public final static AttributeKey<String> TITLE = new AttributeKey<String>("title", String.class, null, true, labels);
+    /**
+     * Specifies the description of an SVG drawing.
+     * This attribute can be null, to indicate that the drawing has no description.
+     */
+    public final static AttributeKey<String> DESCRIPTION = new AttributeKey<String>("description", String.class, null, true, labels);
+    /**
+     * Specifies the viewport-fill of an SVG viewport.
+     * This attribute can be null, to indicate that the viewport has no viewport-fill.
+     */
+    public final static AttributeKey<Color> VIEWPORT_FILL = CANVAS_FILL_COLOR;
+    /**
+     * Specifies the viewport-fill-opacity of an SVG viewport.
+     */
+    public final static AttributeKey<Double> VIEWPORT_FILL_OPACITY = CANVAS_FILL_OPACITY;
+    /**
+     * Specifies the width of an SVG viewport.
+     */
+    public final static AttributeKey<Double> VIEWPORT_WIDTH = CANVAS_WIDTH;
+    /**
+     * Specifies the height of an SVG viewport.
+     */
+    public final static AttributeKey<Double> VIEWPORT_HEIGHT = CANVAS_HEIGHT;
+    
+    
     /**
      * Specifies the text anchor of a SVGText figure.
      */
-    public final static AttributeKey<TextAnchor> TEXT_ANCHOR = new AttributeKey<TextAnchor>("textAnchor",TextAnchor.START, false);
+    public final static AttributeKey<TextAnchor> TEXT_ANCHOR = new AttributeKey<TextAnchor>("textAnchor", TextAnchor.class, TextAnchor.START, false, labels);
     
     public enum TextAlign {
         START, CENTER, END
@@ -42,33 +74,33 @@ public class SVGAttributeKeys extends AttributeKeys {
     /**
      * Specifies the text alignment of a SVGText figure.
      */
-    public final static AttributeKey<TextAlign> TEXT_ALIGN = new AttributeKey<TextAlign>("textAlign",TextAlign.START, false);
+    public final static AttributeKey<TextAlign> TEXT_ALIGN = new AttributeKey<TextAlign>("textAlign",TextAlign.class,TextAlign.START, false, labels);
     /**
      * Specifies the fill gradient of a SVG figure.
      */
-    public final static AttributeKey<Gradient> FILL_GRADIENT = new AttributeKey<Gradient>("fillGradient", null);
+    public final static AttributeKey<Gradient> FILL_GRADIENT = new AttributeKey<Gradient>("fillGradient",Gradient.class, null, true, labels);
     
     /**
      * Specifies the fill opacity of a SVG figure.
      * This is a value between 0 and 1 whereas 0 is translucent and 1 is fully opaque.
      */
-    public final static AttributeKey<Double> FILL_OPACITY = new AttributeKey<Double>("fillOpacity", 1d, false);
+    public final static AttributeKey<Double> FILL_OPACITY = new AttributeKey<Double>("fillOpacity", Double.class, 1d, false, labels);
     /**
      * Specifies the overall opacity of a SVG figure.
      * This is a value between 0 and 1 whereas 0 is translucent and 1 is fully opaque.
      */
-    public final static AttributeKey<Double> OPACITY = new AttributeKey<Double>("opacity", 1d, false);
+    public final static AttributeKey<Double> OPACITY = new AttributeKey<Double>("opacity",Double.class, 1d, false, labels);
     
     
     /**
      * Specifies the stroke gradient of a SVG figure.
      */
-    public final static AttributeKey<Gradient> STROKE_GRADIENT = new AttributeKey<Gradient>("strokeGradient", null);
+    public final static AttributeKey<Gradient> STROKE_GRADIENT = new AttributeKey<Gradient>("strokeGradient", Gradient.class, null, true, labels);
     /**
      * Specifies the stroke opacity of a SVG figure.
      * This is a value between 0 and 1 whereas 0 is translucent and 1 is fully opaque.
      */
-    public final static AttributeKey<Double> STROKE_OPACITY = new AttributeKey<Double>("strokeOpacity", 1d, false);
+    public final static AttributeKey<Double> STROKE_OPACITY = new AttributeKey<Double>("strokeOpacity",Double.class, 1d, false, labels);
     
     /**
      * Specifies a link.
@@ -76,7 +108,14 @@ public class SVGAttributeKeys extends AttributeKeys {
      * figure.
      * http://www.w3.org/TR/SVGMobile12/linking.html#AElement
      */
-    public final static AttributeKey<String> LINK = new AttributeKey<String>("link", null);
+    public final static AttributeKey<String> LINK = new AttributeKey<String>("link",String.class, null, true, labels);
+    /**
+     * Specifies a link target.
+     * In an SVG file, the link is stored in a "a" element which encloses the
+     * figure.
+     * http://www.w3.org/TR/SVGMobile12/linking.html#AElement
+     */
+    public final static AttributeKey<String> LINK_TARGET = new AttributeKey<String>("linkTarget", String.class,null, true, labels);
     
     
     /**

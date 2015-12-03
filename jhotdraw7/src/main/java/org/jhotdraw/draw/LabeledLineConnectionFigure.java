@@ -2,14 +2,14 @@
  * @(#)LabeledLineConnection.java  1.1  2006-02-14
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw;
@@ -42,9 +42,8 @@ public class LabeledLineConnectionFigure extends LineConnectionFigure
         implements CompositeFigure {
     
     private Layouter layouter;
-    private ArrayList<Figure> children = new ArrayList();
-    //private Rectangle2D.Double bounds;
-    private Rectangle2D.Double drawBounds;
+    private ArrayList<Figure> children = new ArrayList<Figure>();
+    private transient Rectangle2D.Double cachedDrawingArea;
     
     /**
      * Handles figure changes in the children.
@@ -67,7 +66,7 @@ public class LabeledLineConnectionFigure extends LineConnectionFigure
             }
         }
         
-        @Override public void figureAreaInvalidated(FigureEvent e) {
+        @Override public void areaInvalidated(FigureEvent e) {
             if (! owner.isChanging()) {
                 owner.fireAreaInvalidated(e.getInvalidatedArea());
             }
@@ -102,39 +101,21 @@ public class LabeledLineConnectionFigure extends LineConnectionFigure
         for (Figure f : children) {
             f.transform(tx);
         }
-        invalidateBounds();
-    }
-    public void setBounds(Point2D.Double anchor, Point2D.Double lead) {
-        super.setBounds(anchor, lead);
         invalidate();
     }
-    public Rectangle2D.Double getBounds() {
-        return super.getBounds();
-        /*
-        if (bounds == null) {
-            bounds = super.getBounds();
-            for (Figure child : getChildrenFrontToBack()) {
-                if (child.isVisible()) {
-                    bounds.add(child.getBounds());
-                }
-            }
-        }
-        return (Rectangle2D.Double) bounds.clone();
-         */
-    }
     public Rectangle2D.Double getDrawingArea() {
-        if (drawBounds == null) {
-            drawBounds = super.getDrawingArea();
+        if (cachedDrawingArea == null) {
+            cachedDrawingArea = super.getDrawingArea();
             for (Figure child : getChildrenFrontToBack()) {
                 if (child.isVisible()) {
                     Rectangle2D.Double childBounds = child.getDrawingArea();
                     if (! childBounds.isEmpty()) {
-                        drawBounds.add(childBounds);
+                        cachedDrawingArea.add(childBounds);
                     }
                 }
             }
         }
-        return (Rectangle2D.Double) drawBounds.clone();
+        return (Rectangle2D.Double) cachedDrawingArea.clone();
     }
     public boolean contains(Point2D.Double p) {
         if (getDrawingArea().contains(p)) {
@@ -145,22 +126,18 @@ public class LabeledLineConnectionFigure extends LineConnectionFigure
         }
         return false;
     }
-    protected void invalidateBounds() {
-        //bounds = null;
-        drawBounds = null;
-    }
     // ATTRIBUTES
     /**
      * Sets an attribute of the figure.
      * AttributeKey name and semantics are defined by the class implementing
      * the figure interface.
      */
-    public void setAttribute(AttributeKey key, Object newValue) {
+    public <T> void setAttribute(AttributeKey<T> key, T newValue) {
         super.setAttribute(key, newValue);
         if (isAttributeEnabled(key)) {
             if (children != null) {
                 for (Figure child : children) {
-                    child.setAttribute(key, newValue);
+                    key.basicSet(child, newValue);
                 }
             }
         }
@@ -196,9 +173,6 @@ public class LabeledLineConnectionFigure extends LineConnectionFigure
     public Figure getChild(int index) {
         return children.get(index);
     }
-    public void set(int index, Figure child) {
-        children.set(index, child);
-    }
     /**
      * Returns an iterator to iterate in
      * Z-order front to back over the children.
@@ -209,11 +183,12 @@ public class LabeledLineConnectionFigure extends LineConnectionFigure
             new ReversedList<Figure>(children);
     }
     
-    public void add(Figure figure) {
+    public boolean add(Figure figure) {
         basicAdd(figure);
         if (getDrawing() != null) {
             figure.addNotify(getDrawing());
         }
+        return true;
     }
     public void add(int index, Figure figure) {
         basicAdd(index, figure);
@@ -252,19 +227,16 @@ public class LabeledLineConnectionFigure extends LineConnectionFigure
         changed();
         return figure;
     }
-    public boolean basicRemove(final Figure figure) {
+    public int basicRemove(final Figure figure) {
         int index = children.indexOf(figure);
-        if (index == -1) {
-            return false;
-        } else {
+        if (index != -1) {
             basicRemoveChild(index);
-            return true;
         }
+        return index;
     }
     public Figure basicRemoveChild(int index) {
         Figure figure = children.remove(index);
         figure.removeFigureListener(childHandler);
-        
         return figure;
     }
     
@@ -313,7 +285,7 @@ public class LabeledLineConnectionFigure extends LineConnectionFigure
             Rectangle2D.Double r = getLayouter().layout(
                     this, p, p
                     );
-            invalidateBounds();
+            invalidate();
         }
     }
     
@@ -321,7 +293,7 @@ public class LabeledLineConnectionFigure extends LineConnectionFigure
     
     public void invalidate() {
         super.invalidate();
-        invalidateBounds();
+        cachedDrawingArea = null;
     }
     public void validate() {
         super.validate();
@@ -339,20 +311,56 @@ public class LabeledLineConnectionFigure extends LineConnectionFigure
         }
         super.removeNotify(drawing);
     }
+    public void removeCompositeFigureListener(CompositeFigureListener listener) {
+        listenerList.remove(CompositeFigureListener.class, listener);
+    }
+
+    public void addCompositeFigureListener(CompositeFigureListener listener) {
+        listenerList.add(CompositeFigureListener.class, listener);
+    }
     /**
-     * Informs that a figure changed the area of its display box.
-     * /
-     * public void changed() {
-     * if (isChangingCount == 1) {
-     * super.changed();
-     * layout();
-     * fireFigureChanged(getDrawingArea());
-     * } else {
-     * invalidateBounds();
-     * }
-     * isChangingCount--;
-     * }
+     *  Notify all listenerList that have registered interest for
+     * notification on this event type.
      */
+    protected void fireFigureAdded(Figure f, int zIndex) {
+        CompositeFigureEvent event = null;
+        // Notify all listeners that have registered interest for
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length-2; i>=0; i-=2) {
+            if (listeners[i] == CompositeFigureListener.class) {
+                // Lazily create the event:
+                if (event == null)
+                    event = new CompositeFigureEvent(this, f, f.getDrawingArea(), zIndex);
+                ((CompositeFigureListener)listeners[i+1]).figureAdded(event);
+            }
+        }
+    }
+    
+    /**
+     *  Notify all listenerList that have registered interest for
+     * notification on this event type.
+     */
+    protected void fireFigureRemoved(Figure f, int zIndex) {
+        CompositeFigureEvent event = null;
+        // Notify all listeners that have registered interest for
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length-2; i>=0; i-=2) {
+            if (listeners[i] == CompositeFigureListener.class) {
+                // Lazily create the event:
+                if (event == null)
+                    event = new CompositeFigureEvent(this, f, f.getDrawingArea(), zIndex);
+                ((CompositeFigureListener)listeners[i+1]).figureRemoved(event);
+            }
+        }
+    }
+    
+    // CLONING
     public LabeledLineConnectionFigure clone() {
         LabeledLineConnectionFigure that = (LabeledLineConnectionFigure) super.clone();
         that.childHandler = new ChildHandler(that);
@@ -364,24 +372,18 @@ public class LabeledLineConnectionFigure extends LineConnectionFigure
         }
         return that;
     }
-    public void remap(HashMap<Figure,Figure> oldToNew) {
-        super.remap(oldToNew);
+    public void remap(Map<Figure,Figure> oldToNew, boolean disconnectIfNotInMap) {
+        super.remap(oldToNew, disconnectIfNotInMap);
         for (Figure child : children) {
-            child.remap(oldToNew);
+            child.remap(oldToNew, disconnectIfNotInMap);
         }
     }
-    /**
-     * Informs that a figure changed the area of its display box.
-     * /
-     * public void changed() {
-     * // FIXME - May break super implementation
-     * if (isChangingCount == 1) {
-     * layout();
-     * fireFigureChanged(getDrawBounds());
-     * } else {
-     * invalidateBounds();
-     * }
-     * isChangingCount--;
-     * }*/
-    
+
+    public boolean contains(Figure f) {
+        return children.contains(f);
+    }
+
+    public int indexOf(Figure child) {
+        return children.indexOf(child);
+    }
 }

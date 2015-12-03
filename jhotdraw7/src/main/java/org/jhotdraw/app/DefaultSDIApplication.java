@@ -1,17 +1,16 @@
 /*
- * @(#)DefaultSDIApplication.java  1.4  2007-01-11
+ * @(#)DefaultSDIApplication.java  1.5.1  2008-07-13
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
-
 package org.jhotdraw.app;
 
 import org.jhotdraw.util.*;
@@ -26,32 +25,40 @@ import javax.swing.*;
 import org.jhotdraw.app.action.*;
 
 /**
- * A DefaultSDIApplication can handle the life cycle of a single document window being
- * presented in a JFrame. The JFrame provides all the functionality needed to
- * work with the document, such as a menu bar, tool bars and palette windows.
- *
+ * A DefaultSDIApplication can handle the life cycle of a single document window
+ * being presented in a JFrame. The JFrame provides all the functionality needed
+ * to work with the document, such as a menu bar, tool bars and palette windows.
+ * <p>
+ * The life cycle of the application is tied to the JFrame. Closing the JFrame
+ * quits the application.
  *
  * @author Werner Randelshofer
- * @version 1.4 2007-01-11 Removed method addStandardActionsTo.
- * <br>1.3 2006-05-03 Show asterisk in window title, when project has
+ * @version 1.5.1 2008-07-13 Don't add the view menu to the menu bar if it is empty. 
+ * <br>1.5 2007-12-25 Added method updateViewTitle. Replaced 
+ * currentProject by activeProject in super class. 
+ * <br>1.4 2007-01-11 Removed method addStandardActionsTo.
+ * <br>1.3 2006-05-03 Show asterisk in window title, when view has
  * unsaved changes.
- * <br>1.2.1 2006-02-28 Stop application when last project is closed.
+ * <br>1.2.1 2006-02-28 Stop application when last view is closed.
  * <br>1.2 2006-02-06 Support for multiple open id added.
  * <br>1.1 2006-02-06 Revised.
  * <br>1.0 October 16, 2005 Created.
  */
 public class DefaultSDIApplication extends AbstractApplication {
-    private Project currentProject;
+
     private Preferences prefs;
-    
+
     /** Creates a new instance. */
     public DefaultSDIApplication() {
     }
-    
+
+    @Override
     public void launch(String[] args) {
-        System.setProperty("apple.awt.graphics.UseQuartz","false");
+        System.setProperty("apple.awt.graphics.UseQuartz", "false");
         super.launch(args);
     }
+
+    @Override
     public void init() {
         initLookAndFeel();
         super.init();
@@ -59,20 +66,23 @@ public class DefaultSDIApplication extends AbstractApplication {
         initLabels();
         initApplicationActions();
     }
-    
-    public void remove(Project p) {
+
+    @Override
+    public void remove(View p) {
         super.remove(p);
-        if (projects().size() == 0) {
+        if (views().size() == 0) {
             stop();
         }
     }
-    
+
+    @Override
     public void configure(String[] args) {
-        System.setProperty("apple.laf.useScreenMenuBar","false");
-        System.setProperty("com.apple.macos.useScreenMenuBar","false");
-        System.setProperty("apple.awt.graphics.UseQuartz","false");
-        System.setProperty("swing.aatext","true");
+        System.setProperty("apple.laf.useScreenMenuBar", "false");
+        System.setProperty("com.apple.macos.useScreenMenuBar", "false");
+        System.setProperty("apple.awt.graphics.UseQuartz", "false");
+        System.setProperty("swing.aatext", "true");
     }
+
     protected void initLookAndFeel() {
         try {
             String lafName;
@@ -91,23 +101,23 @@ public class DefaultSDIApplication extends AbstractApplication {
             UIManager.put("OptionPane.css", "");
         }
     }
-    
+
     protected void initApplicationActions() {
-        ResourceBundleUtil appLabels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.app.Labels");
+        ResourceBundleUtil appLabels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
         ApplicationModel m = getModel();
         m.putAction(AboutAction.ID, new AboutAction(this));
         m.putAction(ExitAction.ID, new ExitAction(this));
-        
+
         m.putAction(ClearAction.ID, new ClearAction(this));
         m.putAction(NewAction.ID, new NewAction(this));
-        appLabels.configureAction(m.getAction(NewAction.ID), "newWindow");
+        appLabels.configureAction(m.getAction(NewAction.ID), "window.new");
         m.putAction(LoadAction.ID, new LoadAction(this));
         m.putAction(ClearRecentFilesAction.ID, new ClearRecentFilesAction(this));
         m.putAction(SaveAction.ID, new SaveAction(this));
         m.putAction(SaveAsAction.ID, new SaveAsAction(this));
         m.putAction(CloseAction.ID, new CloseAction(this));
         m.putAction(PrintAction.ID, new PrintAction(this));
-        
+
         m.putAction(UndoAction.ID, new UndoAction(this));
         m.putAction(RedoAction.ID, new RedoAction(this));
         m.putAction(CutAction.ID, new CutAction());
@@ -117,44 +127,37 @@ public class DefaultSDIApplication extends AbstractApplication {
         m.putAction(DuplicateAction.ID, new DuplicateAction());
         m.putAction(SelectAllAction.ID, new SelectAllAction());
     }
-    protected void initProjectActions(Project p) {
+
+    protected void initViewActions(View p) {
         ApplicationModel m = getModel();
         p.putAction(LoadAction.ID, m.getAction(LoadAction.ID));
     }
-    
-    public void show(final Project p) {
-        if (! p.isShowing()) {
+
+@SuppressWarnings("unchecked")
+    public void show(final View p) {
+        if (!p.isShowing()) {
             p.setShowing(true);
-            File file = p.getFile();
             final JFrame f = new JFrame();
-            String title;
-            if (file == null) {
-                title = labels.getString("unnamedFile");
-            } else {
-                title = file.getName();
-            }
-            if (p.hasUnsavedChanges()) {
-                title += "*";
-            }
-            f.setTitle(labels.getFormatted("frameTitle", title, getName(), p.getMultipleOpenId()));
             f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-            JPanel panel = (JPanel) wrapProjectComponent(p);
+            updateViewTitle(p, f);
+
+            JPanel panel = (JPanel) wrapViewComponent(p);
             f.add(panel);
-            f.setMinimumSize(new Dimension(200,200));
-            f.setPreferredSize(new Dimension(600,400));
-            
+            f.setMinimumSize(new Dimension(200, 200));
+            f.setPreferredSize(new Dimension(600, 400));
+
             f.setJMenuBar(createMenuBar(p, (java.util.List<Action>) panel.getClientProperty("toolBarActions")));
-            
-            PreferencesUtil.installFramePrefsHandler(prefs, "project", f);
+
+            PreferencesUtil.installFramePrefsHandler(prefs, "view", f);
             Point loc = f.getLocation();
             boolean moved;
             do {
                 moved = false;
-                for (Iterator i=projects().iterator(); i.hasNext(); ) {
-                    Project aProject = (Project) i.next();
-                    if (aProject != p &&
-                            SwingUtilities.getWindowAncestor(aProject.getComponent()) != null &&
-                            SwingUtilities.getWindowAncestor(aProject.getComponent()).
+                for (Iterator i = views().iterator(); i.hasNext();) {
+                    View aView = (View) i.next();
+                    if (aView != p &&
+                            SwingUtilities.getWindowAncestor(aView.getComponent()) != null &&
+                            SwingUtilities.getWindowAncestor(aView.getComponent()).
                             getLocation().equals(loc)) {
                         loc.x += 22;
                         loc.y += 22;
@@ -164,71 +167,70 @@ public class DefaultSDIApplication extends AbstractApplication {
                 }
             } while (moved);
             f.setLocation(loc);
-            
+
             f.addWindowListener(new WindowAdapter() {
+
                 public void windowClosing(final WindowEvent evt) {
-                    setCurrentProject(p);
                     getModel().getAction(CloseAction.ID).actionPerformed(
                             new ActionEvent(f, ActionEvent.ACTION_PERFORMED,
-                            "windowClosing")
-                            );
+                            "windowClosing"));
                 }
-                
+
+                @Override
+                public void windowClosed(final WindowEvent evt) {
+                    if (p == getActiveView()) {
+                        setActiveView(null);
+                    }
+                    p.stop();
+                }
+
                 public void windowActivated(WindowEvent e) {
-                    setCurrentProject(p);
+                    setActiveView(p);
                 }
             });
-            
+
             p.addPropertyChangeListener(new PropertyChangeListener() {
+
                 public void propertyChange(PropertyChangeEvent evt) {
                     String name = evt.getPropertyName();
-                    if (name.equals("hasUnsavedChanges") ||
-                            name.equals("file") ||
-                            name.equals("multipleOpenId")) {
-                        File file = p.getFile();
-                        String title;
-                        if (file == null) {
-                            title = labels.getString("unnamedFile");
-                        } else {
-                            title = file.getName();
-                        }
-                        if (p.hasUnsavedChanges()) {
-                            title += "*";
-                        }
-                        f.setTitle(labels.getFormatted("frameTitle", title, getName(), p.getMultipleOpenId()));
+                    if (name.equals(View.HAS_UNSAVED_CHANGES_PROPERTY) ||
+                            name.equals(View.FILE_PROPERTY) ||
+                            name.equals(View.MULTIPLE_OPEN_ID_PROPERTY)) {
+                        updateViewTitle(p, f);
                     }
                 }
             });
-            
+
             f.setVisible(true);
+            p.start();
         }
     }
+
     /**
-     * Returns the project component. Eventually wraps it into
+     * Returns the view component. Eventually wraps it into
      * another component in order to provide additional functionality.
      */
-    protected Component wrapProjectComponent(Project p) {
+    protected Component wrapViewComponent(View p) {
         JComponent c = p.getComponent();
         if (getModel() != null) {
-            LinkedList<Action> toolBarActions = new LinkedList();
-            
-            int id=0;
+            LinkedList<Action> toolBarActions = new LinkedList<Action>();
+
+            int id = 0;
             for (JToolBar tb : new ReversedList<JToolBar>(getModel().createToolBars(this, p))) {
                 id++;
                 JPanel panel = new JPanel(new BorderLayout());
                 panel.add(tb, BorderLayout.NORTH);
                 panel.add(c, BorderLayout.CENTER);
                 c = panel;
-                PreferencesUtil.installToolBarPrefsHandler(prefs, "toolbar."+id, tb);
+                PreferencesUtil.installToolBarPrefsHandler(prefs, "toolbar." + id, tb);
                 toolBarActions.addFirst(new ToggleVisibleAction(tb, tb.getName()));
             }
-            c.putClientProperty("toolBarActions",toolBarActions);
+            c.putClientProperty("toolBarActions", toolBarActions);
         }
         return c;
     }
-    
-    
-    public void hide(Project p) {
+
+    public void hide(View p) {
         if (p.isShowing()) {
             p.setShowing(false);
             JFrame f = (JFrame) SwingUtilities.getWindowAncestor(p.getComponent());
@@ -237,54 +239,75 @@ public class DefaultSDIApplication extends AbstractApplication {
             f.dispose();
         }
     }
-    
-    public void dispose(Project p) {
+
+    public void dispose(View p) {
         super.dispose(p);
-        if (projects().size() == 0) {
+        if (views().size() == 0) {
             stop();
         }
     }
-    
-    public Project getCurrentProject() {
-        return currentProject;
-    }
-    public void setCurrentProject(Project newValue) {
-        Project oldValue = currentProject;
-        currentProject = newValue;
-        firePropertyChange("currentProject", oldValue, newValue);
-    }
-    
+
     /**
-     * The project menu bar is displayed for a project.
+     * The view menu bar is displayed for a view.
      * The default implementation returns a new screen menu bar.
      */
-    protected JMenuBar createMenuBar(final Project p, java.util.List<Action> toolBarActions) {
+    protected JMenuBar createMenuBar(final View p, java.util.List<Action> toolBarActions) {
         JMenuBar mb = new JMenuBar();
         mb.add(createFileMenu(p));
+        JMenu lastMenu = null;
         for (JMenu mm : getModel().createMenus(this, p)) {
             mb.add(mm);
+            lastMenu = mm;
         }
-        mb.add(createViewMenu(p, toolBarActions));
-        mb.add(createHelpMenu(p));
+        JMenu viewMenu = createViewMenu(p, toolBarActions);
+        if (viewMenu != null) {
+            if (lastMenu != null && lastMenu.getText().equals(viewMenu.getText())) {
+                for (Component c : lastMenu.getMenuComponents()) {
+                    viewMenu.add(c);
+                }
+                mb.remove(lastMenu);
+            }
+            mb.add(viewMenu);
+        }
+
+        // Merge the help menu if one has been provided by the application model,
+        // otherwise just add it.
+        JMenu helpMenu = createHelpMenu(p);
+        for (Component mc : mb.getComponents()) {
+            JMenu m = (JMenu) mc;
+            if (m.getText().equals(helpMenu.getText())) {
+                for (Component c : helpMenu.getMenuComponents()) {
+                    m.add(c);
+                }
+                helpMenu = null;
+                break;
+            }
+        }
+        if (helpMenu != null) {
+            mb.add(helpMenu);
+        }
         return mb;
     }
-    
-    protected JMenu createFileMenu(final Project p) {
+
+    protected JMenu createFileMenu(final View p) {
         ApplicationModel model = getModel();
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.app.Labels");
-        
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
+
         JMenuBar mb = new JMenuBar();
         JMenu m;
         JMenuItem mi;
         final JMenu openRecentMenu;
-        
+
         m = new JMenu();
-        labels.configureMenu(m, labels.getString("file"));
+        labels.configureMenu(m, "file");
         m.add(model.getAction(ClearAction.ID));
         m.add(model.getAction(NewAction.ID));
         m.add(model.getAction(LoadAction.ID));
+        if (model.getAction(LoadDirectoryAction.ID) != null) {
+            m.add(model.getAction(LoadDirectoryAction.ID));
+        }
         openRecentMenu = new JMenu();
-        labels.configureMenu(openRecentMenu, "openRecent");
+        labels.configureMenu(openRecentMenu, "file.openRecent");
         openRecentMenu.add(model.getAction(ClearRecentFilesAction.ID));
         updateOpenRecentMenu(openRecentMenu);
         m.add(openRecentMenu);
@@ -301,12 +324,13 @@ public class DefaultSDIApplication extends AbstractApplication {
         m.addSeparator();
         m.add(model.getAction(ExitAction.ID));
         mb.add(m);
-        
+
         addPropertyChangeListener(new PropertyChangeListener() {
+
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
-                if (name == "projectCount") {
-                    if (p == null || projects().contains(p)) {
+                if (name == "viewCount") {
+                    if (p == null || views().contains(p)) {
                     } else {
                         removePropertyChangeListener(this);
                     }
@@ -315,14 +339,40 @@ public class DefaultSDIApplication extends AbstractApplication {
                 }
             }
         });
-        
+
         return m;
     }
-    private void updateOpenRecentMenu(JMenu openRecentMenu) {
+
+    /**
+     * Updates the title of a view and displays it in the given frame.
+     * 
+     * @param p The view.
+     * @param f The frame.
+     */
+    protected void updateViewTitle(View p, JFrame f) {
+        File file = p.getFile();
+        String title;
+        if (file == null) {
+            title = labels.getString("unnamedFile");
+        } else {
+            title = file.getName();
+        }
+        if (p.hasUnsavedChanges()) {
+            title += "*";
+        }
+        p.setTitle(labels.getFormatted("frame.title", title, getName(), p.getMultipleOpenId()));
+        f.setTitle(p.getTitle());
+    }
+
+    /**
+     * Updates the "file &gt; open recent" menu item.
+     * 
+     * @param openRecentMenu
+     */
+    protected void updateOpenRecentMenu(JMenu openRecentMenu) {
         if (openRecentMenu.getItemCount() > 0) {
             JMenuItem clearRecentFilesItem = (JMenuItem) openRecentMenu.getItem(
-                    openRecentMenu.getItemCount() - 1
-                    );
+                    openRecentMenu.getItemCount() - 1);
             openRecentMenu.removeAll();
             for (File f : recentFiles()) {
                 openRecentMenu.add(new LoadRecentAction(DefaultSDIApplication.this, f));
@@ -333,51 +383,60 @@ public class DefaultSDIApplication extends AbstractApplication {
             openRecentMenu.add(clearRecentFilesItem);
         }
     }
-    
-    public boolean isSharingToolsAmongProjects() {
+
+    public boolean isSharingToolsAmongViews() {
         return false;
     }
-    
+
     public Component getComponent() {
-        Project p = getCurrentProject();
+        View p = getActiveView();
         return (p == null) ? null : p.getComponent();
     }
-    protected JMenu createViewMenu(final Project p, java.util.List<Action> toolBarActions) {
+
+    /**
+     * Creates the view menu.
+     * 
+     * @param p The View
+     * @param viewActions Actions for the view menu
+     * @return A JMenu or null, if no view actions are provided
+     */
+    protected JMenu createViewMenu(final View p, java.util.List<Action> viewActions) {
         ApplicationModel model = getModel();
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.app.Labels");
-        
-        JMenuBar mb = new JMenuBar();
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
+
         JMenu m, m2;
         JMenuItem mi;
         JCheckBoxMenuItem cbmi;
         final JMenu openRecentMenu;
-        
+
         m = new JMenu();
-        if (toolBarActions != null && toolBarActions.size() > 0) {
-            m2 = (toolBarActions.size() == 1) ? m : new JMenu(labels.getString("toolBars"));
-            labels.configureMenu(m, labels.getString("view"));
-            for (Action a : toolBarActions) {
+        if (viewActions != null && viewActions.size() > 0) {
+            m2 = (viewActions.size() == 1) ? m : new JMenu(labels.getString("toolBars"));
+            labels.configureMenu(m, "view");
+            for (Action a : viewActions) {
                 cbmi = new JCheckBoxMenuItem(a);
                 Actions.configureJCheckBoxMenuItem(cbmi, a);
                 m2.add(cbmi);
             }
-            m.add(m2);
+            if (m2 != m) {
+                m.add(m2);
+            }
         }
-        
-        return m;
+
+        return (m.getComponentCount() > 0) ? m : null;
     }
-    
-    protected JMenu createHelpMenu(Project p) {
+
+    protected JMenu createHelpMenu(View p) {
         ApplicationModel model = getModel();
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.app.Labels");
-        
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
+
         JMenu m;
         JMenuItem mi;
-        
+
         m = new JMenu();
-        labels.configureMenu(m, labels.getString("help"));
+        labels.configureMenu(m, "help");
         m.add(model.getAction(AboutAction.ID));
-        
+
         return m;
     }
 }

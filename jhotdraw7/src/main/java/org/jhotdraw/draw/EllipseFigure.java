@@ -2,14 +2,14 @@
  * @(#)EllipseFigure.java  2.4  2006-12-23
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw;
@@ -52,9 +52,11 @@ public class EllipseFigure extends AbstractAttributedFigure {
     // ATTRIBUTES
     // EDITING
     // CONNECTING
+    @Override
     public Connector findConnector(Point2D.Double p, ConnectionFigure prototype) {
         return new ChopEllipseConnector(this);
     }
+    @Override
     public Connector findCompatibleConnector(Connector c, boolean isStartConnector) {
         return new ChopEllipseConnector(this);
     }
@@ -110,6 +112,7 @@ public class EllipseFigure extends AbstractAttributedFigure {
         return r.contains(p);
     }
     
+    @Override
     public void setBounds(Point2D.Double anchor, Point2D.Double lead) {
         ellipse.x = Math.min(anchor.x, lead.x);
         ellipse.y = Math.min(anchor.y , lead.y);
@@ -130,6 +133,7 @@ public class EllipseFigure extends AbstractAttributedFigure {
                 );
     }
     
+    @Override
     public EllipseFigure clone() {
         EllipseFigure that = (EllipseFigure) super.clone();
         that.ellipse = (Ellipse2D.Double) this.ellipse.clone();

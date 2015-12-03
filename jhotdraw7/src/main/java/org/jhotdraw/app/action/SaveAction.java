@@ -1,15 +1,15 @@
 /*
- * @(#)SaveAction.java  1.2.1  2006-07-25
+ * @(#)SaveAction.java  1.3  2008-03-23
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.app.action;
@@ -29,13 +29,15 @@ import org.jhotdraw.gui.event.*;
  * SaveAction.
  *
  * @author  Werner Randelshofer
- * @version 1.2.1 2006-07-25 Add saved file to recent file list of application.
+ * @version 1.3 2008-03-23 Added call to view#canSaveTo(File) when determining
+ * whether a file chooser needs to be displayed. 
+ * <br>1.2.1 2006-07-25 Add saved file to recent file list of application.
  * <br>1.2 2006-05-19 Make filename acceptable by ExtensionFileFilter.
  * <br>1.1 2006-02-23 Support multiple open id.
  * <br>1.0 28. September 2005 Created.
  */
-public class SaveAction extends AbstractProjectAction {
-    public final static String ID = "save";
+public class SaveAction extends AbstractViewAction {
+    public final static String ID = "file.save";
     private boolean saveAs;
     private Component oldFocusOwner;
     
@@ -47,24 +49,24 @@ public class SaveAction extends AbstractProjectAction {
     public SaveAction(Application app, boolean saveAs) {
         super(app);
         this.saveAs = saveAs;
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.app.Labels");
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
         labels.configureAction(this, ID);
     }
     
     
     public void actionPerformed(ActionEvent evt) {
-        final Project project = getCurrentProject();
-        if (project.isEnabled()) {
-            oldFocusOwner = SwingUtilities.getWindowAncestor(project.getComponent()).getFocusOwner();
-            project.setEnabled(false);
+        final View view = getActiveView();
+        if (view.isEnabled()) {
+            oldFocusOwner = SwingUtilities.getWindowAncestor(view.getComponent()).getFocusOwner();
+            view.setEnabled(false);
             
             File saveToFile;
-            if (!saveAs && project.getFile() != null) {
-                saveToFile(project, project.getFile());
+            if (!saveAs && view.getFile() != null && view.canSaveTo(view.getFile())) {
+                saveToFile(view, view.getFile());
             } else {
-                JFileChooser fileChooser = project.getSaveChooser();
+                JFileChooser fileChooser = view.getSaveChooser();
                 
-                JSheet.showSaveSheet(fileChooser, project.getComponent(), new SheetListener() {
+                JSheet.showSaveSheet(fileChooser, view.getComponent(), new SheetListener() {
                     public void optionSelected(final SheetEvent evt) {
                         if (evt.getOption() == JFileChooser.APPROVE_OPTION) {
                             final File file;
@@ -74,9 +76,9 @@ public class SaveAction extends AbstractProjectAction {
                             } else {
                                 file = evt.getFileChooser().getSelectedFile();
                             }
-                            saveToFile(project, file);
+                            saveToFile(view, file);
                         } else {
-                            project.setEnabled(true);
+                            view.setEnabled(true);
                             if (oldFocusOwner != null) {
                                 oldFocusOwner.requestFocus();
                             }
@@ -87,18 +89,18 @@ public class SaveAction extends AbstractProjectAction {
         }
     }
     
-    protected void saveToFile(final Project project, final File file) {
-        project.execute(new Worker() {
+    protected void saveToFile(final View view, final File file) {
+        view.execute(new Worker() {
             public Object construct() {
                 try {
-                    project.write(file);
+                    view.write(file);
                     return null;
                 } catch (IOException e) {
                     return e;
                 }
             }
             public void finished(Object value) {
-                fileSaved(project, file, value);
+                fileSaved(view, file, value);
             }
         });
     }
@@ -107,28 +109,34 @@ public class SaveAction extends AbstractProjectAction {
      *
      * @param value is either null for success or a Throwable on failure.
      */
-    protected void fileSaved(final Project project, File file, Object value) {
+    protected void fileSaved(final View view, File file, Object value) {
         if (value == null) {
-            project.setFile(file);
-            project.markChangesAsSaved();
+            view.setFile(file);
+            view.markChangesAsSaved();
             int multiOpenId = 1;
-            for (Project p : project.getApplication().projects()) {
-                if (p != project && p.getFile() != null && p.getFile().equals(file)) {
+            for (View p : view.getApplication().views()) {
+                if (p != view && p.getFile() != null && p.getFile().equals(file)) {
                     multiOpenId = Math.max(multiOpenId, p.getMultipleOpenId() + 1);
                 }
             }
             getApplication().addRecentFile(file);
-            project.setMultipleOpenId(multiOpenId);
+            view.setMultipleOpenId(multiOpenId);
         } else {
-            ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.app.Labels");
-            JSheet.showMessageSheet(project.getComponent(),
-                    "<html>"+UIManager.getString("OptionPane.css")+
-                    labels.getFormatted("couldntSave", file, value),
-                    JOptionPane.ERROR_MESSAGE
-                    );
+            String message;
+            if ((value instanceof Throwable) && ((Throwable) value).getMessage() != null) {
+                message = ((Throwable) value).getMessage();
+            } else {
+                message = value.toString();
+            }
+            ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
+            JSheet.showMessageSheet(getActiveView().getComponent(),
+                    "<html>" + UIManager.getString("OptionPane.css") +
+                    "<b>" + labels.getFormatted("couldntSave", file.getName()) + "</b><br>" +
+                    ((message == null) ? "" : message),
+                    JOptionPane.ERROR_MESSAGE);
         }
-        project.setEnabled(true);
-        SwingUtilities.getWindowAncestor(project.getComponent()).toFront();
+        view.setEnabled(true);
+        SwingUtilities.getWindowAncestor(view.getComponent()).toFront();
         if (oldFocusOwner != null) {
             oldFocusOwner.requestFocus();
         }

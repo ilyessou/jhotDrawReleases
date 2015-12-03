@@ -2,14 +2,14 @@
  * @(#)GraphicalCompositeFigure.java  2.0  2006-01-14
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw;
@@ -27,27 +27,30 @@ import org.jhotdraw.geom.*;
 import org.jhotdraw.xml.DOMInput;
 import org.jhotdraw.xml.DOMOutput;
 /**
- * The GraphicalCompositeFigure fills in the gap between a AbstractCompositeFigure
+ * The GraphicalCompositeFigure fills in the gap between a CompositeFigure
  * and other figures which mainly have a presentation purpose. The
  * GraphicalCompositeFigure can be configured with any Figure which
  * takes over the task for rendering the graphical presentation for
- * a AbstractCompositeFigure. Therefore, the GraphicalCompositeFigure manages
- * contained figures like the AbstractCompositeFigure does, but delegates
+ * a CompositeFigure. Therefore, the GraphicalCompositeFigure manages
+ * contained figures like a CompositeFigure does, but delegates
  * its graphical presentation to another (graphical) figure which
  * purpose it is to draw the container for all contained figures.
- *
- * The GraphicalCompositeFigure adds to the {@link AbstractCompositeFigure AbstractCompositeFigure}
+ * 
+ * The GraphicalCompositeFigure adds to the {@link CompositeFigure CompositeFigure}
  * by containing a presentation figure by default which can not be removed.  Normally,
- * the {@link AbstractCompositeFigure AbstractCompositeFigure} can not be seen without containing a figure
+ * the {@link CompositeFigure CompositeFigure} can not be seen without containing a figure
  * because it has no mechanism to draw itself.  It instead relies on its contained
- * figures to draw themselves thereby giving the {@link AbstractCompositeFigure AbstractCompositeFigure} its
+ * figures to draw themselves thereby giving the {@link CompositeFigure BasicCompositeFigure} its
  * appearance.  However, the <b>GraphicalCompositeFigure</b>'s presentation figure
  * can draw itself even when the <b>GraphicalCompositeFigure</b> contains no other figures.
  * The <b>GraphicalCompositeFigure</b> also uses a {@link Layouter Layouter} or layout
  * its contained figures.
- *
- *
- *
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  * @author Wolfram Kaiser (original code), Werner Randelshofer (this derived version)
  * @version 2.0 2006-01-14 Changed to support double precision coordinates.
  * <br>1.0 1. Dezember 2003  Derived from JHotDraw 5.4b1.
@@ -58,7 +61,7 @@ public class GraphicalCompositeFigure extends AbstractCompositeFigure {
     
     /**
      * Figure which performs all presentation tasks for this
-     * AbstractCompositeFigure as CompositeFigures usually don't have
+     * BasicCompositeFigure as CompositeFigures usually don't have
      * an own presentation but present only the sum of all its
      * children.
      */
@@ -85,7 +88,7 @@ public class GraphicalCompositeFigure extends AbstractCompositeFigure {
             }
         }
         
-        @Override public void figureAreaInvalidated(FigureEvent e) {
+        @Override public void areaInvalidated(FigureEvent e) {
             if (! owner.isChanging()) {
                 owner.fireAreaInvalidated(e.getInvalidatedArea());
             }
@@ -229,11 +232,14 @@ public class GraphicalCompositeFigure extends AbstractCompositeFigure {
         //return getPresentationFigure().getHandles();
     }
     /**
-     * Set a figure which renders this AbstractCompositeFigure. The presentation
-     * tasks for the AbstractCompositeFigure are delegated to this presentation
+     * Set a figure which renders this BasicCompositeFigure. The presentation
+     * tasks for the BasicCompositeFigure are delegated to this presentation
      * figure.
-     *
-     *
+     * 
+     * 
+     * 
+     * 
+     * 
      * @param newPresentationFigure	figure takes over the presentation tasks
      */
     public void setPresentationFigure(Figure newPresentationFigure) {
@@ -254,11 +260,14 @@ public class GraphicalCompositeFigure extends AbstractCompositeFigure {
     }
     
     /**
-     * Get a figure which renders this AbstractCompositeFigure. The presentation
-     * tasks for the AbstractCompositeFigure are delegated to this presentation
+     * Get a figure which renders this BasicCompositeFigure. The presentation
+     * tasks for the BasicCompositeFigure are delegated to this presentation
      * figure.
-     *
-     *
+     * 
+     * 
+     * 
+     * 
+     * 
      * @return figure takes over the presentation tasks
      */
     public Figure getPresentationFigure() {
@@ -275,10 +284,10 @@ public class GraphicalCompositeFigure extends AbstractCompositeFigure {
         }
         return that;
     }
-    public void remap(HashMap<Figure,Figure> oldToNew) {
-        super.remap(oldToNew);
+    public void remap(HashMap<Figure,Figure> oldToNew, boolean disconnectIfNotInMap) {
+        super.remap(oldToNew, disconnectIfNotInMap);
         if (presentationFigure != null) {
-            presentationFigure.remap(oldToNew);
+            presentationFigure.remap(oldToNew, disconnectIfNotInMap);
         }
     }
     /**
@@ -286,7 +295,8 @@ public class GraphicalCompositeFigure extends AbstractCompositeFigure {
      * AttributeKey name and semantics are defined by the class implementing
      * the figure interface.
      */
-    public void setAttribute(AttributeKey key, Object newValue) {
+    @Override
+    public <T> void setAttribute(AttributeKey<T> key, T newValue) {
         if (forbiddenAttributes == null
                 || ! forbiddenAttributes.contains(key)) {
             if (getPresentationFigure() != null) {
@@ -309,21 +319,23 @@ public class GraphicalCompositeFigure extends AbstractCompositeFigure {
     /**
      * Gets an attribute from the figure.
      */
-    public Object getAttribute(AttributeKey key) {
+    @Override
+    public <T> T getAttribute(AttributeKey<T> key) {
         if (getPresentationFigure() != null) {
-            return getPresentationFigure().getAttribute(key);
+            return key.get(getPresentationFigure());
         } else {
             return (! attributes.containsKey(key)) ?
                 key.getDefaultValue() :
-                attributes.get(key);
+                key.get(attributes);
         }
     }
     /**
      * Applies all attributes of this figure to that figure.
      */
+    @SuppressWarnings("unchecked")
     protected void applyAttributesTo(Figure that) {
         for (Map.Entry<AttributeKey, Object> entry : attributes.entrySet()) {
-            that.setAttribute(entry.getKey(), entry.getValue());
+            entry.getKey().basicSet(that, entry.getValue());
         }
     }
     protected void writeAttributes(DOMOutput out) throws IOException {
@@ -353,6 +365,7 @@ public class GraphicalCompositeFigure extends AbstractCompositeFigure {
             out.closeElement();
         }
     }
+    @SuppressWarnings("unchecked")
     protected void readAttributes(DOMInput in) throws IOException {
         if (in.getElementCount("a") > 0) {
             in.openElement("a");
@@ -373,11 +386,13 @@ public class GraphicalCompositeFigure extends AbstractCompositeFigure {
         }
     }
     
+    @Override
     public void read(DOMInput in) throws IOException {
         super.read(in);
         readAttributes(in);
     }
     
+    @Override
     public void write(DOMOutput out) throws IOException {
         super.write(out);
         writeAttributes(out);

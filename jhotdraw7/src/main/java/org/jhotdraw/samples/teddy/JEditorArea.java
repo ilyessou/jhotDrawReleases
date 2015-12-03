@@ -1,15 +1,15 @@
 /*
  * @(#)JEditorArea.java  1.0  October 10, 2005
  *
- * Copyright (c) 2005 Werner Randelshofer
- * Staldenmattweg 2, Immensee, CH-6405, Switzerland.
+ * Copyright (c) 2006 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * Werner Randelshofer. ("Confidential Information").  You shall not
- * disclose such Confidential Information and shall use it only in
- * accordance with the terms of the license agreement you entered into
- * with Werner Randelshofer.
+ * The copyright of this software is owned by the authors and
+ * contributors of the JHotDraw project ("the copyright holders").
+ * You may not use, copy or modify this software, except in
+ * accordance with the license agreement you entered into with
+ * the copyright holders. For details see accompanying license terms.
  */
 
 package org.jhotdraw.samples.teddy;
@@ -46,12 +46,8 @@ public class JEditorArea extends JEditorPane {
      * event ("lineWrap") is fired when the policy is changed.
      * By default this property is false.
      *
-     * @param wrap indicates if lines should be wrapped
+     * @param newValue indicates if lines should be wrapped
      * @see #getLineWrap
-     * @beaninfo
-     *   preferred: true
-     *       bound: true
-     * description: should lines be wrapped
      */
     public void setLineWrap(boolean newValue) {
         boolean oldValue = wrap;
@@ -108,8 +104,6 @@ public class JEditorArea extends JEditorPane {
      * @param end the end position >= start
      * @exception IllegalArgumentException  if part of the range is an
      *  invalid position in the model
-     * @see #insert
-     * @see #replaceRange
      */
      public void replaceRange(String str, int start, int end) {
         if (end < start) {

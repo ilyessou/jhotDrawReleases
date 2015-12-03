@@ -1,15 +1,15 @@
 /*
  * @(#)TextOverflowHandle.java  1.0  19. Mai 2007
  *
- * Copyright (c) 2007 Werner Randelshofer
- * Staldenmattweg 2, CH-6405 Immensee, Switzerland
+ * Copyright (c) 2007 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * Werner Randelshofer. ("Confidential Information").  You shall not
- * disclose such Confidential Information and shall use it only in
- * accordance with the terms of the license agreement you entered into
- * with Werner Randelshofer.
+ * The copyright of this software is owned by the authors and
+ * contributors of the JHotDraw project ("the copyright holders").
+ * You may not use, copy or modify this software, except in
+ * accordance with the license agreement you entered into with
+ * the copyright holders. For details see accompanying license terms.
  */
 
 package org.jhotdraw.draw;
@@ -36,17 +36,24 @@ public class TextOverflowHandle extends AbstractHandle {
     public TextHolderFigure getOwner() {
         return (TextHolderFigure) super.getOwner();
     }
+    @Override
+    public boolean contains(Point p) {
+        return false;
+    }
     
     /**
      * Draws this handle.
      */
     @Override public void draw(Graphics2D g) {
         if (getOwner().isTextOverflow()) {
-            g.setColor(Color.RED);
+        drawRectangle(g, 
+                (Color) getEditor().getHandleAttribute(HandleAttributeKeys.OVERFLOW_HANDLE_FILL_COLOR),
+                (Color) getEditor().getHandleAttribute(HandleAttributeKeys.OVERFLOW_HANDLE_STROKE_COLOR)
+                );
+            g.setColor((Color) getEditor().getHandleAttribute(HandleAttributeKeys.OVERFLOW_HANDLE_STROKE_COLOR));
             Rectangle r = basicGetBounds();
-            g.draw(r);
-            g.drawLine(r.x, r.y, r.x+r.width, r.y+r.height);
-            g.drawLine(r.x+r.width, r.y, r.x, r.y+r.height);
+            g.drawLine(r.x+1, r.y+1, r.x+r.width-2, r.y+r.height-2);
+            g.drawLine(r.x+r.width-2, r.y+1, r.x+1, r.y+r.height-2);
         }
     }
     
@@ -57,9 +64,10 @@ public class TextOverflowHandle extends AbstractHandle {
             TRANSFORM.get(getOwner()).transform(p, p);
         }
         Rectangle r = new Rectangle(view.drawingToView(p));
-        r.x -= 6;
-        r.y -= 6;
-        r.width = r.height = 6;
+        int h = getHandlesize();
+        r.x -= h;
+        r.y -= h;
+        r.width = r.height = h;
         return r;
     }
     
@@ -75,7 +83,8 @@ public class TextOverflowHandle extends AbstractHandle {
     @Override public String getToolTipText(Point p) {
         
         return (getOwner().isTextOverflow()) ?
-            ResourceBundleUtil.getLAFBundle("org.jhotdraw.draw.Labels").getString("textOverflowHandle.tip") :
+            ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels").//
+            getString("handle.textOverflow.toolTipText") :
             null;
     }
     

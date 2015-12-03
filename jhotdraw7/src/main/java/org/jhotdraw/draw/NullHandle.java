@@ -2,15 +2,14 @@
  * @(#)NullHandle.java  1.0  2003-12-01
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
-�
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 
@@ -61,14 +60,10 @@ public class NullHandle extends LocatorHandle {
      * Null Handles are drawn as unfilled rectangles.
      */
     public void draw(Graphics2D g) {
-        Rectangle r = getBounds();
-        
-        g.setColor(Color.white);
-        g.drawRect(r.x + 1, r.y + 1, r.width - 3, r.height - 3);
-        
-        g.setStroke(new BasicStroke());
-        g.setColor(Color.black);
-        g.drawRect(r.x, r.y, r.width - 1, r.height - 1);
+        drawRectangle(g, 
+                (Color) getEditor().getHandleAttribute(HandleAttributeKeys.NULL_HANDLE_FILL_COLOR),
+                (Color) getEditor().getHandleAttribute(HandleAttributeKeys.NULL_HANDLE_STROKE_COLOR)
+                );
     }
     
 }

@@ -2,14 +2,14 @@
  * @(#)TextHolderFigure.java  1.1  2007-05-19
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 
@@ -64,6 +64,11 @@ public interface TextHolderFigure extends Figure {
      * Returns the text held by the Text Holder.
      */
     public String getText();
+    
+    /**
+     * Sets the text of the Text Holder.
+     * @param text
+     */
     public void setText(String text);
     /**
      * Gets the number of columns to be overlaid when the figure is edited.
@@ -78,6 +83,11 @@ public interface TextHolderFigure extends Figure {
      * Gets the font size of the text held by the TextHolderFigure.
      */
     public float getFontSize();
+    /**
+     * Gets the baseline of the first line of text, relative to the
+     * upper left corner of the figure bounds.
+     */
+    public double getBaseline();
     
     /**
      * Returns Insets to be used by the text editor relative to the handle bounds

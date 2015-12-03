@@ -2,14 +2,14 @@
  * @(#)SVGAttributedFigure.java  1.0  December 10, 2006
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.samples.svg.figures;
@@ -55,8 +55,8 @@ public abstract class SVGAttributedFigure extends AbstractAttributedFigure {
                 if (! drawingArea.isEmpty()) {
                     
                     BufferedImage buf = new BufferedImage(
-                            (int) ((2 + drawingArea.width) * g.getTransform().getScaleX()),
-                            (int) ((2 + drawingArea.height) * g.getTransform().getScaleY()),
+                            Math.max(1, (int) ((2 + drawingArea.width) * g.getTransform().getScaleX())),
+                            Math.max(1, (int) ((2 + drawingArea.height) * g.getTransform().getScaleY())),
                             BufferedImage.TYPE_INT_ARGB);
                     Graphics2D gr = buf.createGraphics();
                     gr.scale(g.getTransform().getScaleX(), g.getTransform().getScaleY());
@@ -102,7 +102,8 @@ public abstract class SVGAttributedFigure extends AbstractAttributedFigure {
             g.setTransform(savedTransform);
         }
     }
-    public void setAttribute(AttributeKey key, Object newValue) {
+    @Override
+    public <T> void setAttribute(AttributeKey<T> key, T newValue) {
         if (key == TRANSFORM) {
             invalidate();
         }
@@ -111,13 +112,13 @@ public abstract class SVGAttributedFigure extends AbstractAttributedFigure {
     @Override public Collection<Action> getActions(Point2D.Double p) {
         LinkedList<Action> actions = new LinkedList<Action>();
         if (TRANSFORM.get(this) != null) {
-            ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.samples.svg.Labels");
-            actions.add(new AbstractAction(labels.getString("removeTransform")) {
+            ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.svg.Labels");
+            actions.add(new AbstractAction(labels.getString("edit.removeTransform.text")) {
                 public void actionPerformed(ActionEvent evt) {
-                    ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.samples.svg.Labels");
+                    ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.svg.Labels");
                     SVGAttributedFigure.this.willChange();
                     fireUndoableEditHappened(
-                            TRANSFORM.setUndoable(SVGAttributedFigure.this, null, labels)
+                            TRANSFORM.setUndoable(SVGAttributedFigure.this, null)
                             );
                     SVGAttributedFigure.this.changed();
                 }

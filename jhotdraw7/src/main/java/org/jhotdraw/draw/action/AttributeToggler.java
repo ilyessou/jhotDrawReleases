@@ -2,14 +2,14 @@
  * @(#)AttributeToggler.java  4.0  2006-06-07
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw.action;
@@ -37,18 +37,18 @@ import org.jhotdraw.util.ResourceBundleUtil;
  * <br>2.0 2006-02-27 Toggle attributes regardles from action state.
  * <br>1.0 27. November 2003  Created.
  */
-public class AttributeToggler extends AbstractAction {
+public class AttributeToggler<T> extends AbstractAction {
     private DrawingEditor editor;
-    private AttributeKey key;
-    private Object value1;
-    private Object value2;
+    private AttributeKey<T> key;
+    private T value1;
+    private T value2;
     private Action compatibleTextAction;
     
     /** Creates a new instance. */
-    public AttributeToggler(DrawingEditor editor, AttributeKey key, Object value1, Object value2) {
+    public AttributeToggler(DrawingEditor editor, AttributeKey<T> key, T value1, T value2) {
         this(editor, key, value1, value2, null);
     }
-    public AttributeToggler(DrawingEditor editor, AttributeKey key, Object value1, Object value2, Action compatibleTextAction) {
+    public AttributeToggler(DrawingEditor editor, AttributeKey<T> key, T value1, T value2, Action compatibleTextAction) {
         this.editor = editor;
         this.key = key;
         this.value1 = value1;
@@ -76,36 +76,38 @@ public class AttributeToggler extends AbstractAction {
         
         // Determine the new value
         Iterator i = getView().getSelectedFigures().iterator();
-        Object toggleValue = value1;
+        T toggleValue = value1;
         if (i.hasNext()) {
             Figure f = (Figure) i.next();
-            Object attr = f.getAttribute(key);
+            Object attr = key.get(f);
             if (value1 == null && attr == null ||
                     (value1 != null && attr != null && attr.equals(value1))) {
                 toggleValue = value2;
             }
         }
-        final Object newValue = toggleValue;
+        final T newValue = toggleValue;
         
         //--
-        final ArrayList<Figure> selectedFigures = new ArrayList(getView().getSelectedFigures());
+        final ArrayList<Figure> selectedFigures = new ArrayList<Figure>(getView().getSelectedFigures());
         final ArrayList<Object> restoreData = new ArrayList<Object>(selectedFigures.size());
         for (Figure figure : selectedFigures) {
             restoreData.add(figure.getAttributesRestoreData());
             key.set(figure, newValue);
         }
         UndoableEdit edit = new AbstractUndoableEdit() {
+            @Override
             public String getPresentationName() {
                 String name = (String) getValue(Actions.UNDO_PRESENTATION_NAME_KEY);
                 if (name == null) {
                     name = (String) getValue(AbstractAction.NAME);
                 }
                 if (name == null) {
-                    ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.draw.Labels");
-                    name = labels.getString("attribute");
+                    ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
+                    name = labels.getString("attribute.text");
                 }
                 return name;
             }
+            @Override
             public void undo() {
                 super.undo();
                 Iterator<Object> iRestore = restoreData.iterator();
@@ -115,6 +117,7 @@ public class AttributeToggler extends AbstractAction {
                     figure.changed();
                 }
             }
+            @Override
             public void redo() {
                 super.redo();
                 for (Figure figure : selectedFigures) {

@@ -2,14 +2,14 @@
  * @(#)DefaultApplicationModel.java  1.1  2007-01-11
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.app;
@@ -34,8 +34,14 @@ public class DefaultApplicationModel
     private String name;
     private String version;
     private String copyright;
-    private Class projectClass;
-    private String projectClassName;
+    private Class viewClass;
+    private String viewClassName;
+    
+    public final static String NAME_PROPERTY = "name";
+    public final static String VERSION_PROPERTY = "version";
+    public final static String COPYRIGHT_PROPERTY = "copyright";
+    public final static String VIEW_CLASS_NAME_PROPERTY = "viewClassName";
+    public final static String VIEW_CLASS_PROPERTY = "viewClass";
     
     
     /** Creates a new instance. */
@@ -45,7 +51,7 @@ public class DefaultApplicationModel
     public void setName(String newValue) {
         String oldValue = name;
         name = newValue;
-        firePropertyChange("name", oldValue, newValue);
+        firePropertyChange(NAME_PROPERTY, oldValue, newValue);
     }
     
     public String getName() {
@@ -55,7 +61,7 @@ public class DefaultApplicationModel
     public void setVersion(String newValue) {
         String oldValue = version;
         version = newValue;
-        firePropertyChange("version", oldValue, newValue);
+        firePropertyChange(VERSION_PROPERTY, oldValue, newValue);
     }
     
     public String getVersion() {
@@ -65,7 +71,7 @@ public class DefaultApplicationModel
     public void setCopyright(String newValue) {
         String oldValue = copyright;
         copyright = newValue;
-        firePropertyChange("copyright", oldValue, newValue);
+        firePropertyChange(COPYRIGHT_PROPERTY, oldValue, newValue);
     }
     
     public String getCopyright() {
@@ -74,41 +80,41 @@ public class DefaultApplicationModel
     /**
      * Use this method for best application startup performance.
      */
-    public void setProjectClassName(String newValue) {
-        String oldValue = projectClassName;
-        projectClassName = newValue;
-        firePropertyChange("projectClassName", oldValue, newValue);
+    public void setViewClassName(String newValue) {
+        String oldValue = viewClassName;
+        viewClassName = newValue;
+        firePropertyChange(VIEW_CLASS_NAME_PROPERTY, oldValue, newValue);
     }
     
     /**
-     * Use this method only, if setProjectClassName() does not suit you.
+     * Use this method only, if setViewClassName() does not suit you.
      */
-    public void setProjectClass(Class newValue) {
-        Class oldValue = projectClass;
-        projectClass = newValue;
-        firePropertyChange("projectClass", oldValue, newValue);
+    public void setViewClass(Class newValue) {
+        Class oldValue = viewClass;
+        viewClass = newValue;
+        firePropertyChange(VIEW_CLASS_PROPERTY, oldValue, newValue);
     }
     
-    public Class getProjectClass() {
-        if (projectClass == null) {
-            if (projectClassName != null) {
+    public Class getViewClass() {
+        if (viewClass == null) {
+            if (viewClassName != null) {
                 try {
-                    projectClass = Class.forName(projectClassName);
+                    viewClass = Class.forName(viewClassName);
                 } catch (Exception e) {
-                    InternalError error = new InternalError("unable to get project class");
+                    InternalError error = new InternalError("unable to get view class");
                     error.initCause(e);
                     throw error;
                 }
             }
         }
-        return projectClass;
+        return viewClass;
     }
     
-    public Project createProject() {
+    public View createView() {
         try {
-            return (Project) getProjectClass().newInstance();
+            return (View) getViewClass().newInstance();
         } catch (Exception e) {
-            InternalError error = new InternalError("unable to create project");
+            InternalError error = new InternalError("unable to create view");
             error.initCause(e);
             throw error;
         }
@@ -128,8 +134,8 @@ public class DefaultApplicationModel
      * <li>Paste</li>
      * </ul>
      */
-    public List<JToolBar> createToolBars(Application app, Project p) {
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.app.Labels");
+    public List<JToolBar> createToolBars(Application app, View p) {
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
         
         JToolBar tb = new JToolBar();
         tb.setName(labels.getString("standardToolBarTitle"));
@@ -167,13 +173,13 @@ public class DefaultApplicationModel
         list.add(tb);
         return list;
     }
-    public List<JMenu> createMenus(Application a, Project p) {
+    public List<JMenu> createMenus(Application a, View p) {
         LinkedList<JMenu> list = new LinkedList<JMenu>();
         list.add(createEditMenu(a, p));
         return list;
     }
-    protected JMenu createEditMenu(Application a, Project p) {
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.app.Labels");
+    protected JMenu createEditMenu(Application a, View p) {
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
         
         JMenu m;
         JMenuItem mi;
@@ -205,7 +211,7 @@ public class DefaultApplicationModel
         return m;
     }
     
-    public void initProject(Application a, Project p) {
+    public void initView(Application a, View p) {
     }
     
     public void initApplication(Application a) {

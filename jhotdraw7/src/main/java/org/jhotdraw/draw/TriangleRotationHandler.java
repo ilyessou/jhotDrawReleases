@@ -2,15 +2,14 @@
  * @(#)TriangleRotationHandler.java  1.0  June 11, 2006
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
-�
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw;
@@ -80,7 +79,10 @@ public class TriangleRotationHandler extends AbstractHandle {
     protected Rectangle basicGetBounds() {
         Point p = view.drawingToView(getLocation());
         Rectangle r = new Rectangle(p);
-        r.grow(getHandlesize() / 2, getHandlesize() / 2);
+        int h = getHandlesize();
+        r.x -= h / 2;
+        r.y -= h / 2;
+        r.width = r.height = h;
         return r;
     }
     
@@ -125,14 +127,18 @@ public class TriangleRotationHandler extends AbstractHandle {
         ORIENTATION.set(getOwner(), newValue);
         updateBounds();
     }
+    @Override
     public void draw(Graphics2D g) {
-        drawDiamond(g, Color.yellow, Color.black);
+        drawDiamond(g, 
+                (Color) getEditor().getHandleAttribute(HandleAttributeKeys.ATTRIBUTE_HANDLE_FILL_COLOR),
+                (Color) getEditor().getHandleAttribute(HandleAttributeKeys.ATTRIBUTE_HANDLE_STROKE_COLOR)
+                );
     }
     
     public void trackEnd(Point anchor, Point lead, int modifiersEx) {
         if (newValue != oldValue) {
             fireUndoableEditHappened(
-                    new AttributeChangeEdit(getOwner(), ORIENTATION, oldValue, newValue)
+                    new AttributeChangeEdit<AttributeKeys.Orientation>(getOwner(), ORIENTATION, oldValue, newValue)
                     );
         }
     }

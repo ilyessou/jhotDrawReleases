@@ -2,14 +2,14 @@
  * @(#)PertApplet.java  1.0  2006-07-15
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.samples.pert;
@@ -35,7 +35,6 @@ import org.jhotdraw.xml.*;
  * @version 1.0 2006-07-15 Created.
  */
 public class PertApplet extends JApplet {
-    private static String version;
     private final static String NAME = "JHotDraw Pert";
     private PertPanel drawingPanel;
     
@@ -51,24 +50,7 @@ public class PertApplet extends JApplet {
         }
     }
     protected String getVersion() {
-        if (version == null) {
-            BufferedReader r = null;
-            try {
-                r = new BufferedReader(
-                        new InputStreamReader(
-                        getClass().getResourceAsStream("version.txt"), "UTF-8"
-                        )
-                        );
-                version = r.readLine();
-            } catch (Throwable e) {
-                version = "unknown";
-            } finally {
-                if (r != null) try {
-                    r.close();
-                } catch (IOException e) {}
-            }
-        }
-        return version;
+        return PertApplet.class.getPackage().getImplementationVersion();
     }
     
     /**
@@ -180,7 +162,7 @@ public class PertApplet extends JApplet {
                 NanoXMLDOMInput domi = new NanoXMLDOMInput(new PertFactory(), in);
                 setDrawing((Drawing) domi.readObject(0));
             } catch (Throwable e) {
-                getDrawing().clear();
+                getDrawing().removeAllChildren();
                 TextFigure tf = new TextFigure();
                 tf.setText(e.getMessage());
                 tf.setBounds(new Point2D.Double(10,10), new Point2D.Double(100,100));
@@ -218,9 +200,9 @@ public class PertApplet extends JApplet {
     public String getAppletInfo() {
         return NAME +
                 "\nVersion "+getVersion() +
-                "\n\nCopyright 1996-2007 (c) by the authors of JHotDraw" +
+                "\n\nCopyright 1996-2009 (c) by the original authors of JHotDraw and all its contributors" +
                 "\nThis software is licensed under LGPL or" +
-                "\nCreative Commons 2.5 BY";
+                "\nCreative Commons 3.0 BY";
     }
     /** This method is called from within the init() method to
      * initialize the form.

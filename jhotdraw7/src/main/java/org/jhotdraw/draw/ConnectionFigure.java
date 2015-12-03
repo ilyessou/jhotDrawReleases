@@ -2,14 +2,14 @@
  * @(#)ConnectionFigure.java  3.0  2007-05-18
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw;
@@ -20,9 +20,14 @@ import java.util.*;
 import org.jhotdraw.geom.*;
 
 /**
- * A {@code ConnectionFigure} draws a connection between two {@see Connector}s.
+ * A {@code ConnectionFigure} draws a connection between two {@link Connector}s.
  * A ConnectionFigure knows its start and end Connector.
- * A ConnectionFigure can be laid out using a {@see Liner}.
+ * A ConnectionFigure can be laid out using a {@link Liner}.
+ * <p>
+ * Design pattern:<br>
+ * Name: Strategy.<br>
+ * Role: Context.<br>
+ * Partners: {@link Liner} as Strategy.
  *
  * @see Connector
  * @see Liner

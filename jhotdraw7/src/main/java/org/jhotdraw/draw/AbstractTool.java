@@ -1,41 +1,40 @@
 /*
- * @(#)AbstractTool.java  4.0  2007-04-29
+ * @(#)AbstractTool.java  5.0  2007-11-05
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw;
 
-import java.beans.*;
 import javax.swing.*;
 import org.jhotdraw.app.action.*;
+import org.jhotdraw.beans.AbstractBean;
 import org.jhotdraw.draw.action.*;
-import org.jhotdraw.undo.CompositeEdit;
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.event.*;
 import javax.swing.event.*;
-import java.util.*;
 
 /**
  * AbstractTool.
  *
  * @author Werner Randelshofer
- * @version 4.0 2007-04-29 Replaced code in method keyPressed by an InputMap
+ * @version 5.0 2007-11-05 Changed superclass from Object to AbstractBean. 
+ * <br>4.0 2007-04-29 Replaced code in method keyPressed by an InputMap
  * and a ActionMap.
  * <br>3.0 2006-02-15 Updated to handle multiple views.
  * <br>2.0 2006-01-14 Changed to support double precision coordinates.
  * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
  */
-public abstract class AbstractTool implements Tool {
+public abstract class AbstractTool extends AbstractBean implements Tool {
     /**
      * This is set to true, if this is the active tool of the editor.
      */
@@ -83,17 +82,14 @@ public abstract class AbstractTool implements Tool {
     }
     
     public void activate(DrawingEditor editor) {
-        /*
-        if (this.editor != null) {
-            this.editor.removePropertyChangeListener(editorHandler);
-        }*/
         this.editor = editor;
         editorProxy.setTarget(editor);
-         /*
-        if (this.editor != null) {
-            this.editor.addPropertyChangeListener(editorHandler);
-        }*/
         isActive = true;
+        
+        // Repaint all handles
+        for (DrawingView v : editor.getDrawingViews()) {
+            v.repaintHandles();
+        }
     }
     
     public void deactivate(DrawingEditor editor) {
@@ -222,6 +218,7 @@ public abstract class AbstractTool implements Tool {
                 if (al != null) {
                     evt.consume();
                     al.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "tool", evt.getWhen(), evt.getModifiers()));
+                    fireToolDone();
                 }
             }
         }
@@ -235,6 +232,7 @@ public abstract class AbstractTool implements Tool {
          m.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0), SelectAllAction.ID);
          m.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK), SelectAllAction.ID);
          m.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.META_DOWN_MASK), SelectAllAction.ID);
+         m.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), IncreaseHandleDetailLevelAction.ID);
          
         m.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), MoveConstrainedAction.West.ID);
         m.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), MoveConstrainedAction.East.ID);
@@ -271,6 +269,7 @@ public abstract class AbstractTool implements Tool {
         
         m.put(DeleteAction.ID, new DeleteAction());
         m.put(SelectAllAction.ID, new SelectAllAction());
+        m.put(IncreaseHandleDetailLevelAction.ID, new IncreaseHandleDetailLevelAction(editorProxy));
          
         m.put(MoveAction.East.ID, new MoveAction.East(editorProxy));
         m.put(MoveAction.West.ID, new MoveAction.West(editorProxy));
@@ -293,9 +292,9 @@ public abstract class AbstractTool implements Tool {
     
     
     public void mouseEntered(MouseEvent evt) {
-        if (! isWorking) {
+        /*if (! isWorking) {
             editor.setActiveView(editor.findView((Container) evt.getSource()));
-        }
+        }*/
     }
     
     public void mouseExited(MouseEvent evt) {
@@ -407,6 +406,11 @@ public abstract class AbstractTool implements Tool {
                 view.setCursor(handle.getCursor());
             } else {
                 Figure figure = view.findFigure(p);
+                Point2D.Double point = view.viewToDrawing(p);
+                Drawing drawing = view.getDrawing();
+                while (figure != null && ! figure.isSelectable()) {
+                    figure = drawing.findFigureBehind(point, figure);
+                }
                 if (figure != null) {
                     view.setCursor(figure.getCursor(view.viewToDrawing(p)));
                 } else {
@@ -416,5 +420,18 @@ public abstract class AbstractTool implements Tool {
         } else {
             view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         }
+    }
+    public String getToolTipText(DrawingView view, MouseEvent evt) {
+        return null;
+    }
+    /**
+     * Returns true, if this tool lets the user interact with handles.
+     * <p>
+     * Handles may draw differently, if interaction is not possible.
+     * 
+     * @return True, if this tool supports interaction with the handles.
+     */
+    public boolean supportsHandleInteraction() {
+        return false;
     }
 }

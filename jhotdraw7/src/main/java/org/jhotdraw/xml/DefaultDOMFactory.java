@@ -2,21 +2,23 @@
  * @(#)DefaultDOMFactory.java  1.0.1  2006-07-05
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.xml;
 
 import java.util.*;
 /**
- * DefaultDOMFactory.
+ * {@code DefaultDOMFactory} can be used to serialize DOMStorable objects
+ * in a DOM with the use of a mapping between Java class names and DOM element
+ * names.
  *
  * @author Werner Randelshofer.
  * @version 1.0.1 2006-07-05 Improved error reporting.
@@ -119,6 +121,7 @@ public class DefaultDOMFactory implements DOMFactory {
         return (enumToValueMap.containsKey(e)) ? enumToValueMap.get(e) : e.toString();
     }
     
+    @SuppressWarnings("unchecked")
     public Enum createEnum(String name, String value) {
         Class enumClass = nameToEnumClassMap.get(name);
         if (enumClass == null) {

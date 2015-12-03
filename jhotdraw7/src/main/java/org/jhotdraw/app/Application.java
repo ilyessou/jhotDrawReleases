@@ -1,15 +1,15 @@
 /*
- * @(#)Application.java  1.0  October 4, 2005
+ * @(#)Application.java  2.0  2007-12-24
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2007 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.app;
@@ -20,9 +20,9 @@ import java.util.*;
 import javax.swing.*;
 import java.io.*;
 /**
- * An Application handles the lifecycle of Projects and provides windows
+ * An Application handles the lifecycle of {@link View}s and provides windows
  * to present them on screen. Depending on the document interface style 
- * used by the Application, the Application can handle multiple Projects 
+ * used by the Application, the Application can handle multiple Views 
  * at the same time, or only one.
  * <p>
  * Typical document interface styles are the Single Document Interface (SDI),
@@ -38,16 +38,22 @@ import java.io.*;
  *         model.setName("MyAppliciation");
  *         model.setVersion("1.0");
  *         model.setCopyright("Copyright 2006 (c) Werner Randelshofer. All Rights Reserved.");
- *         model.setProjectClassName("org.jhotdraw.myapplication.MyProject");
+ *         model.setViewClassName("org.jhotdraw.myapplication.MyView");
  *         app.setModel(model);
  *         app.launch(args);
  *     } 
  * </pre>
  *
  * @author Werner Randelshofer
- * @version 1.0 October 4, 2005 Created.
+ * @version 2.0 2007-12-24 Renamed method getCurrentView to getActiveView. 
+ * <br>1.0 October 4, 2005 Created.
  */
 public interface Application {
+    /**
+     * The property name of the activeView property.
+     */
+    public final static String ACTIVE_VIEW_PROPERTY = "activeView";
+    
     /**
      * Launches the application from the main method.
      * This method is typically invoked on the main Thread.
@@ -70,64 +76,64 @@ public interface Application {
     
     /**
      * Starts the application.
-     * This usually creates a new project, and adds it to the application.
+     * This usually creates a new view, and adds it to the application.
      * <code>init()</code> must have been invoked before the application is started.
      */
     public void start();
     /**
-     * Stops the application without saving any unsaved projects.
+     * Stops the application without saving any unsaved views.
      * <code>init()</code> must have been invoked before the application is stopped.
      */
     public void stop();
     
     /**
-     * Creates a new project for this application.
+     * Creates a new view for this application.
      */
-    public Project createProject();
+    public View createView();
     
     /**
-     * Adds a project to this application.
+     * Adds a view to this application.
      * Fires a "documentCount" property change event.
-     * Invokes method setApplication(this) on the project object.
+     * Invokes method setApplication(this) on the view object.
      */
-    public void add(Project p);
+    public void add(View p);
     
     /**
-     * Removes a project from this application and removes it from the users
+     * Removes a view from this application and removes it from the users
      * view.
      * Fires a "documentCount" property change event.
-     * Invokes method setApplication(null) on the project object.
+     * Invokes method setApplication(null) on the view object.
      */
-    public void remove(Project p);
+    public void remove(View p);
     
     /**
-     * Shows a project.
+     * Shows a view.
      */
-    public void show(Project p);
+    public void show(View p);
     /**
-     * Hides a project.
+     * Hides a view.
      */
-    public void hide(Project p);
+    public void hide(View p);
     
     /**
-     * This is a convenience method for removing a project and disposing it.
+     * This is a convenience method for removing a view and disposing it.
      */
-    public void dispose(Project p);
+    public void dispose(View p);
     
     /**
-     * Returns a read only collection view of the projects of this application.
+     * Returns a read only collection view of the views of this application.
      */
-    public Collection<Project> projects();
+    public Collection<View> views();
     
     /**
-     * Returns the current project. This is used for OSXApplication and 
-     * MDIApplication which share actions among multiple Project instances.
-     * Current project may be become null, if the
-     * application has no project.
+     * Returns the active view. This is used for OSXApplication and 
+     * MDIApplication which share actions among multiple View instances.
+     * Active view may be become null, if the
+     * application has no view.
      * <p>
      * This is a bound property. 
      */
-    public Project getCurrentProject();
+    public View getActiveView();
     
     /**
      * Returns the enabled state of the application.
@@ -186,9 +192,9 @@ public interface Application {
     public ApplicationModel getModel();
     
     /**
-     * Returns true, if this application shares tools among multiple projects.
+     * Returns true, if this application shares tools among multiple views.
      */
-    public boolean isSharingToolsAmongProjects();
+    public boolean isSharingToolsAmongViews();
     
     /**
      * Returns the application component. 
@@ -212,4 +218,25 @@ public interface Application {
      * This fires a property change event for the property "recentFiles".
      */
     public void clearRecentFiles();
+    
+    /**
+     * Adds a palette window to the application.
+     */
+    public void addPalette(Window palette);
+    /**
+     * Removes a palette window from the application.
+     */
+    public void removePalette(Window palette);
+    /**
+     * Adds a (non-palette) window to the application.
+     *
+     * @param window The window.
+     * @param view The View to which this window is associated, or null,
+     * if the window is associated to the application.
+     */
+    public void addWindow(Window window, View view);
+    /**
+     * Removes a (non-palette) window from the application.
+     */
+    public void removeWindow(Window window);
 }

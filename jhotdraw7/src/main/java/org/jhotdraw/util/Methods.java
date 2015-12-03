@@ -2,20 +2,19 @@
  * @(#)Methods.java  1.0.1 2006-06-25
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.util;
 
 import java.lang.reflect.*;
-import org.jhotdraw.gui.JSheet;
 /**
  * Methods contains convenience methods for method invocations using
  * java.lang.reflect.
@@ -24,6 +23,7 @@ import org.jhotdraw.gui.JSheet;
  * @version 1.0.1 2006-06-25 Fixed comments.
  * <br>1.0 September 24, 2005 Created.
  */
+@SuppressWarnings("unchecked")
 public class Methods {
     /**
      * Prevent instance creation.

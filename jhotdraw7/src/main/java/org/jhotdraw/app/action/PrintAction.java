@@ -1,19 +1,19 @@
 /*
- * @(#)PrintAction.java  1.0  January 1, 2007
+ * @(#)PrintAction.java  2.0  2007-07-31
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
-
 package org.jhotdraw.app.action;
 
+import org.jhotdraw.app.PrintableView;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
@@ -26,54 +26,57 @@ import javax.swing.*;
 import org.jhotdraw.app.*;
 import org.jhotdraw.gui.*;
 import org.jhotdraw.util.*;
+
 /**
- * Presents a printer dialog to the user and then prints the Project to the
+ * Presents a printer dialog to the user and then prints the View to the
  * chosen printer.
  * <p>
- * This action requires that the project has the following additional methods:
+ * This action requires that the view implements the PrintableView
+ * interface.
  * <pre>
  * public Pageable createPageable();
  * </pre>
  * <p>
- * The PrintAction invokes this method using Java Reflection. Thus there is
- * no Java Interface that the Project needs to implement.
- *
- * @see org.jhotdraw.draw.DrawingPageable
  *
  * @author Werner Randelshofer
- * @version 1.0 January 1, 2007 Created.
+ * @version 2.0 2007-07-31 Rewritten to use an interface instead of
+ * relying on Java Reflection. 
+ * <br>1.0 January 1, 2007 Created.
  */
-public class PrintAction extends AbstractProjectAction {
-    public final static String ID = "print";
-    
+public class PrintAction extends AbstractViewAction {
+
+    public final static String ID = "file.print";
+
     /** Creates a new instance. */
     public PrintAction(Application app) {
         super(app);
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.app.Labels");
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
         labels.configureAction(this, ID);
     }
-    
+
     public void actionPerformed(ActionEvent evt) {
-        Project project = getCurrentProject();
-        project.setEnabled(false);
-        if (System.getProperty("apple.awt.graphics.UseQuartz","false").equals("true")) {
+        View view = getActiveView();
+        view.setEnabled(false);
+        if (System.getProperty("apple.awt.graphics.UseQuartz", "false").equals("true")) {
             printQuartz();
         } else {
             printJava2D();
         }
-        project.setEnabled(true);
+        view.setEnabled(true);
     }
     /*
      * This prints at 72 DPI only. We might need this for some JVM versions on
      * Mac OS X.*/
+
     public void printJava2D() {
-        Pageable pageable = (Pageable) Methods.invokeGetter(getCurrentProject(), "createPageable", null);
+        Pageable pageable = ((PrintableView) getActiveView()).createPageable();
         if (pageable == null) {
-            throw new InternalError("Project does not have a method named java.awt.Pageable createPageable()");
+            throw new InternalError("View does not have a method named java.awt.Pageable createPageable()");
         }
-        
+
         try {
             PrinterJob job = PrinterJob.getPrinterJob();
+            // FIXME - PrintRequestAttributeSet should be retrieved from View
             PrintRequestAttributeSet attr = new HashPrintRequestAttributeSet();
             attr.add(new PrinterResolution(300, 300, PrinterResolution.DPI));
             job.setPageable(pageable);
@@ -81,10 +84,13 @@ public class PrintAction extends AbstractProjectAction {
                 try {
                     job.print();
                 } catch (PrinterException e) {
-                    ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.app.Labels");
-                    JSheet.showMessageSheet(getCurrentProject().getComponent(),
-                            labels.getFormatted("couldntPrint", e)
-                            );
+                    String message = (e.getMessage() == null) ? e.toString() : e.getMessage();
+                    View view = getActiveView();
+                    ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
+                    JSheet.showMessageSheet(view.getComponent(),
+                            "<html>" + UIManager.getString("OptionPane.css") +
+                            "<b>" + labels.getString("couldntPrint") + "</b><br>" +
+                            ((message == null) ? "" : message));
                 }
             } else {
                 System.out.println("JOB ABORTED!");
@@ -96,12 +102,13 @@ public class PrintAction extends AbstractProjectAction {
     /*
      * This prints at 72 DPI only. We might need this for some JVM versions on
      * Mac OS X.*/
+
     public void printJava2DAlternative() {
-        Pageable pageable = (Pageable) Methods.invokeGetter(getCurrentProject(), "createPageable", null);
+        Pageable pageable = (Pageable) Methods.invokeGetter(getActiveView(), "createPageable", null);
         if (pageable == null) {
-            throw new InternalError("Project does not have a method named java.awt.Pageable createPageable()");
+            throw new InternalError("View does not have a method named java.awt.Pageable createPageable()");
         }
-        
+
         try {
             final PrinterJob job = PrinterJob.getPrinterJob();
             PrintRequestAttributeSet attr = new HashPrintRequestAttributeSet();
@@ -111,10 +118,9 @@ public class PrintAction extends AbstractProjectAction {
                 try {
                     job.print();
                 } catch (PrinterException e) {
-                    ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.app.Labels");
-                    JSheet.showMessageSheet(getCurrentProject().getComponent(),
-                            labels.getFormatted("couldntPrint", e)
-                            );
+                    ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.app.Labels");
+                    JSheet.showMessageSheet(getActiveView().getComponent(),
+                            labels.getFormatted("couldntPrint", e));
                 }
             } else {
                 System.out.println("JOB ABORTED!");
@@ -123,43 +129,43 @@ public class PrintAction extends AbstractProjectAction {
             t.printStackTrace();
         }
     }
-    
+
     /**
      * On Mac OS X with the Quartz rendering engine, the following code achieves
      * the best results.
      */
     public void printQuartz() {
-        Frame frame = (Frame) SwingUtilities.getWindowAncestor(getCurrentProject().getComponent());
-        final Pageable pageable = (Pageable) Methods.invokeGetter(getCurrentProject(), "createPageable", null);
+        Frame frame = (Frame) SwingUtilities.getWindowAncestor(getActiveView().getComponent());
+        final Pageable pageable = (Pageable) Methods.invokeGetter(getActiveView(), "createPageable", null);
         final double resolution = 300d;
         JobAttributes jobAttr = new JobAttributes();
+        // FIXME - PageAttributes should be retrieved from View
         PageAttributes pageAttr = new PageAttributes();
-        // FIXME - Media type should be retrieved from Locale
         pageAttr.setMedia(PageAttributes.MediaType.A4);
         pageAttr.setPrinterResolution((int) resolution);
         final PrintJob pj = frame.getToolkit().getPrintJob(
                 frame,
                 "Job Title",
                 jobAttr,
-                pageAttr
-                );
-        
-        getCurrentProject().setEnabled(false);
+                pageAttr);
+
+        getActiveView().setEnabled(false);
         new Worker() {
+
             public Object construct() {
-                
+
                 // Compute page format from settings of the print job
                 Paper paper = new Paper();
                 paper.setSize(
                         pj.getPageDimension().width / resolution * 72d,
                         pj.getPageDimension().height / resolution * 72d);
-                paper.setImageableArea(64d,32d,paper.getWidth() - 96d, paper.getHeight() - 64);
+                paper.setImageableArea(64d, 32d, paper.getWidth() - 96d, paper.getHeight() - 64);
                 PageFormat pageFormat = new PageFormat();
                 pageFormat.setPaper(paper);
-                
+
                 // Print the job
                 try {
-                    for (int i=0, n=pageable.getNumberOfPages(); i < n; i++) {
+                    for (int i = 0,  n = pageable.getNumberOfPages(); i < n; i++) {
                         PageFormat pf = pageable.getPageFormat(i);
                         pf = pageFormat;
                         Graphics g = pj.getGraphics();
@@ -167,15 +173,14 @@ public class PrintAction extends AbstractProjectAction {
                             pageable.getPrintable(i).print(g, pf, i);
                         } else {
                             BufferedImage buf = new BufferedImage(
-                                    (int) (pf.getImageableWidth() * resolution/ 72d),
+                                    (int) (pf.getImageableWidth() * resolution / 72d),
                                     (int) (pf.getImageableHeight() * resolution / 72d),
-                                    BufferedImage.TYPE_INT_RGB
-                                    );
+                                    BufferedImage.TYPE_INT_RGB);
                             Graphics2D bufG = buf.createGraphics();
-                            
-                            
+
+
                             bufG.setBackground(Color.WHITE);
-                            bufG.fillRect(0,0,buf.getWidth(),buf.getHeight());
+                            bufG.fillRect(0, 0, buf.getWidth(), buf.getHeight());
                             bufG.scale(resolution / 72d, resolution / 72d);
                             bufG.translate(-pf.getImageableX(), -pf.getImageableY());
                             pageable.getPrintable(i).print(bufG, pf, i);
@@ -195,10 +200,21 @@ public class PrintAction extends AbstractProjectAction {
                 }
                 return null;
             }
+
             public void finished(Object value) {
-                getCurrentProject().setEnabled(true);
+                getActiveView().setEnabled(true);
             }
         }.start();
     }
-    
+    /**
+     * Returns true if the action is enabled.
+     * The enabled state of the action depends on the state that has been set
+     * using setEnabled() and on the enabled state of the application.
+     *
+     * @return true if the action is enabled, false otherwise
+     * @see Action#isEnabled
+     */
+    @Override public boolean isEnabled() {
+        return super.isEnabled() && (getActiveView() instanceof PrintableView);
+    }
 }

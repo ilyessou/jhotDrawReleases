@@ -1,17 +1,16 @@
 /*
- * @(#)SVGGroup.java  1.0  July 8, 2006
+ * @(#)SVGGroupFigure.java  1.0.1  2007-07-28
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2007 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
-
 package org.jhotdraw.samples.svg.figures;
 
 import java.awt.*;
@@ -23,58 +22,70 @@ import org.jhotdraw.draw.*;
 import org.jhotdraw.samples.svg.*;
 import org.jhotdraw.xml.*;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.*;
+
 /**
- * SVGGroup.
+ * SVGGroupFigure.
  *
  * @author Werner Randelshofer
- * @version 1.0 July 8, 2006 Created.
+ * @version 1.0.1 2007-07-28 Bounds were not computed correctly. 
+ * <br>1.0 July 8, 2006 Created.
  */
 public class SVGGroupFigure extends GroupFigure implements SVGFigure {
-    private HashMap<AttributeKey, Object> attributes = new HashMap<AttributeKey,Object>();
-    
-    
+
+    private HashMap<AttributeKey, Object> attributes = new HashMap<AttributeKey, Object>();
+
     /** Creates a new instance. */
     public SVGGroupFigure() {
         SVGAttributeKeys.setDefaults(this);
     }
-    
-    @Override public void setAttribute(AttributeKey key, Object value) {
+
+    @Override
+    public <T> void setAttribute(AttributeKey<T> key, T value) {
         if (key == OPACITY) {
+            attributes.put(key, value);
+        } else if (key == LINK || key == LINK_TARGET) {
             attributes.put(key, value);
         } else {
             super.setAttribute(key, value);
         }
         invalidate();
     }
-    @Override public Object getAttribute(AttributeKey name) {
-        return attributes.get(name);
+
+    @Override
+    public <T> T getAttribute(AttributeKey<T> key) {
+        return key.get(attributes);
     }
-    @Override public Map<AttributeKey,Object> getAttributes() {
-        return new HashMap<AttributeKey,Object>(attributes);
+
+    @Override
+    public Map<AttributeKey, Object> getAttributes() {
+        return new HashMap<AttributeKey, Object>(attributes);
     }
+
+    @SuppressWarnings("unchecked")
     public void setAttributes(Map<AttributeKey, Object> map) {
         for (Map.Entry<AttributeKey, Object> entry : map.entrySet()) {
             setAttribute(entry.getKey(), entry.getValue());
         }
     }
-    
-    public void draw(Graphics2D g)  {
+
+    @Override
+    public void draw(Graphics2D g) {
         double opacity = OPACITY.get(this);
         opacity = Math.min(Math.max(0d, opacity), 1d);
         if (opacity != 0d) {
             if (opacity != 1d) {
                 Rectangle2D.Double drawingArea = getDrawingArea();
-                
+
                 Rectangle2D clipBounds = g.getClipBounds();
                 if (clipBounds != null) {
                     Rectangle2D.intersect(drawingArea, clipBounds, drawingArea);
                 }
-                
-                if (! drawingArea.isEmpty()) {
-                    
+
+                if (!drawingArea.isEmpty()) {
+
                     BufferedImage buf = new BufferedImage(
-                            (int) ((2 + drawingArea.width) * g.getTransform().getScaleX()),
-                            (int) ((2 + drawingArea.height) * g.getTransform().getScaleY()),
+                            Math.max(1, (int) ((2 + drawingArea.width) * g.getTransform().getScaleX())),
+                            Math.max(1, (int) ((2 + drawingArea.height) * g.getTransform().getScaleY())),
                             BufferedImage.TYPE_INT_ARGB);
                     Graphics2D gr = buf.createGraphics();
                     gr.scale(g.getTransform().getScaleX(), g.getTransform().getScaleY());
@@ -93,34 +104,65 @@ public class SVGGroupFigure extends GroupFigure implements SVGFigure {
             }
         }
     }
-    
-    
-    @Override public LinkedList<Handle> createHandles(int detailLevel) {
+
+    public Rectangle2D.Double getBounds() {
+        if (cachedBounds == null) {
+            if (getChildCount() == 0) {
+                cachedBounds = new Rectangle2D.Double();
+            } else {
+                for (Figure f : children) {
+                    Rectangle2D.Double bounds = f.getBounds();
+                    if (TRANSFORM.get(f) != null) {
+                        bounds.setRect(TRANSFORM.get(f).createTransformedShape(bounds).getBounds2D());
+                    }
+                    if (cachedBounds == null || cachedBounds.isEmpty()) {
+                        cachedBounds = bounds;
+                    } else {
+                        cachedBounds.add(bounds);
+                    }
+                }
+            }
+        }
+        return (Rectangle2D.Double) cachedBounds.clone();
+    }
+
+    @Override
+    public LinkedList<Handle> createHandles(int detailLevel) {
         LinkedList<Handle> handles = new LinkedList<Handle>();
-        if (detailLevel == 0) {
-            TransformHandleKit.addTransformHandles(this, handles);
+        switch (detailLevel) {
+            case -1: // Mouse hover handles
+                TransformHandleKit.addGroupHoverHandles(this, handles);
+                break;
+            case 0:
+                TransformHandleKit.addGroupTransformHandles(this, handles);
+                handles.add(new LinkHandle(this));
+                break;
         }
         return handles;
     }
-    
-    @Override final public void write(DOMOutput out) throws IOException {
+
+    @Override
+    final public void write(DOMOutput out) throws IOException {
         throw new UnsupportedOperationException("Use SVGStorableOutput to write this Figure.");
     }
-    @Override final public void read(DOMInput in) throws IOException {
+
+    @Override
+    final public void read(DOMInput in) throws IOException {
         throw new UnsupportedOperationException("Use SVGStorableInput to read this Figure.");
     }
+
     public boolean isEmpty() {
         return getChildCount() == 0;
     }
-    
+
     public String toString() {
         StringBuilder buf = new StringBuilder();
-        buf.append(getClass().getName().substring(getClass().getName().lastIndexOf('.')+1));
+        buf.append(getClass().getName().substring(getClass().getName().lastIndexOf('.') + 1));
         buf.append('@');
         buf.append(hashCode());
         if (getChildCount() > 0) {
             buf.append('(');
-            for (Iterator<Figure> i = getChildren().iterator(); i.hasNext(); ) {
+            for (Iterator<Figure> i = getChildren().iterator(); i.hasNext();) {
                 Figure child = i.next();
                 buf.append(child);
                 if (i.hasNext()) {
@@ -131,9 +173,10 @@ public class SVGGroupFigure extends GroupFigure implements SVGFigure {
         }
         return buf.toString();
     }
+
     public SVGGroupFigure clone() {
         SVGGroupFigure that = (SVGGroupFigure) super.clone();
-        that.attributes = new HashMap<AttributeKey,Object>(this.attributes);
+        that.attributes = new HashMap<AttributeKey, Object>(this.attributes);
         return that;
     }
 }

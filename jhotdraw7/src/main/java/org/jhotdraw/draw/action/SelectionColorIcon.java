@@ -2,14 +2,14 @@
  * @(#)SelectionColorIcon.java  2.1  2007-05-03
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw.action;
@@ -28,7 +28,7 @@ import org.jhotdraw.geom.*;
  * If now figures are selcted, the specified color is taken from the DrawingEditor.
  * <p>
  * The behavior for choosing the drawn color matches with
- * {@see SelectionColorChooserAction }.
+ * {@link SelectionColorChooserAction }.
  * 
  * @author Werner Randelshofer
  * @version 2.1 2007-05-03 Added parameters for setting the color rect.
@@ -68,6 +68,7 @@ public class SelectionColorIcon extends javax.swing.ImageIcon {
         this.colorShape = colorShape;
     }
     
+    @Override
     public void paintIcon(java.awt.Component c, java.awt.Graphics gr, int x, int y) {
         Graphics2D g = (Graphics2D) gr;
         super.paintIcon(c, g, x, y);

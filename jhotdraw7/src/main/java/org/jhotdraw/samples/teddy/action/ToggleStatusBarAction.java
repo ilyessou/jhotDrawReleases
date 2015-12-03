@@ -1,15 +1,15 @@
 /*
  * @(#)ToggleStatusBarAction.java  1.0  October 1, 2005
  *
- * Copyright (c) 2005 Werner Randelshofer
- * Staldenmattweg 2, Immensee, CH-6405, Switzerland.
+ * Copyright (c) 2005 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * Werner Randelshofer. ("Confidential Information").  You shall not
- * disclose such Confidential Information and shall use it only in
- * accordance with the terms of the license agreement you entered into
- * with Werner Randelshofer.
+ * The copyright of this software is owned by the authors and
+ * contributors of the JHotDraw project ("the copyright holders").
+ * You may not use, copy or modify this software, except in
+ * accordance with the license agreement you entered into with
+ * the copyright holders. For details see accompanying license terms.
  */
 
 package org.jhotdraw.samples.teddy.action;
@@ -18,11 +18,7 @@ import org.jhotdraw.app.*;
 import org.jhotdraw.app.action.*;
 import org.jhotdraw.samples.teddy.*;
 import org.jhotdraw.util.*;
-import java.awt.*;
 import java.awt.event.*;
-import java.beans.*;
-import javax.swing.*;
-import javax.swing.event.*;
 
 /**
  * ToggleStatusBarAction.
@@ -30,9 +26,9 @@ import javax.swing.event.*;
  * @author  Werner Randelshofer
  * @version 1.0 October 1, 2005 Created.
  */
-public class ToggleStatusBarAction extends AbstractProjectAction {
-    public final static String ID = "showStatusBar";
-    private ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.samples.teddy.Labels");
+public class ToggleStatusBarAction extends AbstractViewAction {
+    public final static String ID = "view.toggleStatusBar";
+    private ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.samples.teddy.Labels");
     /**
      * Creates a new instance.
      */
@@ -42,19 +38,21 @@ public class ToggleStatusBarAction extends AbstractProjectAction {
         setPropertyName("statusBarVisible");
     }
     
-    public TeddyProject getCurrentProject() {
-        return (TeddyProject) super.getCurrentProject();
+    @Override
+    public TeddyView getActiveView() {
+        return (TeddyView) super.getActiveView();
     }
     
-    protected void updateProperty() {
+    @Override
+    protected void updateView() {
         putValue(
                Actions.SELECTED_KEY, 
-               getCurrentProject() != null && getCurrentProject().isStatusBarVisible()
+               getActiveView() != null && getActiveView().isStatusBarVisible()
                );
     }
     
     public void actionPerformed(ActionEvent e) {
-        getCurrentProject().setStatusBarVisible(! getCurrentProject().isStatusBarVisible());
+        getActiveView().setStatusBarVisible(! getActiveView().isStatusBarVisible());
     }
 }
 

@@ -1,15 +1,15 @@
 /*
- * @(#)SVGZInputFormat.java  1.0  February 7, 2007
+ * @(#)SVGZInputFormat.java  1.1  2008-05-24
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.samples.svg.io;
@@ -24,7 +24,8 @@ import org.jhotdraw.io.*;
  * SVGZInputFormat supports reading of uncompressed and compressed SVG images.
  *
  * @author Werner Randelshofer
- * @version 1.0 February 7, 2007 Created.
+ * @version 1.1 2008-05-24 Adapted to changes in InputFormat. 
+ * <br>1.0 February 7, 2007 Created.
  */
 public class SVGZInputFormat extends SVGInputFormat {
     
@@ -36,16 +37,16 @@ public class SVGZInputFormat extends SVGInputFormat {
         return new ExtensionFileFilter("Scalable Vector Graphics (SVG, SVGZ)", new String[] {"svg", "svgz"});
     }
     
-    @Override public void read(InputStream in, Drawing drawing) throws IOException {
+    @Override public void read(InputStream in, Drawing drawing, boolean replace) throws IOException {
         BufferedInputStream bin = (in instanceof BufferedInputStream) ? (BufferedInputStream) in : new BufferedInputStream(in);
         bin.mark(2);
         int magic = (bin.read() & 0xff) | ((bin.read() & 0xff) << 8);
         bin.reset();
         
         if (magic == GZIPInputStream.GZIP_MAGIC) {
-            super.read(new GZIPInputStream(bin), drawing);
+            super.read(new GZIPInputStream(bin), drawing, replace);
         } else {
-            super.read(bin, drawing);
+            super.read(bin, drawing, replace);
         }
         
     }

@@ -1,29 +1,25 @@
 /*
- * @(#)AlignAction.java  2.0  2006-01-15
+ * @(#)AlignAction.java  2.1  2008-02-27
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw.action;
 
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.Figure;
-import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.TransformEdit;
 import org.jhotdraw.undo.CompositeEdit;
-import javax.swing.*;
-import java.awt.*;
 import java.awt.geom.*;
 import java.util.*;
-import javax.swing.undo.*;
 import org.jhotdraw.util.ResourceBundleUtil;
 
 /**
@@ -32,7 +28,8 @@ import org.jhotdraw.util.ResourceBundleUtil;
  * XXX - Fire edit events
  *
  * @author  Werner Randelshofer
- * @version 2.0 2006-01-15 Changed to support double precision coordinates.
+ * @version 2.1 2008-02-27 Only align figures which are transformable. 
+ * <br>2.0 2006-01-15 Changed to support double precision coordinates.
  * <br>1.0 17. March 2004  Created.
  */
 public abstract class AlignAction extends AbstractSelectedAction {
@@ -51,7 +48,7 @@ public abstract class AlignAction extends AbstractSelectedAction {
         }
     }
     public void actionPerformed(java.awt.event.ActionEvent e) {
-        CompositeEdit edit = new CompositeEdit(labels.getString("align"));
+        CompositeEdit edit = new CompositeEdit(labels.getString("edit.align.text"));
         fireUndoableEditHappened(edit);
         alignFigures(getView().getSelectedFigures(), getSelectionBounds());
         fireUndoableEditHappened(edit);
@@ -77,17 +74,18 @@ public abstract class AlignAction extends AbstractSelectedAction {
     public static class North extends AlignAction {
         public North(DrawingEditor editor) {
             super(editor);
-            labels.configureAction(this, "alignNorth");
+            labels.configureAction(this, "edit.alignNorth");
         }
         public North(DrawingEditor editor, ResourceBundleUtil labels) {
             super(editor);
-            labels.configureAction(this, "alignNorth");
+            labels.configureAction(this, "edit.alignNorth");
         }
         
         protected void alignFigures(Collection selectedFigures, Rectangle2D.Double selectionBounds) {
             double y = selectionBounds.y;
             for (Iterator i=getView().getSelectedFigures().iterator(); i.hasNext(); ) {
                 Figure f = (Figure) i.next();
+                if (f.isTransformable()) {
                 f.willChange();
                 Rectangle2D.Double b = f.getBounds();
                 AffineTransform tx = new AffineTransform();
@@ -95,23 +93,25 @@ public abstract class AlignAction extends AbstractSelectedAction {
                 f.transform(tx);
                  f.changed();
                 fireUndoableEditHappened(new TransformEdit(f, tx));
+                }
            }
         }
     }
     public static class East extends AlignAction {
         public East(DrawingEditor editor) {
             super(editor);
-            labels.configureAction(this, "alignEast");
+            labels.configureAction(this, "edit.alignEast");
         }
         public East(DrawingEditor editor, ResourceBundleUtil labels) {
             super(editor);
-            labels.configureAction(this, "alignEast");
+            labels.configureAction(this, "edit.alignEast");
         }
         
         protected void alignFigures(Collection selectedFigures, Rectangle2D.Double selectionBounds) {
             double x = selectionBounds.x + selectionBounds.width;
             for (Iterator i=getView().getSelectedFigures().iterator(); i.hasNext(); ) {
                 Figure f = (Figure) i.next();
+                if (f.isTransformable()) {
                 f.willChange();
                 Rectangle2D.Double b = f.getBounds();
                 AffineTransform tx = new AffineTransform();
@@ -119,23 +119,25 @@ public abstract class AlignAction extends AbstractSelectedAction {
                 f.transform(tx);
                  f.changed();
                 fireUndoableEditHappened(new TransformEdit(f, tx));
+                }
            }
         }
     }
     public static class West extends AlignAction {
         public West(DrawingEditor editor) {
             super(editor);
-            labels.configureAction(this, "alignWest");
+            labels.configureAction(this, "edit.alignWest");
         }
         public West(DrawingEditor editor, ResourceBundleUtil labels) {
             super(editor);
-            labels.configureAction(this, "alignWest");
+            labels.configureAction(this, "edit.alignWest");
         }
         
         protected void alignFigures(Collection selectedFigures, Rectangle2D.Double selectionBounds) {
             double x = selectionBounds.x;
             for (Iterator i=getView().getSelectedFigures().iterator(); i.hasNext(); ) {
                 Figure f = (Figure) i.next();
+                if (f.isTransformable()) {
                 f.willChange();
                 Rectangle2D.Double b = f.getBounds();
                 AffineTransform tx = new AffineTransform();
@@ -143,23 +145,25 @@ public abstract class AlignAction extends AbstractSelectedAction {
                 f.transform(tx);
                 f.changed();
                 fireUndoableEditHappened(new TransformEdit(f, tx));
+                }
             }
         }
     }
     public static class South extends AlignAction {
         public South(DrawingEditor editor) {
             super(editor);
-            labels.configureAction(this, "alignSouth");
+            labels.configureAction(this, "edit.alignSouth");
         }
         public South(DrawingEditor editor, ResourceBundleUtil labels) {
             super(editor);
-            labels.configureAction(this, "alignSouth");
+            labels.configureAction(this, "edit.alignSouth");
         }
         
         protected void alignFigures(Collection selectedFigures, Rectangle2D.Double selectionBounds) {
             double y = selectionBounds.y + selectionBounds.height;
             for (Iterator i=getView().getSelectedFigures().iterator(); i.hasNext(); ) {
                 Figure f = (Figure) i.next();
+                if (f.isTransformable()) {
                 f.willChange();
                 Rectangle2D.Double b = f.getBounds();
                 AffineTransform tx = new AffineTransform();
@@ -167,23 +171,25 @@ public abstract class AlignAction extends AbstractSelectedAction {
                 f.transform(tx);
                 f.changed();
                 fireUndoableEditHappened(new TransformEdit(f, tx));
+                }
             }
         }
     }
     public static class Vertical extends AlignAction {
         public Vertical(DrawingEditor editor) {
             super(editor);
-            labels.configureAction(this, "alignVertical");
+            labels.configureAction(this, "edit.alignVertical");
         }
         public Vertical(DrawingEditor editor, ResourceBundleUtil labels) {
             super(editor);
-            labels.configureAction(this, "alignVertical");
+            labels.configureAction(this, "edit.alignVertical");
         }
         
         protected void alignFigures(Collection selectedFigures, Rectangle2D.Double selectionBounds) {
             double y = selectionBounds.y + selectionBounds.height / 2;
             for (Iterator i=getView().getSelectedFigures().iterator(); i.hasNext(); ) {
                 Figure f = (Figure) i.next();
+                if (f.isTransformable()) {
                 f.willChange();
                 Rectangle2D.Double b = f.getBounds();
                 AffineTransform tx = new AffineTransform();
@@ -191,23 +197,25 @@ public abstract class AlignAction extends AbstractSelectedAction {
                 f.transform(tx);
                 f.changed();
                 fireUndoableEditHappened(new TransformEdit(f, tx));
+                }
             }
         }
     }
     public static class Horizontal extends AlignAction {
         public Horizontal(DrawingEditor editor) {
             super(editor);
-            labels.configureAction(this, "alignHorizontal");
+            labels.configureAction(this, "edit.alignHorizontal");
         }
         public Horizontal(DrawingEditor editor, ResourceBundleUtil labels) {
             super(editor);
-            labels.configureAction(this, "alignHorizontal");
+            labels.configureAction(this, "edit.alignHorizontal");
         }
         
         protected void alignFigures(Collection selectedFigures, Rectangle2D.Double selectionBounds) {
             double x = selectionBounds.x + selectionBounds.width / 2;
             for (Iterator i=getView().getSelectedFigures().iterator(); i.hasNext(); ) {
                 Figure f = (Figure) i.next();
+                if (f.isTransformable()) {
                 f.willChange();
                 Rectangle2D.Double b = f.getBounds();
                 AffineTransform tx = new AffineTransform();
@@ -215,6 +223,7 @@ public abstract class AlignAction extends AbstractSelectedAction {
                 f.transform(tx);
                 f.changed();
                 fireUndoableEditHappened(new TransformEdit(f, tx));
+                }
             }
         }
     }

@@ -2,14 +2,14 @@
  * @(#)FloatingPaletteHandler.java  1.1  2006-06-11
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.app;
@@ -20,8 +20,8 @@ import java.util.prefs.*;
 import javax.swing.*;
 import java.util.*;
 /**
- * Hides all registered floating palettes, if none of the registered project
- * windows has focus anymore.
+ * Hides all registered floating palettes, if none of the registered view
+ * windows have focus anymore.
  *
  * @author Werner Randelshofer
  * @version 1.1 2006-06-11 Palettes can now be any subclass of java.awt.Window.
@@ -29,7 +29,7 @@ import java.util.*;
  */
 public class OSXPaletteHandler {
     private HashSet<Window> palettes = new HashSet<Window>();
-    private HashMap<Window,Project> windows = new HashMap<Window,Project>();
+    private HashMap<Window,View> windows = new HashMap<Window,View>();
     private static OSXPaletteHandler instance;
     private javax.swing.Timer timer;
     private DefaultOSXApplication app;
@@ -41,8 +41,8 @@ public class OSXPaletteHandler {
          */
         public void windowGainedFocus(WindowEvent e) {
             timer.stop();
-            if (windows.containsKey(e.getWindow())) {
-                app.setCurrentProject((Project) windows.get(e.getWindow()));
+            if (windows.get(e.getWindow()) != null) {
+                app.setActiveView((View) windows.get(e.getWindow()));
                 showPalettes();
             }
         }
@@ -68,12 +68,12 @@ public class OSXPaletteHandler {
         timer.setRepeats(false);
     }
     
-    public void add(Window window, Project project) {
+    public void add(Window window, View view) {
         window.addWindowFocusListener(focusHandler);
-        windows.put(window, project);
+        windows.put(window, view);
     }
     
-    public void remove(Window window, Project project) {
+    public void remove(Window window) {
         windows.remove(window);
         window.removeWindowFocusListener(focusHandler);
     }
@@ -131,5 +131,14 @@ public class OSXPaletteHandler {
                 palette.setVisible(false);
             }
         }
+    }
+
+    public void addWindow(Window window) {
+        window.addWindowFocusListener(focusHandler);
+        windows.put(window, null);
+    }
+    public void removeWindow(Window window) {
+        windows.remove(window);
+        window.removeWindowFocusListener(focusHandler);
     }
 }

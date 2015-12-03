@@ -1,15 +1,15 @@
 /*
- * @(#)DOMStorableOutputFormat.java  1.0  December 26, 2006
+ * @(#)DOMStorableOutputFormat.java  1.2  2008-05-24
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw;
@@ -19,18 +19,28 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.*;
 import java.net.URL;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.JComponent;
 import org.jhotdraw.gui.datatransfer.InputStreamTransferable;
 import org.jhotdraw.io.*;
 import org.jhotdraw.xml.*;
+
 /**
  * An OutputFormat that can write Drawings with DOMStorable Figure's.
+ * <p>
+ * This class is here to support quick-and-dirty implementations of drawings
+ * that can be read and written from/to output streams. For example, in student
+ * projects.
+ * <p>
+ * This class should no be used as a means to implement long-term storage of
+ * drawings, since it does not support structural changes that might occur in
+ * drawing application over time.
  *
  * @author Werner Randelshofer
- * @version 1.0 December 26, 2006 Created.
+ * @version 1.2 2008-05-24 Adapted to changes in InputFormat. 
+ * <br>1.1 2007-12-16 Adapted to changes in InputFormat and OutputFormat.
+ * <br>1.0 December 26, 2006 Created.
  */
 public class DOMStorableInputOutputFormat implements OutputFormat, InputFormat {
     private DOMFactory factory;
@@ -114,7 +124,7 @@ public class DOMStorableInputOutputFormat implements OutputFormat, InputFormat {
         }
         domi.closeElement();
         domi.closeElement();
-        drawing.basicAddAll(drawing.getFigureCount(), figures);
+        drawing.basicAddAll(drawing.getChildCount(), figures);
     }
     
     public String getFileExtension() {
@@ -142,10 +152,14 @@ public class DOMStorableInputOutputFormat implements OutputFormat, InputFormat {
     
     
     public void read(File file, Drawing drawing) throws IOException {
+        read(file, drawing, true);
+    }
+    
+    public void read(File file, Drawing drawing, boolean replace) throws IOException {
         BufferedInputStream in = null;
         try {
             in = new BufferedInputStream(new FileInputStream(file));
-            read(in, drawing);
+            read(in, drawing, replace);
         } finally {
             if (in != null) {
                 in.close();
@@ -153,9 +167,12 @@ public class DOMStorableInputOutputFormat implements OutputFormat, InputFormat {
         }
     }
     
-    public void read(InputStream in, Drawing drawing) throws IOException {
+    public void read(InputStream in, Drawing drawing, boolean replace) throws IOException {
         NanoXMLDOMInput domi = new NanoXMLDOMInput(factory, in);
         domi.openElement(factory.getName(drawing));
+        if (replace) {
+            drawing.removeAllChildren();
+        }
         drawing.read(domi);
         domi.closeElement();
     }
@@ -164,7 +181,7 @@ public class DOMStorableInputOutputFormat implements OutputFormat, InputFormat {
         return flavor.equals(dataFlavor);
     }
     
-    public List<Figure> readFigures(Transferable t) throws UnsupportedFlavorException, IOException {
+    public void read(Transferable t, Drawing drawing, boolean replace) throws UnsupportedFlavorException, IOException {
         LinkedList<Figure> figures = new LinkedList<Figure>();
         InputStream in = (InputStream) t.getTransferData(new DataFlavor(mimeType,description));
         NanoXMLDOMInput domi = new NanoXMLDOMInput(factory, in);
@@ -174,9 +191,12 @@ public class DOMStorableInputOutputFormat implements OutputFormat, InputFormat {
             figures.add(f);
         }
         domi.closeElement();
-        return figures;
+        if (replace) {
+            drawing.removeAllChildren();
+        }
+        drawing.addAll(figures);
     }
-    public Transferable createTransferable(List<Figure> figures, double scaleFactor) throws IOException {
+    public Transferable createTransferable(Drawing drawing, List<Figure> figures, double scaleFactor) throws IOException {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         NanoXMLDOMOutput domo = new NanoXMLDOMOutput(factory);
         domo.openElement("Drawing-Clip");

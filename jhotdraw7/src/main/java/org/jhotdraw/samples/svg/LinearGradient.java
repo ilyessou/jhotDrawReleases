@@ -1,15 +1,15 @@
 /*
- * @(#)LinearGradient.java  1.0  December 9, 2006
+ * @(#)LinearGradient.java  1.0.2  2009-04-17
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2009 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.samples.svg;
@@ -25,7 +25,10 @@ import static org.jhotdraw.samples.svg.SVGAttributeKeys.*;
  * Represents an SVG LinearGradient.
  *
  * @author Werner Randelshofer
- * @version 1.0 December 9, 2006 Created.
+ * @version 1.0.2 2009-04-17 Gracefully handle non-invertible transforms.
+ * <br>1.0.1 2009-03-29 Handle gradients which consist of only a single
+ * stop color, or which have illegal stop offsets.
+ * <br>1.0 December 9, 2006 Created.
  */
 public class LinearGradient implements Gradient {
     private double x1;
@@ -101,20 +104,24 @@ public class LinearGradient implements Gradient {
     }
     
     public Paint getPaint(Figure f, double opacity) {
+        // No stops, like fill = none
         if (stopColors.length == 0) {
-            return new Color(0xa0ff0000,true);
+            return new Color(0x0,true);
         }
         
         // Compute colors and fractions for the paint
         Color[] colors = new Color[stopColors.length];
         float[] fractions = new float[stopColors.length];
+        float previousFraction = 0;
         for (int i=0; i < stopColors.length; i++) {
-            fractions[i] = (float) stopOffsets[i];
+            // Each fraction must be larger or equal the previous fraction.
+            fractions[i] = Math.min(1f, Math.max(previousFraction, (float) stopOffsets[i]));
             colors[i] = new Color(
                     (stopColors[i].getRGB() & 0xffffff) |
                     ((int) (opacity * stopOpacities[i] * 255) << 24),
                     true
                     );
+            previousFraction = fractions[i];
         }
         
         
@@ -131,7 +138,12 @@ public class LinearGradient implements Gradient {
             t.scale(bounds.width, bounds.height);
         }
         
-        // Construct the paint
+        // Construct a solid color, if only one stop color is given, or if
+        // transform is not invertible
+        if (stopColors.length == 1 || t.getDeterminant() == 0) {
+            return colors[0];
+        }
+        // Construct a gradient
         org.apache.batik.ext.awt.LinearGradientPaint gp;
         gp = new org.apache.batik.ext.awt.LinearGradientPaint(
                 p1, p2, fractions, colors,
@@ -143,6 +155,7 @@ public class LinearGradient implements Gradient {
         return gp;
     }
     
+    @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append("LinearGradient@");

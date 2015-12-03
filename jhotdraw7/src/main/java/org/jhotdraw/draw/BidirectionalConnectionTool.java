@@ -2,14 +2,14 @@
  * @(#)BidirectionalConnectionTool.java  2.1  2007-05-18
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw;
@@ -163,10 +163,12 @@ public class BidirectionalConnectionTool extends AbstractTool implements FigureL
         setCreatedFigure(null);
         fireToolDone();
     }
+    @Override
     public void activate(DrawingEditor editor) {
         super.activate(editor);
         getView().clearSelection();
     }
+    @Override
     public void deactivate(DrawingEditor editor) {
         super.deactivate(editor);
     }
@@ -175,12 +177,13 @@ public class BidirectionalConnectionTool extends AbstractTool implements FigureL
      * Creates the ConnectionFigure. By default the figure prototype is
      * cloned.
      */
+    @SuppressWarnings("unchecked")
     protected ConnectionFigure createFigure() {
         ConnectionFigure f = (ConnectionFigure) prototype.clone();
         getEditor().applyDefaultAttributesTo(f);
         if (attributes != null) {
             for (Map.Entry<AttributeKey, Object> entry : attributes.entrySet()) {
-                f.setAttribute(entry.getKey(), entry.getValue());
+                entry.getKey().basicSet(f, entry.getValue());
             }
         }
         return f;
@@ -329,7 +332,7 @@ public class BidirectionalConnectionTool extends AbstractTool implements FigureL
         createdFigure = newCreatedFigure;
     }
     
-    public void figureAreaInvalidated(FigureEvent evt) {
+    public void areaInvalidated(FigureEvent evt) {
         fireAreaInvalidated(evt.getInvalidatedArea());
     }
     
@@ -345,7 +348,7 @@ public class BidirectionalConnectionTool extends AbstractTool implements FigureL
     public void figureRequestRemove(FigureEvent e) {
     }
     
-    public void figureAttributeChanged(FigureEvent e) {
+    public void attributeChanged(FigureEvent e) {
     }
 
     public void figureHandlesChanged(FigureEvent e) {

@@ -1,15 +1,15 @@
 /*
- * @(#)RadialGradient.java  1.0.1  2007-04-10
+ * @(#)RadialGradient.java  1.0.2  2009-04-17
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2009 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.samples.svg;
@@ -25,7 +25,8 @@ import static org.jhotdraw.samples.svg.SVGAttributeKeys.*;
  * Represents an SVG RadialGradient.
  *
  * @author Werner Randelshofer
- * @version 1.0.1 2007-04-10 Radius for gradients which are relative to figure
+ * @version 1.0.2 2009-04-17 Gracefully handle non-invertible transforms.
+ * <br>1.0.1 2007-04-10 Radius for gradients which are relative to figure
  * boudns is computed better.
  * <br>1.0 December 9, 2006 Created.
  */
@@ -116,6 +117,11 @@ public class RadialGradient implements Gradient {
             t.scale(bounds.width, bounds.height);
         }
         
+        // Construct a solid color, if only one stop color is given, or if
+        // transform is not invertible
+        if (stopColors.length == 1 || t.getDeterminant() == 0) {
+            return colors[0];
+        }
         // Construct the paint
         org.apache.batik.ext.awt.RadialGradientPaint gp;
         gp = new org.apache.batik.ext.awt.RadialGradientPaint(

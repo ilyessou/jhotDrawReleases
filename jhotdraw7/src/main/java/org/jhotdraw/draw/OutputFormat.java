@@ -1,15 +1,15 @@
 /*
- * @(#)OutputFormat.java  1.0  December 12, 2006
+ * @(#)OutputFormat.java  2.0  2007-12-16
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2007 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw;
@@ -34,7 +34,9 @@ import javax.swing.filechooser.*;
  * InputFormat to make it easy, to write classes that implement both interfaces.
  *
  * @author Werner Randelshofer
- * @version 1.0 December 12, 2006 Created.
+ * @version 2.0 2007-12-16 Method createTransferable needs Drawing object 
+ * parameter in order to support attributes on the Drawing object.
+ * <br>1.0 December 12, 2006 Created.
  */
 public interface OutputFormat {
     /**
@@ -81,10 +83,11 @@ public interface OutputFormat {
     /**
      * Creates a Transferable for the specified list of Figures.
      *
-     * @param figures The figures.
+     * @param drawing The drawing.
+     * @param figures A list of figures of the drawing.
      * @param scaleFactor The factor to be used, when the Transferable creates
      * an image with a fixed size from the figures.
      * @return The Transferable.
      */
-    public Transferable createTransferable(List<Figure> figures, double scaleFactor) throws IOException;
+    public Transferable createTransferable(Drawing drawing, List<Figure> figures, double scaleFactor) throws IOException;
 }

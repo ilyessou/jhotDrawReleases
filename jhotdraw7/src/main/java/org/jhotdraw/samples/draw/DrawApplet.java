@@ -2,14 +2,14 @@
  * @(#)DrawApplet.java  2.1  2006-07-15
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.samples.draw;
@@ -37,7 +37,6 @@ import org.jhotdraw.xml.*;
  * <br>1.0 Created on 10. Marz 2004, 13:22.
  */
 public class DrawApplet extends JApplet {
-    private static String version;
     private final static String NAME = "JHotDraw Draw";
     private DrawingPanel drawingPanel;
     
@@ -45,6 +44,7 @@ public class DrawApplet extends JApplet {
      * We override getParameter() to make it work even if we have no Applet
      * context.
      */
+    @Override
     public String getParameter(String name) {
         try {
             return super.getParameter(name);
@@ -53,27 +53,11 @@ public class DrawApplet extends JApplet {
         }
     }
     protected String getVersion() {
-        if (version == null) {
-            BufferedReader r = null;
-            try {
-                r = new BufferedReader(
-                        new InputStreamReader(
-                        getClass().getResourceAsStream("version.txt"), "UTF-8"
-                        )
-                        );
-                version = r.readLine();
-            } catch (Throwable e) {
-                version = "unknown";
-            } finally {
-                if (r != null) try {
-                    r.close();
-                } catch (IOException e) {}
-            }
-        }
-        return version;
+        return DrawApplet.class.getPackage().getImplementationVersion();
     }
     
     /** Initializes the applet DrawApplet */
+    @Override
     public void init() {
         // Set look and feel
         // -----------------
@@ -157,22 +141,18 @@ public class DrawApplet extends JApplet {
     /**
      * Configure Drawing object to support copy and paste.
      */
+    @SuppressWarnings("unchecked")
     private void initDrawing(Drawing d) {
-        LinkedList<InputFormat> inputFormats = new LinkedList<InputFormat>();
-        LinkedList<OutputFormat> outputFormats = new LinkedList<OutputFormat>();
-        
+        d.setInputFormats((java.util.List<InputFormat>) Collections.EMPTY_LIST);
+        d.setOutputFormats((java.util.List<OutputFormat>) Collections.EMPTY_LIST);
         DOMStorableInputOutputFormat ioFormat = new DOMStorableInputOutputFormat(
                 new DrawFigureFactory()
                 );
-        inputFormats.add(ioFormat);
-        outputFormats.add(ioFormat);
-        
-        inputFormats.add(new ImageInputFormat(new ImageFigure()));
-        inputFormats.add(new TextInputFormat(new TextFigure()));
-        outputFormats.add(new ImageOutputFormat());
-        
-        d.setInputFormats(inputFormats);
-        d.setOutputFormats(outputFormats);
+        d.addInputFormat(ioFormat);
+        d.addInputFormat(new ImageInputFormat(new ImageFigure()));
+        d.addInputFormat(new TextInputFormat(new TextFigure()));
+        d.addOutputFormat(ioFormat);
+        d.addOutputFormat(new ImageOutputFormat());
     }
     
     
@@ -183,7 +163,7 @@ public class DrawApplet extends JApplet {
                 NanoXMLDOMInput domi = new NanoXMLDOMInput(new DrawFigureFactory(), in);
                 setDrawing((Drawing) domi.readObject(0));
             } catch (Throwable e) {
-                getDrawing().clear();
+                getDrawing().removeAllChildren();
                 TextFigure tf = new TextFigure();
                 tf.setText(e.getMessage());
                 tf.setBounds(new Point2D.Double(10,10), new Point2D.Double(100,100));
@@ -221,9 +201,9 @@ public class DrawApplet extends JApplet {
     public String getAppletInfo() {
         return NAME +
                 "\nVersion "+getVersion() +
-                "\n\nCopyright 2006-2007 (c) by the authors of JHotDraw" +
+                "\n\nCopyright 1996-2009 (c) by the original authors of JHotDraw and all its contributors" +
                 "\nThis software is licensed under LGPL or" +
-                "\nCreative Commons 2.5 BY";
+                "\nCreative Commons 3.0 BY";
     }
     /** This method is called from within the init() method to
      * initialize the form.

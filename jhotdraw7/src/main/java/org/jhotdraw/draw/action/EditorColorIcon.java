@@ -2,14 +2,14 @@
  * @(#)EditorColorIcon.java  2.1  2007-05-03
  *
  * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw.action;
@@ -27,7 +27,7 @@ import org.jhotdraw.geom.*;
  * attribute of the DrawingEditor onto the icon.
  * <p>
  * The behavior for choosing the drawn color matches with
- * {@see EditorColorChooserAction }.
+ * {@link EditorColorChooserAction }.
  * 
  * @author Werner Randelshofer
  * @version 2.1 2007-05-03 Added parameters for setting the color rect. 

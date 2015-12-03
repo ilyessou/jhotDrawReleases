@@ -2,14 +2,14 @@
  * @(#)RestoreDataEdit.java  2.0  2006-01-14
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 
@@ -17,7 +17,6 @@ package org.jhotdraw.draw;
 
 import org.jhotdraw.util.*;
 import javax.swing.undo.*;
-import java.awt.geom.*;
 import java.util.*;
 /**
  * RestoreDataEdit.
@@ -38,25 +37,30 @@ public class RestoreDataEdit extends AbstractUndoableEdit {
         this.oldRestoreData = oldRestoreData;
         this.newRestoreData = figure.getTransformRestoreData();
     }
+    @Override
     public String getPresentationName() {
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.draw.Labels", Locale.getDefault());
-        return labels.getString("transformFigure");
+        ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels", Locale.getDefault());
+        return labels.getString("edit.transform.text");
     }
     
+    @Override
     public boolean addEdit(UndoableEdit anEdit) {
         return false;
     }
     
+    @Override
     public boolean replaceEdit(UndoableEdit anEdit) {
         return false;
     }
     
+    @Override
     public void redo() throws CannotRedoException {
         super.redo();
          figure.willChange();
         figure.restoreTransformTo(newRestoreData);
          figure.changed();
     }
+    @Override
     public void undo() throws CannotUndoException {
         super.undo();
          figure.willChange();

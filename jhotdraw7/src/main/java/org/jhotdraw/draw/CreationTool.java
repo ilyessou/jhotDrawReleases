@@ -1,26 +1,25 @@
 /*
- * @(#)CreationTool.java  2.2  2006-12-14
+ * @(#)CreationTool.java  2.5  2008-05-24
  *
- * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
-
 package org.jhotdraw.draw;
 
 import javax.swing.undo.*;
-import org.jhotdraw.undo.*;
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.event.*;
 import java.util.*;
 import org.jhotdraw.util.*;
+
 /**
  * A tool to create new figures. The figure to be created is specified by a
  * prototype.
@@ -42,66 +41,83 @@ import org.jhotdraw.util.*;
  * Alltough the mouse gestures might be fitting for the creation of a connection,
  * the CreationTool is not suited for the creation of a ConnectionFigure. Use
  * the ConnectionTool for this type of figures instead.
+ * <p>
+ * Design pattern:<br>
+ * Name: Prototype.<br>
+ * Role: Client.<br>
+ * Partners: {@link Figure} as Prototype.
  *
  * @author Werner Randelshofer
- * @version 2.1.1 2006-07-20 Minimal size treshold was enforced too eagerly.
+ * @version 2.4 2008-05-24 Made all private variables protected. Use crosshair
+ * cursor for creation tool.
+ * <br>2.2 2007-08-22 Added property 'toolDoneAfterCreation'.
+ * <br>2.1.1 2006-07-20 Minimal size treshold was enforced too eagerly.
  * <br>2.1 2006-07-15 Changed to create prototype creation from class presentationName.
  * <br>2.0 2006-01-14 Changed to support double precision coordinates.
  * <br>1.0 2003-12-01 Derived from JHotDraw 5.4b1.
  */
 public class CreationTool extends AbstractTool {
+
     /**
      * Attributes to be applied to the created ConnectionFigure.
      * These attributes override the default attributes of the
      * DrawingEditor.
      */
-    private Map<AttributeKey, Object> prototypeAttributes;
-    
+    protected Map<AttributeKey, Object> prototypeAttributes;
     /**
      * A localized name for this tool. The presentationName is displayed by the
      * UndoableEdit.
      */
-    private String presentationName;
+    protected String presentationName;
     /**
      * Treshold for which we create a larger shape of a minimal size.
      */
-    private Dimension minimalSizeTreshold = new Dimension(2,2);
+    protected Dimension minimalSizeTreshold = new Dimension(2, 2);
     /**
      * We set the figure to this minimal size, if it is smaller than the
      * minimal size treshold.
      */
-    private Dimension minimalSize = new Dimension(40,40);
+    protected Dimension minimalSize = new Dimension(40, 40);
     /**
      * The prototype for new figures.
      */
-    private Figure prototype;
+    protected Figure prototype;
     /**
      * The created figure.
      */
     protected Figure createdFigure;
-    
+    /**
+     * If this is set to false, the CreationTool does not fire toolDone
+     * after a new Figure has been created. This allows to create multiple
+     * figures consecutively.
+     */
+    private boolean isToolDoneAfterCreation = true;
+
     /** Creates a new instance. */
     public CreationTool(String prototypeClassName) {
         this(prototypeClassName, null, null);
     }
+
     public CreationTool(String prototypeClassName, Map<AttributeKey, Object> attributes) {
         this(prototypeClassName, attributes, null);
     }
+
     public CreationTool(String prototypeClassName, Map<AttributeKey, Object> attributes, String name) {
         try {
             this.prototype = (Figure) Class.forName(prototypeClassName).newInstance();
         } catch (Exception e) {
-            InternalError error = new InternalError("Unable to create Figure from "+prototypeClassName);
+            InternalError error = new InternalError("Unable to create Figure from " + prototypeClassName);
             error.initCause(e);
             throw error;
         }
         this.prototypeAttributes = attributes;
         if (name == null) {
-            ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.draw.Labels");
-            name = labels.getString("createFigure");
+            ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
+            name = labels.getString("edit.createFigure.text");
         }
         this.presentationName = name;
     }
+
     /** Creates a new instance with the specified prototype but without an
      * attribute set. The CreationTool clones this prototype each time a new
      *  Figure needs to be created. When a new Figure is created, the
@@ -112,6 +128,7 @@ public class CreationTool extends AbstractTool {
     public CreationTool(Figure prototype) {
         this(prototype, null, null);
     }
+
     /** Creates a new instance with the specified prototype but without an
      * attribute set. The CreationTool clones this prototype each time a new
      * Figure needs to be created. When a new Figure is created, the
@@ -126,36 +143,39 @@ public class CreationTool extends AbstractTool {
     public CreationTool(Figure prototype, Map<AttributeKey, Object> attributes) {
         this(prototype, attributes, null);
     }
+
     /**
      * Creates a new instance with the specified prototype and attribute set.
      *
      * @param prototype The prototype used to create a new Figure.
      * @param attributes The CreationTool applies these attributes to the
      * prototype after having applied the default attributes from the DrawingEditor.
-     * @param presentationName The presentationName parameter is currently not used.
-     * @deprecated This constructor might go away, because the presentationName parameter
+     * @param name The name parameter is currently not used.
+     * @deprecated This constructor might go away, because the name parameter
      * is not used.
      */
     public CreationTool(Figure prototype, Map<AttributeKey, Object> attributes, String name) {
         this.prototype = prototype;
         this.prototypeAttributes = attributes;
         if (name == null) {
-            ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.draw.Labels");
-            name = labels.getString("createFigure");
+            ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels");
+            name = labels.getString("edit.createFigure.text");
         }
         this.presentationName = name;
     }
-    
+
     public Figure getPrototype() {
         return prototype;
     }
-    
+
+    @Override
     public void activate(DrawingEditor editor) {
         super.activate(editor);
         //getView().clearSelection();
-        //getView().setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+        getView().setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
     }
-    
+
+    @Override
     public void deactivate(DrawingEditor editor) {
         super.deactivate(editor);
         if (getView() != null) {
@@ -168,8 +188,7 @@ public class CreationTool extends AbstractTool {
             createdFigure = null;
         }
     }
-    
-    
+
     public void mousePressed(MouseEvent evt) {
         super.mousePressed(evt);
         getView().clearSelection();
@@ -180,24 +199,26 @@ public class CreationTool extends AbstractTool {
         createdFigure.setBounds(p, p);
         getDrawing().add(createdFigure);
     }
-    
+
     public void mouseDragged(MouseEvent evt) {
         if (createdFigure != null) {
             Point2D.Double p = constrainPoint(new Point(evt.getX(), evt.getY()));
             createdFigure.willChange();
             createdFigure.setBounds(
                     constrainPoint(new Point(anchor.x, anchor.y)),
-                    p
-                    );
+                    p);
             createdFigure.changed();
         }
     }
+
     public void mouseReleased(MouseEvent evt) {
         if (createdFigure != null) {
             Rectangle2D.Double bounds = createdFigure.getBounds();
             if (bounds.width == 0 && bounds.height == 0) {
                 getDrawing().remove(createdFigure);
-                fireToolDone();
+                if (isToolDoneAfterCreation()) {
+                    fireToolDone();
+                }
             } else {
                 if (Math.abs(anchor.x - evt.getX()) < minimalSizeTreshold.width &&
                         Math.abs(anchor.y - evt.getY()) < minimalSizeTreshold.height) {
@@ -206,61 +227,98 @@ public class CreationTool extends AbstractTool {
                             constrainPoint(new Point(anchor.x, anchor.y)),
                             constrainPoint(new Point(
                             anchor.x + (int) Math.max(bounds.width, minimalSize.width),
-                            anchor.y + (int) Math.max(bounds.height, minimalSize.height)
-                            ))
-                            );
+                            anchor.y + (int) Math.max(bounds.height, minimalSize.height))));
                     createdFigure.changed();
                 }
-                getView().addToSelection(createdFigure);
                 if (createdFigure instanceof CompositeFigure) {
                     ((CompositeFigure) createdFigure).layout();
                 }
                 final Figure addedFigure = createdFigure;
                 final Drawing addedDrawing = getDrawing();
                 getDrawing().fireUndoableEditHappened(new AbstractUndoableEdit() {
+
                     public String getPresentationName() {
                         return presentationName;
                     }
+
                     public void undo() throws CannotUndoException {
                         super.undo();
                         addedDrawing.remove(addedFigure);
                     }
+
                     public void redo() throws CannotRedoException {
                         super.redo();
                         addedDrawing.add(addedFigure);
                     }
                 });
                 creationFinished(createdFigure);
+                createdFigure = null;
             }
         } else {
-            fireToolDone();
+            if (isToolDoneAfterCreation()) {
+                fireToolDone();
+            }
         }
     }
+
+    @SuppressWarnings("unchecked")
     protected Figure createFigure() {
         Figure f = (Figure) prototype.clone();
         getEditor().applyDefaultAttributesTo(f);
         if (prototypeAttributes != null) {
             for (Map.Entry<AttributeKey, Object> entry : prototypeAttributes.entrySet()) {
-                f.setAttribute(entry.getKey(), entry.getValue());
+                entry.getKey().basicSet(f, entry.getValue());
             }
         }
         return f;
     }
-    
+
     protected Figure getCreatedFigure() {
         return createdFigure;
     }
+
     protected Figure getAddedFigure() {
         return createdFigure;
     }
-    
-    
+
     /**
      * This method allows subclasses to do perform additonal user interactions
      * after the new figure has been created.
      * The implementation of this class just invokes fireToolDone.
      */
     protected void creationFinished(Figure createdFigure) {
-        fireToolDone();
+        if (createdFigure.isSelectable()) {
+            getView().addToSelection(createdFigure);
+        }
+        if (isToolDoneAfterCreation()) {
+            fireToolDone();
+        }
+    }
+
+    /**
+     * If this is set to false, the CreationTool does not fire toolDone
+     * after a new Figure has been created. This allows to create multiple
+     * figures consecutively.
+     */
+    public void setToolDoneAfterCreation(boolean newValue) {
+        boolean oldValue = isToolDoneAfterCreation;
+        isToolDoneAfterCreation = newValue;
+    }
+
+    /**
+     * Returns true, if this tool fires toolDone immediately after a new
+     * figure has been created.
+     */
+    public boolean isToolDoneAfterCreation() {
+        return isToolDoneAfterCreation;
+    }
+
+    @Override
+    public void updateCursor(DrawingView view, Point p) {
+        if (view.isEnabled()) {
+            view.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+        } else {
+            view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        }
     }
 }

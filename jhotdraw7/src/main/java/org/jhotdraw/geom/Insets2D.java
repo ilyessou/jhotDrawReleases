@@ -2,19 +2,20 @@
  * @(#)Insets2D.java  1.0  December 6, 2006
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.geom;
 
 import java.awt.geom.*;
+import java.io.Serializable;
 /**
  * Insets2D.
  *
@@ -23,7 +24,7 @@ import java.awt.geom.*;
  * expectations of people used to the java.awt.geom.xxx2D.Double/xxx2D.Float
  * idioms.
  */
-public abstract class Insets2D implements Cloneable {
+public abstract class Insets2D implements Cloneable, Serializable {
     
     /** Creates a new instance. */
     protected Insets2D() {

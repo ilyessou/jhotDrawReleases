@@ -2,14 +2,14 @@
  * @(#)SelectSameAction.java  1.1  2006-06-05
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw.action;
@@ -26,11 +26,12 @@ import javax.swing.*;
  * <br>1.0 25. November 2003  Created.
  */
 public class SelectSameAction extends AbstractSelectedAction {
-    
+    public final static String ID = "edit.selectSame";
     /** Creates a new instance. */
     public SelectSameAction(DrawingEditor editor) {
         super(editor);
-        putValue(AbstractAction.NAME, labels.getString("editSelectSame"));
+        labels.configureAction(this, ID);
+        //putValue(AbstractAction.NAME, labels.getString("editSelectSame"));
         //  putValue(AbstractAction.MNEMONIC_KEY, labels.getString("editSelectSameMnem"));
     }
     
@@ -43,7 +44,7 @@ public class SelectSameAction extends AbstractSelectedAction {
         for (Figure selected : getView().getSelectedFigures()) {
             selectedClasses.add(selected.getClass());
         }
-        for (Figure f : getDrawing().getFigures()) {
+        for (Figure f : getDrawing().getChildren()) {
             if (selectedClasses.contains(f.getClass())) {
                 getView().addToSelection(f);
             }

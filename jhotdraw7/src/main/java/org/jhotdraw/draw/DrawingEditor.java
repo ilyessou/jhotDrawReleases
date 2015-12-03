@@ -1,21 +1,20 @@
 /*
- * @(#)DrawingEditor.java  2.3 2007-05-29
+ * @(#)DrawingEditor.java  4.0  2009-04-19
  *
- * Copyright (c) 1996-2007 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * Copyright (c) 1996-2008 by the original authors of JHotDraw
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 
 package org.jhotdraw.draw;
 
-import java.awt.event.*;
 import java.awt.*;
 import java.beans.*;
 import java.util.*;
@@ -36,9 +35,26 @@ import java.util.*;
  * there is typically a single DrawingEditor instance for the application. All
  * document windows within the application share a single set of toolbars and 
  * drawing palettes.
+ * <p>
+ * Design pattern:<br>
+ * Name: Mediator.<br>
+ * Role: Mediator.<br>
+ * Partners: {@link DrawingView} as Colleague, {@link Tool} as
+ * Colleague.
+ * <p>
+ * Design pattern:<br>
+ * Name: Proxy.<br>
+ * Role: Subject.<br>
+ * Partners: {@link org.jhotdraw.draw.action.DrawingEditorProxy} as Proxy, {@link DefaultDrawingEditor} as
+ * Real Subject.
  * 
  * @author Werner Randelshofer
- * @version 2.3 2007-05-26 Streamlined methods setActiveView, setFocusedView, getActiveView
+ * @version 4.0 2009-04-18 Made set/getDefaultAttribute methods and
+ * set/getHandleAttribute methods type safe.
+ * <br>3.1 2008-05-23 Added TOOL_PROPERTY.
+ * <br>3.0 2008-05-11 Added methods setHandleAttribute, getHandleAttribute. 
+ * <br>2.4 2007-12-25 Renamed PROP_CURRENT_VIEW to ACTIVE_VIEW_PROPERTY. 
+ * <br>2.3 2007-05-26 Streamlined methods setActiveView, setFocusedView, getActiveView
  * into setActiveView, getActiveView.
  * <br>2.2 2007-04-16 Added method getDefaultAttributes 
  * <br>2.1 2006-03-15 Support for enabled state added.
@@ -47,9 +63,13 @@ import java.util.*;
  */
 public interface DrawingEditor {
     /**
-     * The property name for the active view Property.
+     * The property name for the active view property.
      */
-    public final static String PROP_ACTIVE_VIEW = "activeView";   
+    public final static String ACTIVE_VIEW_PROPERTY = "activeView";   
+    /**
+     * The property name for the active tool property.
+     */
+    public final static String TOOL_PROPERTY = "tool";   
     
     /**
      * Gets the editor's current drawing.
@@ -95,10 +115,14 @@ public interface DrawingEditor {
      * Calls activate on the provided tool.
      * Forwards all mouse, mouse moation and keyboard events that occur on the
      * DrawingView to the provided tool.
+     * <p>
+     * This is a bound property.
      */
     void setTool(Tool t);
     /**
      * Gets the current tool.
+     * <p>
+     * This is a bound property.
      */
     Tool getTool();
     /**
@@ -124,13 +148,13 @@ public interface DrawingEditor {
      * The default attribute will be used by creation tools, to create a new
      * figure.
      */
-    public void setDefaultAttribute(AttributeKey key, Object value);
+    public <T> void setDefaultAttribute(AttributeKey<T> key, T value);
     /**
      * Gets a default attribute from the editor.
      * The default attribute will be used by creation tools, to create a new
      * figure.
      */
-    public Object getDefaultAttribute(AttributeKey key);
+    public <T> T getDefaultAttribute(AttributeKey<T> key);
     /**
      * Applies the default attributes to the specified figure.
      */
@@ -140,6 +164,27 @@ public interface DrawingEditor {
      */
     public Map<AttributeKey,Object> getDefaultAttributes();
      
+    /**
+     * Sets a handle attribute of the editor.
+     * The default attribute will be used by creation tools, to create a new
+     * figure.
+     * 
+     * @param key AttributeKey. 
+     * @param value Attribute value. 
+     */
+    public <T> void setHandleAttribute(AttributeKey<T> key, T value);
+    /**
+     * Gets a handle attribute from the editor.
+     * The default attribute will be used by creation tools, to create a new
+     * figure.
+     * 
+     * @param key AttributeKey. 
+     * 
+     * @return If the handle attribute has been set, returns the previously
+     * set value. If the handle attribute has not been set, returns key.getDefaultValue().
+     */
+    public <T> T getHandleAttribute(AttributeKey<T> key);
+    
      /**
       * Sets the enabled state of the drawing editor.
       * This is a bound property.

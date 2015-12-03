@@ -2,14 +2,14 @@
  * @(#)PickAttributesAction.java  1.1  2007-04-16
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw.action;
@@ -28,7 +28,7 @@ import static org.jhotdraw.draw.AttributeKeys.*;
  * <br>1.0 25. November 2003  Created.
  */
 public class PickAttributesAction extends AbstractSelectedAction {
-    private ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.draw.Labels", Locale.getDefault());
+    private ResourceBundleUtil labels = ResourceBundleUtil.getBundle("org.jhotdraw.draw.Labels", Locale.getDefault());
     
     private Set<AttributeKey> excludedAttributes = new HashSet<AttributeKey>(
             Arrays.asList(new AttributeKey[] { TRANSFORM, TEXT }));
@@ -36,14 +36,13 @@ public class PickAttributesAction extends AbstractSelectedAction {
     /** Creates a new instance. */
     public PickAttributesAction(DrawingEditor editor) {
         super(editor);
-        labels.configureAction(this, "attributesPick");
+        labels.configureAction(this, "edit.pickAttributes");
         setEnabled(true);
     }
     
     /**
      * Set of attributes that is excluded when applying default attributes.
      * By default, the TRANSFORM attribute is excluded.
-     * @see AttributeKeys.TRANSFORM
      */
     public void setExcludedAttributes(Set<AttributeKey> a) {
         this.excludedAttributes = a;
@@ -53,6 +52,7 @@ public class PickAttributesAction extends AbstractSelectedAction {
         pickAttributes();
     }
     
+    @SuppressWarnings("unchecked")
     public void pickAttributes() {
         DrawingEditor editor = getEditor();
         Collection<Figure> selection = getView().getSelectedFigures();

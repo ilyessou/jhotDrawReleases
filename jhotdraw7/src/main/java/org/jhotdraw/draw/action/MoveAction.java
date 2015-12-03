@@ -2,14 +2,14 @@
  * @(#)MoveAction.java  1.0  2004-03-17
  *
  * Copyright (c) 1996-2006 by the original authors of JHotDraw
- * and all its contributors ("JHotDraw.org")
+ * and all its contributors.
  * All rights reserved.
  *
- * This software is the confidential and proprietary information of
- * JHotDraw.org ("Confidential Information"). You shall not disclose
- * such Confidential Information and shall use it only in accordance
- * with the terms of the license agreement you entered into with
- * JHotDraw.org.
+ * The copyright of this software is owned by the authors and  
+ * contributors of the JHotDraw project ("the copyright holders").  
+ * You may not use, copy or modify this software, except in  
+ * accordance with the license agreement you entered into with  
+ * the copyright holders. For details see accompanying license terms. 
  */
 
 package org.jhotdraw.draw.action;
@@ -54,28 +54,28 @@ public abstract class MoveAction extends AbstractSelectedAction {
     }
     
     public static class East extends MoveAction {
-        public final static String ID = "moveEast";
+        public final static String ID = "edit.moveEast";
         public East(DrawingEditor editor) {
             super(editor, 1, 0);
             labels.configureAction(this, ID);
         }
     }
     public static class West extends MoveAction {
-        public final static String ID = "moveWest";
+        public final static String ID = "edit.moveWest";
         public West(DrawingEditor editor) {
             super(editor, -1, 0);
             labels.configureAction(this, ID);
         }
     }
     public static class North extends MoveAction {
-        public final static String ID = "moveNorth";
+        public final static String ID = "edit.moveNorth";
         public North(DrawingEditor editor) {
             super(editor, 0, -1);
             labels.configureAction(this, ID);
         }
     }
     public static class South extends MoveAction {
-        public final static String ID = "moveSouth";
+        public final static String ID = "edit.moveSouth";
         public South(DrawingEditor editor) {
             super(editor, 0, 1);
             labels.configureAction(this, ID);
