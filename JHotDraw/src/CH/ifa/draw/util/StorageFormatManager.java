@@ -13,6 +13,8 @@ package CH.ifa.draw.util;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
+
+import java.io.File;
 import java.util.List;
 import java.util.Iterator;
 
@@ -101,14 +103,51 @@ public class StorageFormatManager {
 	 * @param fileChooser javax.swing.JFileChooser to which FileFilters are added
 	 */
 	public void registerFileFilters(JFileChooser fileChooser) {
-		Iterator formatsIterator = myStorageFormats.iterator();
-		while (formatsIterator.hasNext()) {
-			fileChooser.addChoosableFileFilter(((StorageFormat)formatsIterator.next()).getFileFilter());
-		}
+		if (fileChooser.getDialogType() == JFileChooser.OPEN_DIALOG) {
+			// behavior for open dialogs
+			StorageFormat sf;
+			for (Iterator e = myStorageFormats.iterator(); e.hasNext();) {
+				sf = (StorageFormat) e.next();
+				if (sf.isRestoreFormat()) {
+					fileChooser.addChoosableFileFilter(sf.getFileFilter());
+				}
+			}
 
 		// set a current activated file filter if a default storage Format has been defined
-		if (getDefaultStorageFormat() != null) {
-			fileChooser.setFileFilter(getDefaultStorageFormat().getFileFilter());
+			sf = getDefaultStorageFormat();
+			if (sf != null && sf.isRestoreFormat()) {
+				fileChooser.setFileFilter(sf.getFileFilter());
+			}
+		}
+		else if (fileChooser.getDialogType() == JFileChooser.SAVE_DIALOG) {
+			// behavior for save dialogs
+			StorageFormat sf;
+			for (Iterator e = myStorageFormats.iterator(); e.hasNext();) {
+				sf = (StorageFormat) e.next();
+				if (sf.isStoreFormat()) {
+					fileChooser.addChoosableFileFilter(sf.getFileFilter());
+				}
+			}
+
+			// set a current activated file filter if a default storage Format has been defined
+			sf = getDefaultStorageFormat();
+			if (sf != null && sf.isStoreFormat()) {
+				fileChooser.setFileFilter(sf.getFileFilter());
+			}
+		}
+		else {
+			// old behavior
+			StorageFormat sf;
+			for (Iterator e = myStorageFormats.iterator(); e.hasNext();) {
+				sf = (StorageFormat) e.next();
+				fileChooser.addChoosableFileFilter(sf.getFileFilter());
+			}
+
+			// set a current activated file filter if a default storage Format has been defined
+			sf = getDefaultStorageFormat();
+			if (sf != null) {
+				fileChooser.setFileFilter(sf.getFileFilter());
+			}
 		}
 	}
 
@@ -129,6 +168,26 @@ public class StorageFormatManager {
 			}
 		}
 		
+		return null;
+	}
+
+	/**
+	 * Find a StorageFormat that can be used according to a file object to store a
+	 * Drawing in a file or restore it from a file respectively.
+	 *
+	 * @param file a File object to be matched
+	 * @return StorageFormat, if a matching file extension could be found, <code>null</code>
+	 * otherwise
+	 */
+	public StorageFormat findStorageFormat(File file) {
+		Iterator formatsIterator = myStorageFormats.iterator();
+		StorageFormat currentStorageFormat;
+		while (formatsIterator.hasNext()) {
+			currentStorageFormat = (StorageFormat) formatsIterator.next();
+			if (currentStorageFormat.getFileFilter().accept(file)) {
+				return currentStorageFormat;
+			}
+		}
 		return null;
 	}
 }

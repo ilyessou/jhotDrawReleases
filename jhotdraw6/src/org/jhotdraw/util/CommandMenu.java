@@ -9,9 +9,9 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.util;
+package org.jhotdraw.util;
 
-import CH.ifa.draw.framework.JHotDrawRuntimeException;
+import org.jhotdraw.framework.JHotDrawRuntimeException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -82,7 +82,7 @@ public  class CommandMenu extends JMenu implements ActionListener, CommandListen
 	public synchronized void enable(String name, boolean state) {
 		for (int i = 0; i < getItemCount(); i++) {
 			JMenuItem item = getItem(i);
-			if (name.equals(item.getLabel())) {
+			if (name.equals(item.getText())) {
 				item.setEnabled(state);
 				return;
 			}

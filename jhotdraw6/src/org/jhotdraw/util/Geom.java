@@ -9,7 +9,7 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.util;
+package org.jhotdraw.util;
 
 import java.awt.Rectangle;
 import java.awt.Point;
@@ -47,8 +47,8 @@ public class Geom {
 			return (Math.abs(py - y1) < 3);
 		}
 
-		a = (double)(y1 - y2) / (double)(x1 - x2);
-		b = (double)y1 - a * (double)x1;
+		a = (y1 - y2) / (x1 - x2);
+		b = y1 - a * x1;
 		x = (py - b) / a;
 		y = a * px + b;
 

@@ -1,25 +1,24 @@
 /*
- *  @(#)TextAreaFigure.java
+ * @(#)DisposableResourceManagerFactory.java
  *
- *  Project:		JHotdraw - a GUI framework for technical drawings
- *  http://www.jhotdraw.org
- *  http://jhotdraw.sourceforge.net
- *  Copyright:	© by the original author(s) and all contributors
- *  License:		Lesser GNU Public License (LGPL)
- *  http://www.opensource.org/licenses/lgpl-license.html
+ * Project:		JHotdraw - a GUI framework for technical drawings
+ *				http://www.jhotdraw.org
+ *				http://jhotdraw.sourceforge.net
+ * Copyright:	© by the original author(s) and all contributors
+ * License:		Lesser GNU Public License (LGPL)
+ *				http://www.opensource.org/licenses/lgpl-license.html
  */
-package CH.ifa.draw.contrib.html;
+package org.jhotdraw.contrib.html;
 
 /**
  * DisposableResourceManagerFactory creates DisposableResourceHolders on behalf
  * of requesting clients. It automatically registers the holders with its singleton
  * standard resource manager
  *
- * @author    Eduardo Francos - InContext
- * @created   2 mai 2002
- * @version   1.0
+ * @author  Eduardo Francos - InContext
+ * @created 2 mai 2002
+ * @version <$CURRENT_VERSION$>
  */
-
 public abstract class DisposableResourceManagerFactory {
 
 	/** The default periodicity for resource disposal */
@@ -41,7 +40,6 @@ public abstract class DisposableResourceManagerFactory {
 		return currentManager;
 	}
 
-
 	/**
 	 * Sets the strategy of the DisposableResourceManagerFactory
 	 * class. This is a one shot thing that should be initialized before using it
@@ -52,7 +50,6 @@ public abstract class DisposableResourceManagerFactory {
 	public static void setStrategy(ResourceDisposabilityStrategy strategy) {
 		currentStrategy = strategy;
 	}
-
 
 	/**
 	 * Returns a new standard resource holder already registered with the default
@@ -72,7 +69,6 @@ public abstract class DisposableResourceManagerFactory {
 
 		return holder;
 	}
-
 
 	/** Initializes the standard resource disposal manager */
 	protected static void initManager() {

@@ -9,10 +9,10 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.standard;
+package org.jhotdraw.standard;
 
-import CH.ifa.draw.util.*;
-import CH.ifa.draw.framework.*;
+import org.jhotdraw.util.*;
+import org.jhotdraw.framework.*;
 
 import java.awt.*;
 import java.util.List;
@@ -433,7 +433,7 @@ public abstract class AbstractFigure implements Figure {
 	public void visit(FigureVisitor visitor) {
 		// remember original listener as listeners might be changed by a visitor
 		// (e.g. by calling addToContainer() or removeFromContainer())
-		FigureChangeListener originalListener = listener();
+		//FigureChangeListener originalListener = listener();
 		FigureEnumeration fe = getDependendFigures();
 
 		visitor.visitFigure(this);

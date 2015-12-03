@@ -1,18 +1,17 @@
 /*
- *  @(#)TextAreaFigure.java
+ * @(#)HTMLColorContentProducer.java
  *
- *  Project:		JHotdraw - a GUI framework for technical drawings
- *  http://www.jhotdraw.org
- *  http://jhotdraw.sourceforge.net
- *  Copyright:	© by the original author(s) and all contributors
- *  License:		Lesser GNU Public License (LGPL)
- *  http://www.opensource.org/licenses/lgpl-license.html
+ * Project:		JHotdraw - a GUI framework for technical drawings
+ *				http://www.jhotdraw.org
+ *				http://jhotdraw.sourceforge.net
+ * Copyright:	© by the original author(s) and all contributors
+ * License:		Lesser GNU Public License (LGPL)
+ *				http://www.opensource.org/licenses/lgpl-license.html
  */
 package CH.ifa.draw.contrib.html;
 
 import java.awt.Color;
 import java.io.Serializable;
-import CH.ifa.draw.util.Storable;
 
 /**
  * HTMLColorContentProducer produces RGB color HTML encoded strings.<br>
@@ -22,17 +21,16 @@ import CH.ifa.draw.util.Storable;
  * It can either be specific if set for a specific color, or generic, encoding
  * any color passed to the getContents method.
  *
- * @author    Eduardo Francos - InContext
- * @created   4 mai 2002
- * @version   1.0
+ * @author  Eduardo Francos - InContext
+ * @created 4 mai 2002
+ * @version <$CURRENT_VERSION$>
  */
+public class HTMLColorContentProducer extends ColorContentProducer implements Serializable {
 
-public class HTMLColorContentProducer extends ColorContentProducer
-		 implements Serializable {
-
-	/**Constructor for the HTMLColorContentProducer object */
+	/**
+	 * Constructor for the HTMLColorContentProducer object
+	 */
 	public HTMLColorContentProducer() { }
-
 
 	/**
 	 * Produces the contents for the color

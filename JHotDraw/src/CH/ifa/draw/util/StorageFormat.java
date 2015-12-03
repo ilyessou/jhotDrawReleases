@@ -39,6 +39,22 @@ public interface StorageFormat {
 	public FileFilter getFileFilter();
 	
 	/**
+	 * Every format has to identify itself as able to store and/or restore from
+	 * the format it represents. If the storage format can save to the format, it
+	 * should return true in this method.
+	 * @return boolean <code>true</code> if the format can save
+	 */
+	public boolean isStoreFormat();
+
+	/**
+	 * Every format has to identify itself as able to store and/or restore from
+	 * the format it represents. If the storage format can load from the format,
+	 * it should return true in this method.
+	 * @return boolean <code>true</code> if the format can load
+	 */
+	public boolean isRestoreFormat(); 
+
+	/**
 	 * Store a Drawing under a given name.
 	 *
 	 * @param fileName file name of the Drawing under which it should be stored

@@ -9,15 +9,28 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.figures;
+package org.jhotdraw.figures;
 
-import CH.ifa.draw.framework.*;
-import CH.ifa.draw.standard.*;
-import CH.ifa.draw.util.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.io.IOException;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
+
+// JUnitDoclet begin import
+import org.jhotdraw.framework.Connector;
+import org.jhotdraw.framework.FigureAttributeConstant;
+import org.jhotdraw.framework.HandleEnumeration;
+import org.jhotdraw.framework.Locator;
+import org.jhotdraw.standard.AbstractFigure;
+import org.jhotdraw.standard.HandleEnumerator;
+import org.jhotdraw.util.CollectionsFactory;
+import org.jhotdraw.util.Geom;
+import org.jhotdraw.util.StorableInput;
+import org.jhotdraw.util.StorableOutput;
+// JUnitDoclet end import
 
 /**
  * A poly line figure consists of a list of points.

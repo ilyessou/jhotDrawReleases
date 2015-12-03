@@ -12,7 +12,6 @@
 package CH.ifa.draw.figures;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
 
 import CH.ifa.draw.framework.*;
@@ -76,6 +75,7 @@ public  class GroupFigure extends CompositeFigure {
 
    /**
 	* Sets the attribute of all the contained figures.
+	* @deprecated see setAttribute(FigureAttributeConstant,Object)
 	*/
 	public void setAttribute(String name, Object value) {
 		super.setAttribute(name, value);
@@ -83,5 +83,16 @@ public  class GroupFigure extends CompositeFigure {
 		while (fe.hasNextFigure()) {
 			fe.nextFigure().setAttribute(name, value);
 		}
+	}
+
+	/**
+	 * Sets the attribute of the GroupFigure as well as all contained Figures.
+	 */
+	public void setAttribute(FigureAttributeConstant fac, Object object){
+		super.setAttribute(fac, object);
+		FigureEnumeration fe = figures();
+		while (fe.hasNextFigure()) {
+			fe.nextFigure().setAttribute(fac, object);
+		}		
 	}
 }

@@ -28,7 +28,8 @@ import CH.ifa.draw.standard.AbstractCommand;
  * @version   <$CURRENT_VERSION$>
  */
 public class CTXWindowMenu extends CTXCommandMenu {
-	private MDIDesktopPane desktop;
+
+	MDIDesktopPane desktop; //increased visibility to avoid compilation errors
 	private CommandMenuItem cascadeCommand;
 	private CommandMenuItem tileHCommand;
 	private CommandMenuItem tileVCommand;
@@ -135,7 +136,7 @@ public class CTXWindowMenu extends CTXCommandMenu {
 	 *  Sets up the children menus depending on the current desktop state
 	 */
 	/** Description of the Method */
-	private void buildChildMenus() {
+	void buildChildMenus() { //increased visibility to avoid compilation errors
 		JInternalFrame[] array = desktop.getAllFrames();
 
 		// update window organization commands
@@ -184,9 +185,9 @@ public class CTXWindowMenu extends CTXCommandMenu {
 		 *
 		 * @param frame  Description of the Parameter
 		 */
-		public ChildMenuItem(JInternalFrame frame) {
-			super(frame.getTitle());
-			this.frame = frame;
+		public ChildMenuItem(JInternalFrame newFrame) {
+			super(newFrame.getTitle());
+			frame = newFrame;
 		}
 
 		/**

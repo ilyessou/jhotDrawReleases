@@ -9,16 +9,15 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.framework;
+package org.jhotdraw.framework;
 
-import java.util.EventListener;
 import java.util.EventObject;
 
 /**
  * @author Wolfram Kaiser
  * @version <$CURRENT_VERSION$>
  */
-public interface ToolListener extends EventListener {
+public interface ToolListener {
 	public void toolEnabled(EventObject toolEvent);
 	public void toolDisabled(EventObject toolEvent);
 	public void toolUsable(EventObject toolEvent);

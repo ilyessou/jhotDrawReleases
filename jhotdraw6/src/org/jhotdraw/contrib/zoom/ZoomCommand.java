@@ -8,12 +8,12 @@
  * License:		Lesser GNU Public License (LGPL)
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
-package CH.ifa.draw.contrib.zoom;
+package org.jhotdraw.contrib.zoom;
 
-import CH.ifa.draw.framework.DrawingEditor;
-import CH.ifa.draw.framework.JHotDrawRuntimeException;
+import org.jhotdraw.framework.DrawingEditor;
+import org.jhotdraw.framework.JHotDrawRuntimeException;
 
-import CH.ifa.draw.standard.AbstractCommand;
+import org.jhotdraw.standard.AbstractCommand;
 
 /**
  * A ZoomCommand allows for applying a zoom factor to a ZoomDrawingView.<br>
@@ -35,9 +35,9 @@ public class ZoomCommand extends AbstractCommand {
 	 * @param scale             Description of the Parameter
 	 * @param newDrawingEditor  the DrawingEditor which manages the views
 	 */
-	public ZoomCommand(String name, float scale, DrawingEditor newDrawingEditor) {
-		super(name, newDrawingEditor, true);
-		this.scale = scale;
+	public ZoomCommand(String newSame, float newScale, DrawingEditor newDrawingEditor) {
+		super(newSame, newDrawingEditor, true);
+		scale = newScale;
 	}
 
 

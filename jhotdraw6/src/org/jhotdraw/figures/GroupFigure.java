@@ -9,15 +9,14 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.figures;
+package org.jhotdraw.figures;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
 
-import CH.ifa.draw.framework.*;
-import CH.ifa.draw.standard.*;
-import CH.ifa.draw.util.CollectionsFactory;
+import org.jhotdraw.framework.*;
+import org.jhotdraw.standard.*;
+import org.jhotdraw.util.CollectionsFactory;
 
 /**
  * A Figure that groups a collection of figures.
@@ -76,6 +75,7 @@ public  class GroupFigure extends CompositeFigure {
 
    /**
 	* Sets the attribute of all the contained figures.
+	* @deprecated see setAttribute(FigureAttributeConstant,Object)
 	*/
 	public void setAttribute(String name, Object value) {
 		super.setAttribute(name, value);
@@ -83,5 +83,16 @@ public  class GroupFigure extends CompositeFigure {
 		while (fe.hasNextFigure()) {
 			fe.nextFigure().setAttribute(name, value);
 		}
+	}
+
+	/**
+	 * Sets the attribute of the GroupFigure as well as all contained Figures.
+	 */
+	public void setAttribute(FigureAttributeConstant fac, Object object){
+		super.setAttribute(fac, object);
+		FigureEnumeration fe = figures();
+		while (fe.hasNextFigure()) {
+			fe.nextFigure().setAttribute(fac, object);
+		}		
 	}
 }

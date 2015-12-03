@@ -9,12 +9,15 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.standard;
+package org.jhotdraw.standard;
 
-import CH.ifa.draw.framework.*;
 import java.awt.*;
-import java.util.*;
+import java.util.Collection;
+import java.util.Hashtable;
+
 import javax.swing.JPanel;
+
+import org.jhotdraw.framework.*;
 
 /**
  * This DrawingView provides a very basic implementation. It does not perform any
@@ -345,7 +348,7 @@ public class NullDrawingView extends JPanel implements DrawingView {
 	/**
 	 * Sets the cursor of the DrawingView
 	 */
-	public void setCursor(Cursor c) {
+	public void setCursor(org.jhotdraw.framework.Cursor c) {
 		// ignore: do nothing
 	}
 

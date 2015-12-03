@@ -24,7 +24,7 @@ import java.util.*;
  * @author Wolfram Kaiser
  * @version <$CURRENT_VERSION$>
  */
-public abstract class AbstractCommand implements Command, FigureSelectionListener, ViewChangeListener {
+public abstract class AbstractCommand implements Command, FigureSelectionListener {
 
 	private String  myName;
 	private Undoable myUndoableActivity;
@@ -48,12 +48,12 @@ public abstract class AbstractCommand implements Command, FigureSelectionListene
 	public AbstractCommand(String newName, DrawingEditor newDrawingEditor, boolean newIsViewRequired) {
 		setName(newName);
 		setDrawingEditor(newDrawingEditor);
-		getDrawingEditor().addViewChangeListener(this);
+		getDrawingEditor().addViewChangeListener(createViewChangeListener());
 		myIsViewRequired = newIsViewRequired;
 		setEventDispatcher(createEventDispatcher());
 	}
 
-	public void viewSelectionChanged(DrawingView oldView, DrawingView newView) {
+	protected void viewSelectionChanged(DrawingView oldView, DrawingView newView) {
 		if (oldView != null) {
 			oldView.removeFigureSelectionListener(this);
 		}
@@ -77,13 +77,13 @@ public abstract class AbstractCommand implements Command, FigureSelectionListene
 	/**
 	 * Sent when a new view is created
 	 */
-	public void viewCreated(DrawingView view) {
+	protected void viewCreated(DrawingView view) {
 	}
 
 	/**
 	 * Send when an existing view is about to be destroyed.
 	 */
-	public void viewDestroying(DrawingView view) {
+	protected void viewDestroying(DrawingView view) {
 	}
 
 	/**
@@ -138,7 +138,7 @@ public abstract class AbstractCommand implements Command, FigureSelectionListene
 	public void execute() {
 		if (view() == null) {
 			throw new JHotDrawRuntimeException("execute should NOT be getting called when view() == null");
-		};
+		}
 	}
 
 	/**
@@ -190,9 +190,23 @@ public abstract class AbstractCommand implements Command, FigureSelectionListene
 		return myEventDispatcher;
 	}
 
-	public AbstractCommand.EventDispatcher createEventDispatcher() {
+	protected AbstractCommand.EventDispatcher createEventDispatcher() {
 		return new AbstractCommand.EventDispatcher(this);
 	}
+
+    protected ViewChangeListener createViewChangeListener() {
+        return new ViewChangeListener() {
+            public void viewSelectionChanged(DrawingView oldView, DrawingView newView){
+                AbstractCommand.this.viewSelectionChanged(oldView, newView);
+            }
+            public void viewCreated(DrawingView view){
+                AbstractCommand.this.viewCreated(view);
+            }
+            public void viewDestroying(DrawingView view){
+                AbstractCommand.this.viewDestroying(view);
+            }
+        };
+    }
 
 	public static class EventDispatcher {
 		private List myRegisteredListeners;

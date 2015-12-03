@@ -4,11 +4,11 @@
  *  Project:		JHotdraw - a GUI framework for technical drawings
  *  http://www.jhotdraw.org
  *  http://jhotdraw.sourceforge.net
- *  Copyright:	© by the original author(s) and all contributors
+ *  Copyright:	? by the original author(s) and all contributors
  *  License:		Lesser GNU Public License (LGPL)
  *  http://www.opensource.org/licenses/lgpl-license.html
  */
-package CH.ifa.draw.contrib;
+package org.jhotdraw.contrib;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -20,16 +20,17 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
+import java.text.CharacterIterator;
 import java.util.*;
 import java.util.List;
 
-import CH.ifa.draw.figures.AttributeFigure;
-import CH.ifa.draw.framework.Figure;
-import CH.ifa.draw.framework.FigureChangeEvent;
-import CH.ifa.draw.framework.FigureChangeListener;
-import CH.ifa.draw.framework.HandleEnumeration;
-import CH.ifa.draw.standard.*;
-import CH.ifa.draw.util.*;
+import org.jhotdraw.figures.AttributeFigure;
+import org.jhotdraw.framework.Figure;
+import org.jhotdraw.framework.FigureChangeEvent;
+import org.jhotdraw.framework.FigureChangeListener;
+import org.jhotdraw.framework.HandleEnumeration;
+import org.jhotdraw.standard.*;
+import org.jhotdraw.util.*;
 
 /**
  * A TextAreaFigure contains formatted text.<br>
@@ -132,7 +133,7 @@ public class TextAreaFigure extends AttributeFigure
 	 * @param newText  The new text value
 	 */
 	public void setText(String newText) {
-		if (!newText.equals(fText)) {
+		if (newText == null || !newText.equals(fText)) {
 			markTextDirty();
 			fText = newText;
 			changed();
@@ -250,6 +251,9 @@ public class TextAreaFigure extends AttributeFigure
 	 * @param newFont  The new font value
 	 */
 	public void setFont(Font newFont) {
+		if(newFont == null) {
+			throw new IllegalArgumentException();
+		}
 		willChange();
 		fFont = newFont;
 		markSizeDirty();
@@ -393,12 +397,13 @@ public class TextAreaFigure extends AttributeFigure
 					RenderingHints.VALUE_ANTIALIAS_ON);
 			g2.setRenderingHint(RenderingHints.KEY_RENDERING,
 					RenderingHints.VALUE_RENDER_QUALITY);
-			Font savedFont = g2.getFont();
+			//Font savedFont = g2.getFont();
 			savedFontColor = g2.getColor();
 			savedClipArea = g2.getClip();
 			if(savedClipArea != null) {
-			clipRect = displayBox.createIntersection((Rectangle2D)savedClipArea);
-			} else {
+				clipRect = displayBox.createIntersection((Rectangle2D)savedClipArea);
+			}
+			else {
 				clipRect = displayBox;
 			}
 			g2.setClip(clipRect);
@@ -442,7 +447,7 @@ public class TextAreaFigure extends AttributeFigure
 			AttributedCharacterIterator paragraphIter = attrText.getIterator();
 			int[] tabLocations = new int[paragraphText.length()];
 			int tabCount = 0;
-			for (char c = paragraphIter.first(); c != paragraphIter.DONE; c = paragraphIter.next()) {
+			for (char c = paragraphIter.first(); c != CharacterIterator.DONE; c = paragraphIter.next()) {
 				if (c == '\t') {
 					tabLocations[tabCount++] = paragraphIter.getIndex();
 				}
@@ -633,8 +638,9 @@ public class TextAreaFigure extends AttributeFigure
 	 * A text area figure uses the "LeftMargin", "RightMargin", "TopMargin",
 	 * "TabSize", "FontSize", "FontStyle", and "FontName" attributes
 	 *
-	 * @param name  the attribute's name
-	 * @return      The attribute value
+	 * @param name the attribute's name
+	 * @return     the attribute value
+	 * @deprecated use getAttribute(FigureAttributeConstant)
 	 */
 	public Object getAttribute(String name) {
 		return super.getAttribute(name);
@@ -646,8 +652,9 @@ public class TextAreaFigure extends AttributeFigure
 	 * "TopMargin", "TabSize", "FontSize", "FontStyle", and "FontName"
 	 * attributes
 	 *
-	 * @param name   The new attribute name
-	 * @param value  The new attribute value
+	 * @param name  the new attribute name
+	 * @param value the new attribute value
+	 * @deprecated use setAttribute(FigureAttributeConstant, Object)
 	 */
 	public void setAttribute(String name, Object value) {
 		// we need to create a new font if one of the font attributes
@@ -662,7 +669,7 @@ public class TextAreaFigure extends AttributeFigure
 			Integer s = (Integer)value;
 			int style = font.getStyle();
 			if (s.intValue() == Font.PLAIN) {
-				style = font.PLAIN;
+				style = Font.PLAIN;
 			}
 			else {
 				style = style ^ s.intValue();
@@ -779,7 +786,7 @@ public class TextAreaFigure extends AttributeFigure
 
 	/**
 	 * Description of the Method
-	 * @todo   Implement this CH.ifa.draw.framework.FigureChangeListener method
+	 * @todo   Implement this org.jhotdraw.framework.FigureChangeListener method
 	 *
 	 * @param e  Description of the Parameter
 	 */
@@ -839,7 +846,7 @@ public class TextAreaFigure extends AttributeFigure
 	 * @param e  Description of the Parameter
 	 */
 	public void figureRequestUpdate(FigureChangeEvent e) {
-		// @todo:   Implement this CH.ifa.draw.framework.FigureChangeListener method
+		// @todo:   Implement this org.jhotdraw.framework.FigureChangeListener method
 	}
 
 	/**
@@ -858,8 +865,7 @@ public class TextAreaFigure extends AttributeFigure
 		if (!isFontDirty()) {
 			return;
 		}
-		FontMetrics metrics = Toolkit.getDefaultToolkit().getFontMetrics(getFont());
-		fFontWidth = metrics.charWidth('W');
+		fFontWidth = (int) getFont().getMaxCharBounds(new FontRenderContext(null, false, false)).getWidth(); 
 
 		setFontDirty(false);
 	}

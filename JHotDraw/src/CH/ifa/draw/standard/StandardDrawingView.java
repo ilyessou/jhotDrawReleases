@@ -4,25 +4,35 @@
  * Project:		JHotdraw - a GUI framework for technical drawings
  *				http://www.jhotdraw.org
  *				http://jhotdraw.sourceforge.net
- * Copyright:	© by the original author(s) and all contributors
+ * Copyright:	? by the original author(s) and all contributors
  * License:		Lesser GNU Public License (LGPL)
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
 package CH.ifa.draw.standard;
 
+import java.awt.*;
+import java.awt.dnd.DragGestureListener;
+import java.awt.dnd.DragSourceListener;
+import java.awt.event.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
 import CH.ifa.draw.contrib.AutoscrollHelper;
-import CH.ifa.draw.contrib.ClippingUpdateStrategy;
 import CH.ifa.draw.contrib.dnd.DNDHelper;
 import CH.ifa.draw.contrib.dnd.DNDInterface;
-import CH.ifa.draw.util.*;
 import CH.ifa.draw.framework.*;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.util.List;
-import java.io.*;
+import CH.ifa.draw.framework.Cursor;
+import CH.ifa.draw.util.CollectionsFactory;
+import CH.ifa.draw.util.Command;
+import CH.ifa.draw.util.Geom;
+import CH.ifa.draw.util.UndoableCommand;
 
 /**
  * The standard implementation of DrawingView.
@@ -35,8 +45,7 @@ import java.io.*;
  */
 public class StandardDrawingView
 		extends JPanel
-		implements DrawingView,
-		DNDInterface, java.awt.dnd.Autoscroll {
+		implements DrawingView, DNDInterface, java.awt.dnd.Autoscroll {
 
 	/**
 	 * The DrawingEditor of the view.
@@ -72,7 +81,6 @@ public class StandardDrawingView
 	/**
 	 * The preferred size of the view
 	 */
-	private Dimension fViewSize;
 
 	/**
 	 * The position of the last mouse click
@@ -118,6 +126,27 @@ public class StandardDrawingView
 
 	private DNDHelper dndh;
 
+    /**
+     * Listener for mouse clicks.
+     */
+    private MouseListener mouseListener;
+    
+    /**
+     * Listener for mouse movements.
+     */
+    private MouseMotionListener motionListener;
+    
+    /**
+     * Listener for the keyboard.
+     */
+    private KeyListener keyListener;
+
+    /**
+     * Reflects whether the drawing view is in read-only mode (from a user's
+     * perspective).
+     */
+    private boolean myIsReadOnly;
+
 	/*
 	 * Serialization support. In JavaDraw only the Drawing is serialized.
 	 * However, for beans support StandardDrawingView supports
@@ -137,8 +166,9 @@ public class StandardDrawingView
 		setAutoscrolls(true);
 		counter++;
 		fEditor = editor;
-		fViewSize = new Dimension(width,height);
-		setSize(width, height);
+		// ricardo_padilha: changed from setSize(int, int) because it is not
+		// JScrollPane-friendly. 
+		setPreferredSize(new Dimension(width, height));
 		fSelectionListeners = CollectionsFactory.current().createList();
 		addFigureSelectionListener(editor());
 		setLastClick(new Point(0, 0));
@@ -153,18 +183,21 @@ public class StandardDrawingView
 		addMouseListener(createMouseListener());
 		addMouseMotionListener(createMouseMotionListener());
 		addKeyListener(createKeyListener());
-	}
+    }
 
 	protected MouseListener createMouseListener() {
-		return new DrawingViewMouseListener();
+        mouseListener = new DrawingViewMouseListener();
+		return mouseListener;
 	}
 
 	protected MouseMotionListener createMouseMotionListener() {
-		return  new DrawingViewMouseMotionListener();
+        motionListener = new DrawingViewMouseMotionListener();
+		return  motionListener;
 	}
 
 	protected KeyListener createKeyListener() {
-		return new DrawingViewKeyListener();
+        keyListener = new DrawingViewKeyListener();
+		return keyListener;
 	}
 
 	/**
@@ -295,9 +328,9 @@ public class StandardDrawingView
 			Figure sf = cf.startFigure();
 			Figure ef = cf.endFigure();
 
-			if (figureExists(sf, drawing().figures()) &&
-				figureExists(ef, drawing().figures()) &&
-				(!bCheck || cf.canConnect(sf, ef))) {
+			if (figureExists(sf, drawing().figures())
+				&& figureExists(ef, drawing().figures())
+				&& (!bCheck || cf.canConnect(sf, ef))) {
 
 				if (bCheck) {
 					Point sp = sf.center();
@@ -342,8 +375,7 @@ public class StandardDrawingView
 			if ((f instanceof ConnectionFigure) && !(isFigureSelected(f))) {
 				ConnectionFigure cf = (ConnectionFigure) f;
 
-				if (cf.startFigure().includes(inFigure) ||
-					cf.endFigure().includes(inFigure)) {
+				if (cf.startFigure().includes(inFigure) || cf.endFigure().includes(inFigure)) {
 					result.add(f);
 				}
 			}
@@ -351,20 +383,6 @@ public class StandardDrawingView
 
 		return new FigureEnumerator(result);
    }
-
-	/**
-	 * Gets the minimum dimension of the drawing.
-	 */
-	public Dimension getMinimumSize() {
-		return fViewSize;
-	}
-
-	/**
-	 * Gets the preferred dimension of the drawing..
-	 */
-	public Dimension getPreferredSize() {
-		return getMinimumSize();
-	}
 
 	/**
 	 * Sets the current display update strategy.
@@ -401,14 +419,8 @@ public class StandardDrawingView
 	 */
 	public FigureEnumeration selectionZOrdered() {
 		List result = CollectionsFactory.current().createList(selectionCount());
-		FigureEnumeration figures = drawing().figures();
 
-		while (figures.hasNextFigure()) {
-			Figure f= figures.nextFigure();
-			if (isFigureSelected(f)) {
-				result.add(f);
-			}
-		}
+		result.addAll(fSelection);
 		return new ReverseFigureEnumerator(result);
 	}
 
@@ -431,14 +443,20 @@ public class StandardDrawingView
 	 * it is also contained in the Drawing associated with this DrawingView.
 	 */
 	public void addToSelection(Figure figure) {
+		if(addToSelectionImpl(figure) == true){
+			fireSelectionChanged();			
+		}
+	}
+	protected boolean addToSelectionImpl(Figure figure){
+		boolean changed = false;
 		if (!isFigureSelected(figure) && drawing().includes(figure)) {
 			fSelection.add(figure);
 			fSelectionHandles = null;
 			figure.invalidate();
-			fireSelectionChanged();
+			changed = true;
 		}
+		return changed;
 	}
-
 	/**
 	 * Adds a Collection of figures to the current selection.
 	 */
@@ -450,8 +468,12 @@ public class StandardDrawingView
 	 * Adds a FigureEnumeration to the current selection.
 	 */
 	public void addToSelectionAll(FigureEnumeration fe) {
+		boolean changed = false;
 		while (fe.hasNextFigure()) {
-			addToSelection(fe.nextFigure());
+			changed |= addToSelectionImpl(fe.nextFigure());
+		}
+		if(changed == true){
+			fireSelectionChanged();
 		}
 	}
 
@@ -662,7 +684,9 @@ public class StandardDrawingView
 	 * @see Painter
 	 */
 	protected void paintComponent(Graphics g) {
-		getDisplayUpdate().draw(g, this);
+		if(getDisplayUpdate() != null) {
+			getDisplayUpdate().draw(g, this);
+		}
 	}
 
 	/**
@@ -811,6 +835,7 @@ public class StandardDrawingView
 		s.defaultReadObject();
 
 		fSelection = CollectionsFactory.current().createList(); // could use lazy initialization instead
+		// could use lazy initialization instead
 		if (drawing() != null) {
 			drawing().addDrawingChangeListener(this);
 		}
@@ -819,11 +844,12 @@ public class StandardDrawingView
 
     protected void checkMinimumSize() {
         Dimension d = getDrawingSize();
+		Dimension v = getPreferredSize();
 
-        if (fViewSize.height < d.height || fViewSize.width < d.width) {
-            fViewSize.height = d.height + SCROLL_OFFSET;
-            fViewSize.width = d.width + SCROLL_OFFSET;
-            setSize(fViewSize);
+		if (v.height < d.height || v.width < d.width) {
+			v.height = d.height + SCROLL_OFFSET;
+			v.width = d.width + SCROLL_OFFSET;
+			setPreferredSize(v);
         }
     }
 
@@ -832,16 +858,24 @@ public class StandardDrawingView
      * the drawing. This method is called by checkMinimumSize().
      */
     protected Dimension getDrawingSize() {
-		FigureEnumeration fe = drawing().figures();
 		Dimension d = new Dimension(0, 0);
-		while (fe.hasNextFigure()) {
-			Rectangle r = fe.nextFigure().displayBox();
-			d.width = Math.max(d.width, r.x+r.width);
-			d.height = Math.max(d.height, r.y+r.height);
+		// ricardo_padilha: this test had to be introduced because a drawing view
+		// can be assigned a null drawing (see setDrawing() ).
+		if (drawing() != null) {
+			FigureEnumeration fe = drawing().figures();
+			while (fe.hasNextFigure()) {
+				Rectangle r = fe.nextFigure().displayBox();
+				d.width = Math.max(d.width, r.x+r.width);
+				d.height = Math.max(d.height, r.y+r.height);
+			}
 		}
         return d;
 	}
 
+	/**
+	 * @see java.awt.Component#isFocusTraversable()
+	 * @deprecated see super class
+	 */
 	public boolean isFocusTraversable() {
 		return true;
 	}
@@ -872,7 +906,6 @@ public class StandardDrawingView
 	public int getDefaultDNDActions() {
 		return java.awt.dnd.DnDConstants.ACTION_COPY_OR_MOVE;
 	}
-
 
 	/***** Autoscroll support *****/
 	private ASH ash = new ASH(10);
@@ -908,9 +941,11 @@ public class StandardDrawingView
      * to provide other action.
      */
     protected void handleMouseEventException(Throwable t) {
-        JOptionPane.showMessageDialog(this,
+		JOptionPane.showMessageDialog(
+			this,
             t.getClass().getName() + " - " + t.getMessage(),
-            "Error", JOptionPane.ERROR_MESSAGE);
+			"Error",
+			JOptionPane.ERROR_MESSAGE);
 		t.printStackTrace();
     }
 
@@ -992,14 +1027,21 @@ public class StandardDrawingView
 		 */
 		public void keyPressed(KeyEvent e) {
 			int code = e.getKeyCode();
-			if ((code == KeyEvent.VK_BACK_SPACE) || (code == KeyEvent.VK_DELETE)) {
+			// Only act on nonModified keys...
+			int modifiers = e.getModifiers();
+			if (modifiers == 0 &&
+			    ((code == KeyEvent.VK_BACK_SPACE) ||
+			     (code == KeyEvent.VK_DELETE))) {
 				if (deleteCmd.isExecutable()) {
 					deleteCmd.execute();
-//					deleteCmd.viewSelectionChanged(this);
+					//deleteCmd.viewSelectionChanged(this);
 				}
 			}
-			else if ((code == KeyEvent.VK_DOWN) || (code == KeyEvent.VK_UP)
-					|| (code == KeyEvent.VK_RIGHT) || (code == KeyEvent.VK_LEFT)) {
+			else if (modifiers == 0 && 
+				 ((code == KeyEvent.VK_DOWN)
+				  || (code == KeyEvent.VK_UP)
+				  || (code == KeyEvent.VK_RIGHT)
+				  || (code == KeyEvent.VK_LEFT))) {
 				handleCursorKey(code);
 			}
 			else {
@@ -1052,11 +1094,14 @@ public class StandardDrawingView
     }
 
 	protected DNDHelper createDNDHelper() {
-		return new DNDHelper () {
-				protected DrawingView view() {
-					return StandardDrawingView.this;
-				}
-			};
+		return new DNDHelper(true, true) {
+			protected DrawingView view() {
+				return StandardDrawingView.this;
+			}
+			protected DrawingEditor editor() {
+				return StandardDrawingView.this.editor();
+			}
+		};
 	}
 
 	protected DNDHelper getDNDHelper() {
@@ -1066,11 +1111,73 @@ public class StandardDrawingView
 		return dndh;
 	}
 
-	public boolean setDragSourceActive(boolean state) {
-		return getDNDHelper().setDragSourceActive(state);
+	public DragSourceListener getDragSourceListener(){
+		return getDNDHelper().getDragSourceListener();
 	}
 
-	public boolean setDropTargetActive(boolean state) {
-		return getDNDHelper().setDropTargetActive(state);
+	public void DNDInitialize(DragGestureListener dgl){
+		getDNDHelper().initialize(dgl);
 	}
+
+	public void DNDDeinitialize() {
+		getDNDHelper().deinitialize();
+	}
+
+    /**
+     * Asks whether the drawing view is in read-only mode. If so, the user can't
+     * modify it using mouse or keyboard actions. Yet, it can still be modified
+     * from inside the program.
+     */
+    public boolean isReadOnly() {
+        return myIsReadOnly;
+    }
+    
+    /**
+     * Determines whether the drawing view is in read-only mode. If so, the user can't
+     * modify it using mouse or keyboard actions. Yet, it can still be modified
+     * from inside the program.
+     */
+    public void setReadOnly(boolean newIsReadOnly) {
+        if (newIsReadOnly != isReadOnly()) {
+            if (newIsReadOnly) {
+                removeMouseListener(mouseListener);
+                removeMouseMotionListener(motionListener);
+                removeKeyListener(keyListener);
+            }
+            else {
+                addMouseListener(mouseListener);
+                addMouseMotionListener(motionListener);
+                addKeyListener(keyListener);
+            }
+            
+            myIsReadOnly = newIsReadOnly;
+        }
+    }
+
+	/**
+	 * @see DrawingView#setCursor(Cursor)
+	 * @see java.awt.Component#setCursor(java.awt.Cursor)
+	 */
+	public void setCursor(Cursor cursor) {
+		if (cursor instanceof java.awt.Cursor) {
+			super.setCursor((java.awt.Cursor) cursor);
+		}
+	}
+
+	/**
+	 * Gets the minimum dimension of the drawing.<br />
+	 * Fixed version (JHotDraw version has a bug).
+	 * @see StandardDrawingView#getMinimumSize()
+	 * @see java.awt.Component#getMinimumSize()
+	 */
+	public Dimension getMinimumSize() {
+		Rectangle r = new Rectangle();
+		FigureEnumeration k = drawing().figures();
+		while (k.hasNextFigure()) {
+			r.add(k.nextFigure().displayBox());
+		}
+		return new Dimension(r.width, r.height);
+	}
+
+
 }

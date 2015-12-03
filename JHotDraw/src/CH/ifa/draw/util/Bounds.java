@@ -136,6 +136,9 @@ public class Bounds implements Serializable {
 	}
 
 	public void setCenter(Point2D centerPoint2D) {
+		if(centerPoint2D == null) {
+			throw new IllegalArgumentException();
+		}
 		Point2D currentCenterPoint2D = getCenter();
 		double dDeltaX = centerPoint2D.getX() - currentCenterPoint2D.getX();
 		double dDeltaY = centerPoint2D.getY() - currentCenterPoint2D.getY();

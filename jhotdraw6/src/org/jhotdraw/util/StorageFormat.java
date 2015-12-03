@@ -9,11 +9,11 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.util;
+package org.jhotdraw.util;
 
 import javax.swing.filechooser.FileFilter;
 import java.io.IOException;
-import CH.ifa.draw.framework.Drawing;
+import org.jhotdraw.framework.Drawing;
 
 /**
  * Interface to define a storage format. A StorageFormat is a strategy that knows how to store
@@ -38,6 +38,22 @@ public interface StorageFormat {
 	 */
 	public FileFilter getFileFilter();
 	
+	/**
+	 * Every format has to identify itself as able to store and/or restore from
+	 * the format it represents. If the storage format can save to the format, it
+	 * should return true in this method.
+	 * @return boolean <code>true</code> if the format can save
+	 */
+	public boolean isStoreFormat();
+
+	/**
+	 * Every format has to identify itself as able to store and/or restore from
+	 * the format it represents. If the storage format can load from the format,
+	 * it should return true in this method.
+	 * @return boolean <code>true</code> if the format can load
+	 */
+	public boolean isRestoreFormat(); 
+
 	/**
 	 * Store a Drawing under a given name.
 	 *

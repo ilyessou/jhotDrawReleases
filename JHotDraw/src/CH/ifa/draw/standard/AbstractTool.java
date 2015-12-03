@@ -11,15 +11,15 @@
 
 package CH.ifa.draw.standard;
 
-import CH.ifa.draw.framework.*;
-import CH.ifa.draw.util.Undoable;
-import CH.ifa.draw.util.CollectionsFactory;
-
-import java.util.*;
-import java.util.List;
-import java.awt.*;
-import java.awt.event.MouseEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.util.EventObject;
+import java.util.Iterator;
+import java.util.List;
+
+import CH.ifa.draw.framework.*;
+import CH.ifa.draw.util.CollectionsFactory;
+import CH.ifa.draw.util.Undoable;
 
 /**
  * Default implementation support for Tools.
@@ -30,7 +30,7 @@ import java.awt.event.KeyEvent;
  * @version <$CURRENT_VERSION$>
  */
 
-public abstract class AbstractTool implements Tool, ViewChangeListener {
+public abstract class AbstractTool implements Tool {
 
 	private DrawingEditor     myDrawingEditor;
 
@@ -62,11 +62,11 @@ public abstract class AbstractTool implements Tool, ViewChangeListener {
 	 * Constructs a tool for the given view.
 	 */
 	public AbstractTool(DrawingEditor newDrawingEditor) {
-		myDrawingEditor = newDrawingEditor;
+		setEditor(newDrawingEditor);
 		setEventDispatcher(createEventDispatcher());
 		setEnabled(true);
 		checkUsable();
-		editor().addViewChangeListener(this);
+		editor().addViewChangeListener(createViewChangeListener());
 	}
 
 	/**
@@ -96,7 +96,7 @@ public abstract class AbstractTool implements Tool, ViewChangeListener {
 	public void deactivate() {
 		if (isActive()) {
 			if (getActiveView() != null) {
-				getActiveView().setCursor(Cursor.getDefaultCursor());
+				getActiveView().setCursor(new AWTCursor(java.awt.Cursor.DEFAULT_CURSOR));
 			}
 			getEventDispatcher().fireToolDeactivatedEvent();
 		}
@@ -107,7 +107,7 @@ public abstract class AbstractTool implements Tool, ViewChangeListener {
 	 * Subclasses should always call super.  ViewSelectionChanged() this allows
 	 * the tools state to be updated and referenced to the new view.
 	 */
-	public void viewSelectionChanged(DrawingView oldView, DrawingView newView) {
+	protected void viewSelectionChanged(DrawingView oldView, DrawingView newView) {
 		if (isActive()) {
 			deactivate();
 			activate();
@@ -119,13 +119,13 @@ public abstract class AbstractTool implements Tool, ViewChangeListener {
 	/**
 	 * Sent when a new view is created
 	 */
-	public void viewCreated(DrawingView view) {
+	protected void viewCreated(DrawingView view) {
 	}
 
 	/**
 	 * Send when an existing view is about to be destroyed.
 	 */
-	public void viewDestroying(DrawingView view) {
+	protected void viewDestroying(DrawingView view) {
 	}
 
 	/**
@@ -305,9 +305,23 @@ public abstract class AbstractTool implements Tool, ViewChangeListener {
 		return myEventDispatcher;
 	}
 
-	public AbstractTool.EventDispatcher createEventDispatcher() {
+	protected AbstractTool.EventDispatcher createEventDispatcher() {
 		return new AbstractTool.EventDispatcher(this);
 	}
+
+    protected ViewChangeListener createViewChangeListener() {
+        return new ViewChangeListener() {
+            public void viewSelectionChanged(DrawingView oldView, DrawingView newView){
+	    		AbstractTool.this.viewSelectionChanged(oldView, newView);
+		    }
+    		public void viewCreated(DrawingView view){
+	    		AbstractTool.this.viewCreated(view);
+		    }
+    		public void viewDestroying(DrawingView view){
+	    		AbstractTool.this.viewDestroying(view);
+		    }
+        };
+    }
 
 	protected void checkUsable() {
 		if (isEnabled()) {

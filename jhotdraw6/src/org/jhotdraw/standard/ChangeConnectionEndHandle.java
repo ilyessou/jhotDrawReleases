@@ -9,10 +9,10 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.standard;
+package org.jhotdraw.standard;
 
-import CH.ifa.draw.framework.*;
-import CH.ifa.draw.util.Undoable;
+import org.jhotdraw.framework.*;
+import org.jhotdraw.util.Undoable;
 import java.awt.Point;
 
 /**
@@ -26,7 +26,7 @@ public class ChangeConnectionEndHandle extends ChangeConnectionHandle {
 	/**
 	 * Constructs the connection handle.
 	 */
-	public ChangeConnectionEndHandle(Figure owner) {
+	public ChangeConnectionEndHandle(ConnectionFigure owner) {
 		super(owner);
 	}
 
@@ -82,5 +82,9 @@ public class ChangeConnectionEndHandle extends ChangeConnectionHandle {
 			connection.connectEnd(getOldConnector());
 			return tempEndConnector;
 		}
+	}
+
+    protected boolean canConnectTo(Figure figure) {
+        return getConnection().canConnect(source().owner(), figure);
 	}
 }

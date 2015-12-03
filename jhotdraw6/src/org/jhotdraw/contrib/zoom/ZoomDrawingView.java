@@ -9,15 +9,15 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.contrib.zoom;
+package org.jhotdraw.contrib.zoom;
 
-import CH.ifa.draw.framework.Drawing;
-import CH.ifa.draw.framework.DrawingChangeEvent;
-import CH.ifa.draw.framework.DrawingEditor;
-import CH.ifa.draw.framework.FigureEnumeration;
-import CH.ifa.draw.standard.StandardDrawing;
-import CH.ifa.draw.standard.StandardDrawingView;
-import CH.ifa.draw.util.Geom;
+import org.jhotdraw.framework.Drawing;
+import org.jhotdraw.framework.DrawingChangeEvent;
+import org.jhotdraw.framework.DrawingEditor;
+import org.jhotdraw.framework.FigureEnumeration;
+import org.jhotdraw.standard.StandardDrawing;
+import org.jhotdraw.standard.StandardDrawingView;
+import org.jhotdraw.util.Geom;
 
 import javax.swing.JViewport;
 import java.awt.*;
@@ -65,10 +65,10 @@ public class ZoomDrawingView extends StandardDrawingView {
 	 * Sets a new zoom scale for this view.  The dimensions of figures
 	 * are multiplied by this number before display.
 	 */
-	private void setScale(double scale) {
+	private void setScale(double newScale) {
 		// "de"-scale with old scale
 		Dimension oldSize = getUserSize();
-		this.scale = scale;
+		scale = newScale;
 		// re-scale with new scale
 		setUserSize(oldSize.width, oldSize.height);
 		centralize(drawing());
@@ -168,12 +168,12 @@ public class ZoomDrawingView extends StandardDrawingView {
 	/**
 	 * Set this view's scale factor
 	 */
-	public void zoom(float scale) {
+	public void zoom(float newScale) {
 		if (hasZoomSupport()) {
 			JViewport viewport = (JViewport) getParent();
 			Dimension viewportSize = viewport.getSize();
 			Dimension userSize = getUserSize();
-			this.scale = scale;
+			scale = newScale;
 			Point viewOrg = viewport.getViewPosition();
 			viewOrg.x = viewOrg.x + (viewportSize.width / 2);
 			viewOrg.y = viewOrg.y + (viewportSize.height / 2);
@@ -283,13 +283,13 @@ public class ZoomDrawingView extends StandardDrawingView {
 		return transformGraphics(super.getGraphics(), getScale());
 	}
 
-	private final Graphics transformGraphics(Graphics g, double scale) {
-		if (scale != 1.0) {
+	private final Graphics transformGraphics(Graphics g, double currentScale) {
+		if (currentScale != 1.0) {
 			Graphics2D g2 = (Graphics2D) g;
 			// Don't use setTransform() here because that would destroy
 			// any transformation that Swing sets for partial redrawing.
 			// Simply add our own transformation to any existing one.
-			g2.transform(AffineTransform.getScaleInstance(scale, scale));
+			g2.transform(AffineTransform.getScaleInstance(currentScale, currentScale));
 		}
         return g;
 	}
@@ -335,7 +335,7 @@ public class ZoomDrawingView extends StandardDrawingView {
 		super.setDrawing(d);
 
 		Rectangle r = ((StandardDrawing) d).displayBox();
-		Dimension drawingSize = new Dimension(r.width, r.height);
+		//Dimension drawingSize = new Dimension(r.width, r.height);
 		Dimension viewportSize = new Dimension(r.width, r.height);
 		if (getParent() != null) {
 			viewportSize = getViewportSize();

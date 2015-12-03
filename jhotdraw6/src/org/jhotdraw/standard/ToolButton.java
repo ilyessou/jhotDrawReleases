@@ -9,10 +9,10 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.standard;
+package org.jhotdraw.standard;
 
-import CH.ifa.draw.util.*;
-import CH.ifa.draw.framework.*;
+import org.jhotdraw.util.*;
+import org.jhotdraw.framework.*;
 import javax.swing.*;
 import java.awt.*;
 import java.util.EventObject;
@@ -155,11 +155,11 @@ public class ToolButton extends PaletteButton implements ToolListener {
 		return myIcon;
 	}
 
-	private void setPaletteIcon(PaletteIcon myIcon) {
-		this.myIcon = myIcon;
+	private void setPaletteIcon(PaletteIcon newIcon) {
+		myIcon = newIcon;
 	}
 
-	private void setTool(Tool myTool) {
-		this.myTool = myTool;
+	private void setTool(Tool newTool) {
+		myTool = newTool;
 	}
 }

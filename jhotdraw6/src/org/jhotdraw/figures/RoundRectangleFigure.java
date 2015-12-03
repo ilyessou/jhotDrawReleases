@@ -9,14 +9,14 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.figures;
+package org.jhotdraw.figures;
 
 import java.awt.*;
 import java.io.IOException;
 import java.util.List;
-import CH.ifa.draw.framework.*;
-import CH.ifa.draw.standard.*;
-import CH.ifa.draw.util.*;
+import org.jhotdraw.framework.*;
+import org.jhotdraw.standard.*;
+import org.jhotdraw.util.*;
 
 
 /**
@@ -94,7 +94,13 @@ public class RoundRectangleFigure extends AttributeFigure {
 
 	public void drawBackground(Graphics g) {
 		Rectangle r = displayBox();
-		g.fillRoundRect(r.x, r.y, r.width-1, r.height-1, fArcWidth, fArcHeight);
+        /*
+         * JP, 25-May-03: Changed from (width-1, height-1) to (width, height),
+         * because figures were not filled completely (JDK 1.4.x). Might invalidate
+         * fix for #661878. If the problem is JDK-dependant, maybe the JDK version
+         * should be taken into account here?
+         */
+		g.fillRoundRect(r.x, r.y, r.width, r.height, fArcWidth, fArcHeight);
 	}
 
 	public void drawFrame(Graphics g) {

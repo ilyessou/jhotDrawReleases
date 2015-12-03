@@ -12,6 +12,7 @@
 package CH.ifa.draw.contrib;
 
 import CH.ifa.draw.framework.*;
+import CH.ifa.draw.contrib.zoom.ZoomDrawingView;
 import CH.ifa.draw.standard.*;
 import javax.swing.JPopupMenu;
 import java.awt.*;
@@ -134,7 +135,7 @@ public class CustomSelectionTool extends SelectionTool {
 	protected void handlePopupMenu(MouseEvent e, int x, int y) {
 		Figure figure = drawing().findFigure(e.getX(), e.getY());
 		if (figure != null) {
-			Object attribute = figure.getAttribute(Figure.POPUP_MENU);
+			Object attribute = figure.getAttribute(FigureAttributeConstant.POPUP_MENU);
 			if (attribute == null) {
 				figure = drawing().findFigureInside(e.getX(), e.getY());
 			}
@@ -155,32 +156,36 @@ public class CustomSelectionTool extends SelectionTool {
 	 * @param   comp        Component which invoked the popup menu
 	 */
 	protected void showPopupMenu(Figure figure, int x, int y, Component comp) {
-		Object attribute = figure.getAttribute(Figure.POPUP_MENU);
+		Object attribute = figure.getAttribute(FigureAttributeConstant.POPUP_MENU);
 		if ((attribute != null) && (attribute instanceof JPopupMenu)) {
 			JPopupMenu popup = (JPopupMenu)attribute;
 			if (popup instanceof PopupMenuFigureSelection) {
 				((PopupMenuFigureSelection)popup).setSelectedFigure(figure);
 			}
-			// calculate offsets for internal MDI frames
-			Point newLocation = new Point(x, y);
-			adjustOffsets(comp.getParent(), newLocation);
+			// Calculate position on physical screen based
+			// on x,y coordinates
+			Point newLocation;
+			try {
+				newLocation = comp.getLocationOnScreen();
+			} catch (IllegalComponentStateException e) {
+				// For some reason, the component
+				// apparently isn't showing on the
+				// screen (huh?). Never mind - don't
+				// show the popup..
+				return;
+			}
+			// If this is a ZoomDrawingView, we'll need to
+			// compensate here too:
+			if (comp instanceof ZoomDrawingView) {
+				double scale = ((ZoomDrawingView) comp).getScale(); 
+				x *= scale;
+				y *= scale;
+			}
+			newLocation.translate(x,y);
 			popup.setLocation(newLocation);
 			popup.setInvoker(comp);
 			popup.setVisible(true);
 		}
 	}
 	
-	/**
-	 * Internal MDI frames have offsets where a popup menu should be
-	 * shown (in JDK 1.2).
-	 * This method sums up iteratively all x and y offsets of all
-	 * parent compontents until the top parent component is reached.
-	 */
-	private void adjustOffsets(Component comp, Point offsetPoint) {
-		if (comp != null) {
-			Point compLocation = comp.getLocation();
-			offsetPoint.translate(compLocation.x, compLocation.y);
-			adjustOffsets(comp.getParent(), offsetPoint);
-		}
-	}
 }

@@ -4,23 +4,23 @@
  * Project:		JHotdraw - a GUI framework for technical drawings
  *				http://www.jhotdraw.org
  *				http://jhotdraw.sourceforge.net
- * Copyright:	© by the original author(s) and all contributors
+ * Copyright:	? by the original author(s) and all contributors
  * License:		Lesser GNU Public License (LGPL)
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.samples.javadraw;
+package org.jhotdraw.samples.javadraw;
 
 import java.awt.*;
 import java.io.IOException;
-import CH.ifa.draw.framework.*;
-import CH.ifa.draw.standard.*;
-import CH.ifa.draw.util.*;
+import org.jhotdraw.framework.*;
+import org.jhotdraw.standard.*;
+import org.jhotdraw.util.*;
 
 /**
  * @version <$CURRENT_VERSION$>
  */
-public class AnimationDecorator extends DecoratorFigure {
+public class AnimationDecorator extends DecoratorFigure implements Animatable {
 
 	private int fXVelocity;
 	private int fYVelocity;

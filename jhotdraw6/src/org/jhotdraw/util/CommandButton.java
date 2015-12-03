@@ -9,7 +9,7 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.util;
+package org.jhotdraw.util;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
@@ -44,8 +44,8 @@ public  class CommandButton
 	 */
 	public void actionPerformed(ActionEvent e) {
 		fCommand.execute();
-		if (!getLabel().equals(fCommand.name()) ) {
-			setLabel(fCommand.name());
+		if (!getText().equals(fCommand.name()) ) {
+			setText(fCommand.name());
 		}
 	}
 }

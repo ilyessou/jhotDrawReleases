@@ -18,10 +18,10 @@ import CH.ifa.draw.util.*;
 import CH.ifa.draw.contrib.*;
 
 import javax.swing.*;
-import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.ListIterator;
 
 /**
  * DrawApplication defines a standard presentation for
@@ -53,7 +53,12 @@ public	class DrawApplication
 	private StorageFormatManager	fStorageFormatManager;
 	private UndoManager				myUndoManager;
 	protected static String			fgUntitled = "untitled";
-	private final EventListenerList listenerList = new EventListenerList();
+	/**
+	 * List is not thread safe, but should not need to be.  If it does we can 
+	 * safely synchronize the few methods that use this by synchronizing on 
+	 * the List object itself.
+	 */
+	private java.util.List			listeners;
 	private DesktopListener     fDesktopListener;
 
 	/**
@@ -95,8 +100,9 @@ public	class DrawApplication
 	 */
 	public DrawApplication(String title) {
 		super(title);
+		listeners = CollectionsFactory.current().createList();
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		setApplicationName(title);
-		winCount++;
 	}
 
 	/**
@@ -144,6 +150,7 @@ public	class DrawApplication
 	public final void newWindow() {
         newWindow(createDrawing());
 	}
+
 	/**
 	 * Opens a new window
 	 */
@@ -196,7 +203,10 @@ public	class DrawApplication
 		setStorageFormatManager(createStorageFormatManager());
 
 		//no work allowed to be done on GUI outside of AWT thread once
-		//setVisible(true) called.
+		//setVislble(true) must be called before drawing added to desktop, else 
+		//DND will fail. on drawing added before with a NPE.  note however that
+		//a nulldrawingView will not fail because it is never really added to the desltop
+		setVisible(true);
 		Runnable r = new Runnable() {
 			public void run() {
 				if (newDrawingView.isInteractive()) {
@@ -223,7 +233,6 @@ public	class DrawApplication
 			r.run();
 		}
 
-		setVisible(true);
 		toolDone();
 	}
 
@@ -234,7 +243,17 @@ public	class DrawApplication
 		addWindowListener(
 			new WindowAdapter() {
 				public void windowClosing(WindowEvent event) {
-					exit();
+					endApp();
+				}
+
+				public void windowOpened(WindowEvent event) {
+					winCount++;
+				}
+
+				public void windowClosed(WindowEvent event) {
+					if (--winCount == 0) {
+						System.exit(0);
+					}
 				}
 			}
 		);
@@ -296,7 +315,7 @@ public	class DrawApplication
 
 		cmd = new AbstractCommand("Exit", this, true) {
 			public void execute() {
-				exit();
+				endApp();
 			}
 		};
 		menu.add(cmd);
@@ -789,14 +808,14 @@ public	class DrawApplication
 	 * interface, this will happen when a new drawing is created.
 	 */
 	public void addViewChangeListener(ViewChangeListener vsl) {
-		listenerList.add(ViewChangeListener.class, vsl);
+		listeners.add(vsl);
 	}
 
 	/**
 	 * Remove listener
 	 */
 	public void removeViewChangeListener(ViewChangeListener vsl) {
-		listenerList.remove(ViewChangeListener.class, vsl);
+		listeners.remove(vsl);
 	}
 
 	/**
@@ -806,35 +825,26 @@ public	class DrawApplication
 	 * usually not needed in SDI environments.
 	 */
 	protected void fireViewSelectionChangedEvent(DrawingView oldView, DrawingView newView) {
-		final Object[] listeners = listenerList.getListenerList();
-		ViewChangeListener vsl = null;
-		for (int i = listeners.length-2; i>=0 ; i-=2) {
-			if (listeners[i] == ViewChangeListener.class) {
-				vsl = (ViewChangeListener)listeners[i+1];
-				vsl.viewSelectionChanged(oldView, newView);
-			}
+		ListIterator li= listeners.listIterator(listeners.size());
+		while (li.hasPrevious()) {
+			ViewChangeListener vsl = (ViewChangeListener)li.previous();
+			vsl.viewSelectionChanged(oldView, newView);
 		}
 	}
 
 	protected void fireViewCreatedEvent(DrawingView view) {
-		final Object[] listeners = listenerList.getListenerList();
-		ViewChangeListener vsl = null;
-		for (int i = listeners.length-2; i>=0 ; i-=2) {
-			if (listeners[i] == ViewChangeListener.class) {
-				vsl = (ViewChangeListener)listeners[i+1];
-				vsl.viewCreated(view);
-			}
+		ListIterator li= listeners.listIterator(listeners.size());
+		while (li.hasPrevious()) {
+			ViewChangeListener vsl = (ViewChangeListener)li.previous();
+			vsl.viewCreated(view);
 		}
 	}
 
 	protected void fireViewDestroyingEvent(DrawingView view) {
-		final Object[] listeners = listenerList.getListenerList();
-		ViewChangeListener vsl = null;
-		for (int i = listeners.length-2; i>=0 ; i-=2) {
-			if (listeners[i] == ViewChangeListener.class) {
-				vsl = (ViewChangeListener)listeners[i+1];
-				vsl.viewDestroying( view );
-			}
+		ListIterator li= listeners.listIterator(listeners.size());
+		while (li.hasPrevious()) {
+			ViewChangeListener vsl = (ViewChangeListener)li.previous();
+			vsl.viewDestroying( view );
 		}
 	}
 
@@ -883,14 +893,19 @@ public	class DrawApplication
 	 */
 	public void exit() {
 		destroy();
-		setVisible(false);      // hide the JFrame
-		dispose();   // tell windowing system to free resources
-		winCount--;
-		if (winCount == 0) {
-			System.exit(0);
-		}
+	   // tell windowing system to free resources
+		dispose();	
 	}
 
+	protected boolean closeQuery(){
+		return true;
+	}
+
+	protected void endApp(){
+		if(closeQuery() == true) {
+			exit();
+		}
+	}
 	/**
 	 * Handles additional clean up operations. Override to destroy
 	 * or release drawing editor resources.
@@ -916,6 +931,11 @@ public	class DrawApplication
 		getStorageFormatManager().registerFileFilters(openDialog);
 		if (openDialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 			StorageFormat foundFormat = getStorageFormatManager().findStorageFormat(openDialog.getFileFilter());
+			// ricardo_padilha: if there is no format associated,
+			// try to find one that supports the file
+			if (foundFormat == null) {
+				foundFormat = getStorageFormatManager().findStorageFormat(openDialog.getSelectedFile());
+			}
 			if (foundFormat != null) {
 				loadDrawing(foundFormat, openDialog.getSelectedFile().getAbsolutePath());
 			}
@@ -936,6 +956,11 @@ public	class DrawApplication
 
 			if (saveDialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 				StorageFormat foundFormat = getStorageFormatManager().findStorageFormat(saveDialog.getFileFilter());
+				// ricardo_padilha: if there is no format associated,
+				// try to find one that supports the file
+				if (foundFormat == null) {
+					foundFormat = getStorageFormatManager().findStorageFormat(saveDialog.getSelectedFile());
+				}
 				if (foundFormat != null) {
 					saveDrawing(foundFormat, saveDialog.getSelectedFile().getAbsolutePath());
 				}
@@ -952,6 +977,7 @@ public	class DrawApplication
 	 */
 	protected JFileChooser createOpenFileChooser() {
 		JFileChooser openDialog = new JFileChooser();
+		openDialog.setDialogType(JFileChooser.OPEN_DIALOG);
 		openDialog.setDialogTitle("Open File...");
 		return openDialog;
 	}
@@ -962,6 +988,7 @@ public	class DrawApplication
 	 */
 	protected JFileChooser createSaveFileChooser() {
 		JFileChooser saveDialog = new JFileChooser();
+		saveDialog.setDialogType(JFileChooser.SAVE_DIALOG);
 		saveDialog.setDialogTitle("Save File...");
 		return saveDialog;
 	}

@@ -9,7 +9,7 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.contrib.zoom;
+package org.jhotdraw.contrib.zoom;
 
 import java.awt.*;
 import java.awt.image.ImageObserver;
@@ -32,9 +32,9 @@ public class DoubleBufferImage extends java.awt.Image {
 	private Image real;
 	private double scale;
 
-	public DoubleBufferImage(Image real, double scale) {
-		this.real = real;
-		this.scale = scale;
+	public DoubleBufferImage(Image newReal, double newScale) {
+		real = newReal;
+		scale = newScale;
 	}
 
 	public Image getRealImage() {

@@ -42,7 +42,7 @@ public  class JavaDrawApp extends MDI_DrawApplication {
 
 	/**
 	 * Expose constructor for benefit of subclasses.
-	 * 
+	 *
 	 * @param title The window title for this application's frame.
 	 */
 	public JavaDrawApp(String title) {
@@ -59,8 +59,13 @@ public  class JavaDrawApp extends MDI_DrawApplication {
 		return new JavaDrawApp();
 	}
 
-	protected DrawingView createDrawingView() {
-		return new ZoomDrawingView(this);
+	protected DrawingView createDrawingView(Drawing newDrawing) {
+		Dimension d = getDrawingViewSize();
+		DrawingView newDrawingView = new ZoomDrawingView(this, d.width, d.height);
+		newDrawingView.setDrawing(newDrawing);
+		// notify listeners about created view when the view is added to the desktop
+		//fireViewCreatedEvent(newDrawingView);
+		return newDrawingView;
 	}
 
 	//-- application life cycle --------------------------------------------
@@ -197,6 +202,9 @@ public  class JavaDrawApp extends MDI_DrawApplication {
 	protected JMenu createImagesMenu() {
 		CommandMenu menu = new CommandMenu("Images");
 		URL url = getClass().getResource(fgSampleImagesPath);
+		if (url == null) {
+			throw new JHotDrawRuntimeException("Could not locate images: " + fgSampleImagesPath);
+		}
 		File imagesDirectory = new File(url.getFile());
 
 		try {

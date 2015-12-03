@@ -36,7 +36,7 @@ import java.awt.event.MouseEvent;
 
 public class SelectionTool extends AbstractTool {
 
-	private Tool fChild = null;
+	private Tool myDelegationTool = null;
 
 	public SelectionTool(DrawingEditor newDrawingEditor) {
 		super(newDrawingEditor);
@@ -108,6 +108,7 @@ public class SelectionTool extends AbstractTool {
 		}
 		if (view() != null) {
 			view().unfreezeView();
+			editor().figureSelectionChanged(view());
 		}
 	}
 
@@ -115,7 +116,7 @@ public class SelectionTool extends AbstractTool {
 	 * Factory method to create a Handle tracker. It is used to track a handle.
 	 */
 	protected Tool createHandleTracker(DrawingView view, Handle handle) {
-		return new HandleTracker(editor(), new UndoableHandle(handle, view));
+		return new HandleTracker(editor(), new UndoableHandle(handle));
 	}
 
 	/**
@@ -134,10 +135,10 @@ public class SelectionTool extends AbstractTool {
 	}
 
 	protected Tool getDelegateTool() {
-		return fChild;
+		return myDelegationTool;
 	}
 
-	private void setDelegateTool(Tool newDelegateTool) {
-		fChild = newDelegateTool;
+	protected final void setDelegateTool(Tool newDelegateTool) {
+		myDelegationTool = newDelegateTool;
 	}
 }

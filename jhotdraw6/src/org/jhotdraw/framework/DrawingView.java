@@ -9,11 +9,11 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.framework;
+package org.jhotdraw.framework;
 
-import java.awt.image.ImageObserver;
 import java.awt.*;
-import java.util.*;
+import java.awt.image.ImageObserver;
+import java.util.Collection;
 
 /**
  * DrawingView renders a Drawing and listens to its changes.

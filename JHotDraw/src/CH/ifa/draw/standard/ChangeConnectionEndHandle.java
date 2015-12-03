@@ -26,7 +26,7 @@ public class ChangeConnectionEndHandle extends ChangeConnectionHandle {
 	/**
 	 * Constructs the connection handle.
 	 */
-	public ChangeConnectionEndHandle(Figure owner) {
+	public ChangeConnectionEndHandle(ConnectionFigure owner) {
 		super(owner);
 	}
 
@@ -82,5 +82,9 @@ public class ChangeConnectionEndHandle extends ChangeConnectionHandle {
 			connection.connectEnd(getOldConnector());
 			return tempEndConnector;
 		}
+	}
+
+    protected boolean canConnectTo(Figure figure) {
+        return getConnection().canConnect(source().owner(), figure);
 	}
 }

@@ -9,16 +9,16 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.samples.pert;
+package org.jhotdraw.samples.pert;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
 
-import CH.ifa.draw.framework.*;
-import CH.ifa.draw.figures.*;
-import CH.ifa.draw.standard.*;
-import CH.ifa.draw.util.CollectionsFactory;
+// JUnitDoclet begin import
+import org.jhotdraw.framework.*;
+import org.jhotdraw.figures.*;
+import org.jhotdraw.standard.*;
+// JUnitDoclet end import
 
 /**
  * @version <$CURRENT_VERSION$>
@@ -39,7 +39,7 @@ public class PertDependency extends LineConnection {
 		PertFigure source = (PertFigure)start;
 		PertFigure target = (PertFigure)end;
 		if (source.hasCycle(target)) {
-			setAttribute(FigureAttributeConstant.FRAME_COLOR.getName(), Color.red);
+			setAttribute(FigureAttributeConstant.FRAME_COLOR, Color.red);
 		}
 		else {
 			target.addPreTask(source);

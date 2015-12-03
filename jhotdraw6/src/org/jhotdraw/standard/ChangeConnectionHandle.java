@@ -9,12 +9,12 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.standard;
+package org.jhotdraw.standard;
 
-import CH.ifa.draw.framework.*;
-import CH.ifa.draw.util.Geom;
-import CH.ifa.draw.util.Undoable;
-import CH.ifa.draw.util.UndoableAdapter;
+import org.jhotdraw.framework.*;
+import org.jhotdraw.util.Geom;
+import org.jhotdraw.util.Undoable;
+import org.jhotdraw.util.UndoableAdapter;
 import java.awt.*;
 
 /**
@@ -36,9 +36,9 @@ public abstract class ChangeConnectionHandle extends AbstractHandle {
 	/**
 	 * Initializes the change connection handle.
 	 */
-	protected ChangeConnectionHandle(Figure owner) {
+	protected ChangeConnectionHandle(ConnectionFigure owner) {
 		super(owner);
-		setConnection((ConnectionFigure) owner());
+		setConnection(owner);
 		setTargetFigure(null);
 	}
 
@@ -145,15 +145,36 @@ public abstract class ChangeConnectionHandle extends AbstractHandle {
 	private Connector findConnectionTarget(int x, int y, Drawing drawing) {
 		Figure target = findConnectableFigure(x, y, drawing);
 
-		if ((target != null) && target.canConnect()
+		if ((target != null)
+			&& target.canConnect()
 			 && target != fOriginalTarget
 			 && !target.includes(owner())
-			 && getConnection().canConnect(source().owner(), target)) {
+            /*
+    		 * JP, 25-May-03: Fix for ignored direction when checking
+    		 * connectability. Old version didn't take direction of
+             * connection into account, which could result in incorrect
+             * drawing if syntax rules were a concern.
+             * 
+             * See also new canConnectTo() method below.
+             * 
+             * Was:
+             * 
+    		 * && getConnection().canConnect(source().owner(), target)) {
+    		 */
+			&& canConnectTo(target)) {
 				return findConnector(x, y, target);
 		}
 		return null;
 	}
 
+    /**
+     * Called to check whether this end of the connection can connect to the
+     * given target figure. Needs to be overriden by the start and end changers
+     * to take the connection's direction into account during the check. JHD 5.4
+     * beta and before did not do this.
+     */
+    protected abstract boolean canConnectTo(Figure figure);
+    
 	protected Connector findConnector(int x, int y, Figure f) {
 		return f.connectorAt(x, y);
 	}

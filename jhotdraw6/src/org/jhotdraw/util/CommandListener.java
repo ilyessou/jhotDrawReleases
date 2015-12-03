@@ -9,16 +9,15 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.util;
+package org.jhotdraw.util;
 
-import java.util.EventListener;
 import java.util.EventObject;
 
 /**
  * @author Wolfram Kaiser
  * @version <$CURRENT_VERSION$>
  */
-public interface CommandListener extends EventListener {
+public interface CommandListener {
 	public void commandExecuted(EventObject commandEvent);
 	public void commandExecutable(EventObject commandEvent);
 	public void commandNotExecutable(EventObject commandEvent);

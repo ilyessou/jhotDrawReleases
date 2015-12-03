@@ -1,19 +1,18 @@
 /*
- *  @(#)TextAreaFigure.java
+ * @(#)FigureDataContentProducer.java
  *
- *  Project:		JHotdraw - a GUI framework for technical drawings
- *  http://www.jhotdraw.org
- *  http://jhotdraw.sourceforge.net
- *  Copyright:	© by the original author(s) and all contributors
- *  License:		Lesser GNU Public License (LGPL)
- *  http://www.opensource.org/licenses/lgpl-license.html
+ * Project:		JHotdraw - a GUI framework for technical drawings
+ *				http://www.jhotdraw.org
+ *				http://jhotdraw.sourceforge.net
+ * Copyright:	© by the original author(s) and all contributors
+ * License:		Lesser GNU Public License (LGPL)
+ *				http://www.opensource.org/licenses/lgpl-license.html
  */
 package CH.ifa.draw.contrib.html;
 
 import java.io.IOException;
 
 import java.io.Serializable;
-import CH.ifa.draw.util.Storable;
 import CH.ifa.draw.util.StorableInput;
 import CH.ifa.draw.util.StorableOutput;
 
@@ -23,17 +22,17 @@ import CH.ifa.draw.util.StorableOutput;
  * It can only be used as a generic producer, getting information from any
  * figure passed to the getContents method.
  *
- * @author    Eduardo Francos - InContext
- * @created   30 avril 2002
- * @version   1.0
+ * @author  Eduardo Francos - InContext
+ * @created 30 avril 2002
+ * @version <$CURRENT_VERSION$>
  */
-
 public class FigureDataContentProducer extends AbstractContentProducer
 		 implements Serializable {
 
-	/**Constructor for the FigureContentProducer object */
+	/**
+	 * Constructor for the FigureContentProducer object
+	 */
 	public FigureDataContentProducer() { }
-
 
 	/**
 	 * Produces the contents for the figure
@@ -63,7 +62,6 @@ public class FigureDataContentProducer extends AbstractContentProducer
 		return null;
 	}
 
-
 	/**
 	 * Writes the storable
 	 *
@@ -73,15 +71,13 @@ public class FigureDataContentProducer extends AbstractContentProducer
 		super.write(dw);
 	}
 
-
 	/**
 	 * Writes the storable
 	 *
 	 * @param dr               the storable input
 	 * @exception IOException  thrown by called methods
 	 */
-	public void read(StorableInput dr)
-		throws IOException {
+	public void read(StorableInput dr) throws IOException {
 		super.read(dr);
 	}
 }

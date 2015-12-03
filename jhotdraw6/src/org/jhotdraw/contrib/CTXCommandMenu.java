@@ -8,7 +8,7 @@
  *  License:		Lesser GNU Public License (LGPL)
  *  http://www.opensource.org/licenses/lgpl-license.html
  */
-package CH.ifa.draw.contrib;
+package org.jhotdraw.contrib;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -16,10 +16,10 @@ import java.awt.event.ActionListener;
 import java.util.*;
 import javax.swing.*;
 
-import CH.ifa.draw.framework.JHotDrawRuntimeException;
-import CH.ifa.draw.util.Command;
-import CH.ifa.draw.util.CommandListener;
-import CH.ifa.draw.util.CommandMenu;
+import org.jhotdraw.framework.JHotDrawRuntimeException;
+import org.jhotdraw.util.Command;
+import org.jhotdraw.util.CommandListener;
+import org.jhotdraw.util.CommandMenu;
 
 /**
  * A Command enabled menu. Selecting a menu item
@@ -116,7 +116,7 @@ public class CTXCommandMenu extends JMenu implements ActionListener, CommandList
 	public synchronized void enable(String name, boolean state) {
 		for (int i = 0; i < getItemCount(); i++) {
 			JMenuItem item = getItem(i);
-			if (name.equals(item.getLabel())) {
+			if (name.equals(item.getText())) {
 				item.setEnabled(state);
 				return;
 			}

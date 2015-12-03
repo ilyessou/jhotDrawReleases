@@ -9,9 +9,9 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.contrib;
+package org.jhotdraw.contrib;
 
-import CH.ifa.draw.framework.DrawingView;
+import org.jhotdraw.framework.DrawingView;
 import java.util.EventObject;
 
 /**
@@ -27,12 +27,12 @@ public class DesktopEvent extends EventObject {
 	 */	
 	private DrawingView myPreviousDrawingView;
 
-	public DesktopEvent(Desktop source, DrawingView newDrawingView) {
-		this(source, newDrawingView, null);
+	public DesktopEvent(Desktop newSource, DrawingView newDrawingView) {
+		this(newSource, newDrawingView, null);
 	}
 
-	public DesktopEvent(Desktop source, DrawingView newDrawingView, DrawingView newPreviousDV) {
-		super(source);
+	public DesktopEvent(Desktop newSource, DrawingView newDrawingView, DrawingView newPreviousDV) {
+		super(newSource);
 		setDrawingView(newDrawingView);
 		setPreviousDrawingView(newPreviousDV);
 	}

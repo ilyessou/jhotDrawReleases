@@ -1,6 +1,14 @@
-package CH.ifa.draw.test.util;
-
-
+/*
+ * @(#)Test.java
+ *
+ * Project:		JHotdraw - a GUI framework for technical drawings
+ *				http://www.jhotdraw.org
+ *				http://jhotdraw.sourceforge.net
+ * Copyright:	© by the original author(s) and all contributors
+ * License:		Lesser GNU Public License (LGPL)
+ *				http://www.opensource.org/licenses/lgpl-license.html
+ */
+package org.jhotdraw.test.util;
 
 import junit.framework.TestSuite;
 // JUnitDoclet begin import
@@ -14,7 +22,6 @@ import junit.framework.TestSuite;
 * the tool, the licence and the authors.
 */
 
-
 // JUnitDoclet begin javadoc_class
 /**
 * TestSuite UtilSuite
@@ -24,61 +31,58 @@ public class UtilSuite
 // JUnitDoclet begin extends_implements
 // JUnitDoclet end extends_implements
 {
-  // JUnitDoclet begin class
-  // JUnitDoclet end class
-  
-  public static TestSuite suite() {
-    
-    TestSuite suite;
-    
-    suite = new TestSuite("CH.ifa.draw.test.util");
-    
-    suite.addTestSuite(CH.ifa.draw.test.util.JDOStorageFormatTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.ReverseListEnumeratorTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.StandardVersionControlStrategyTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.VersionManagementTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.UndoableHandleTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.UndoRedoActivityTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.UndoableAdapterTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.UndoableToolTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.RedoCommandTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.UndoCommandTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.UndoableCommandTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.GraphLayoutTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.BoundsTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.StorageFormatManagerTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.SerializationStorageFormatTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.StandardStorageFormatTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.PaletteLayoutTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.PaletteIconTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.IconkitTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.GeomTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.FloatingTextFieldTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.FillerTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.CommandMenuTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.CommandChoiceTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.CommandButtonTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.StorableInputTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.StorableOutputTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.UndoManagerTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.ColorMapTest.class);
-    suite.addTestSuite(CH.ifa.draw.test.util.ClipboardTest.class);
-    
-    
-    
-    // JUnitDoclet begin method suite()
-    // JUnitDoclet end method suite()
-    
-    return suite;
-  }
-  
-  /**
-  * Method to execute the TestSuite from command line
-  * using JUnit's textui.TestRunner .
-  */
-  public static void main(String[] args) {
-    // JUnitDoclet begin method testsuite.main
-    junit.textui.TestRunner.run(suite());
-    // JUnitDoclet end method testsuite.main
-  }
+	// JUnitDoclet begin class
+	// JUnitDoclet end class
+
+	public static TestSuite suite() {
+
+		TestSuite suite;
+
+		suite = new TestSuite("org.jhotdraw.test.util");
+
+		suite.addTestSuite(org.jhotdraw.test.util.ReverseListEnumeratorTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.StandardVersionControlStrategyTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.VersionManagementTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.UndoableHandleTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.UndoRedoActivityTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.UndoableAdapterTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.UndoableToolTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.RedoCommandTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.UndoCommandTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.UndoableCommandTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.GraphLayoutTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.BoundsTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.StorageFormatManagerTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.SerializationStorageFormatTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.StandardStorageFormatTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.PaletteLayoutTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.PaletteIconTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.IconkitTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.GeomTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.FloatingTextFieldTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.FillerTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.CommandMenuTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.CommandChoiceTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.CommandButtonTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.StorableInputTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.StorableOutputTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.UndoManagerTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.ColorMapTest.class);
+		suite.addTestSuite(org.jhotdraw.test.util.ClipboardTest.class);
+
+		// JUnitDoclet begin method suite()
+		// JUnitDoclet end method suite()
+
+		return suite;
+	}
+
+	/**
+	* Method to execute the TestSuite from command line
+	* using JUnit's textui.TestRunner .
+	*/
+	public static void main(String[] args) {
+		// JUnitDoclet begin method testsuite.main
+		junit.textui.TestRunner.run(suite());
+		// JUnitDoclet end method testsuite.main
+	}
 }

@@ -1,18 +1,16 @@
 /*
- *  @(#)TextAreaFigure.java
+ * @(#)HTMLContentProducer.java
  *
- *  Project:		JHotdraw - a GUI framework for technical drawings
- *  http://www.jhotdraw.org
- *  http://jhotdraw.sourceforge.net
- *  Copyright:	© by the original author(s) and all contributors
- *  License:		Lesser GNU Public License (LGPL)
- *  http://www.opensource.org/licenses/lgpl-license.html
+ * Project:		JHotdraw - a GUI framework for technical drawings
+ *				http://www.jhotdraw.org
+ *				http://jhotdraw.sourceforge.net
+ * Copyright:	© by the original author(s) and all contributors
+ * License:		Lesser GNU Public License (LGPL)
+ *				http://www.opensource.org/licenses/lgpl-license.html
  */
 package CH.ifa.draw.contrib.html;
 
-import java.awt.Color;
 import java.io.Serializable;
-import CH.ifa.draw.util.Storable;
 
 /**
  * HTMLContentProducer produces HTML suitable  values and encoded strings for
@@ -20,11 +18,10 @@ import CH.ifa.draw.util.Storable;
  * It can also transform values into their HTML equivalents, like for instance
  * a mapping between font sizes in points and the HTML valid font size values.<br>
  *
- * @author    Eduardo Francos - InContext
- * @created   30 avril 2002
- * @version   1.0
+ * @author  Eduardo Francos - InContext
+ * @created 30 avril 2002
+ * @version <$CURRENT_VERSION$>
  */
-
 public class HTMLContentProducer extends AttributeFigureContentProducer
 		 implements Serializable {
 
@@ -47,10 +44,10 @@ public class HTMLContentProducer extends AttributeFigureContentProducer
 			{7, 36, Integer.MAX_VALUE}
 			};
 
-
-	/**Constructor for the HTMLContentProducer object */
+	/**
+	 * Constructor for the HTMLContentProducer object
+	 */
 	public HTMLContentProducer() { }
-
 
 	/**
 	 * Gets the HTML content value for the requested attribute
@@ -70,7 +67,6 @@ public class HTMLContentProducer extends AttributeFigureContentProducer
 		return super.getContent(context, ctxAttrName, ctxAttrValue);
 	}
 
-
 	/**
 	 * Gets the hTMLFontSizeEquivalent attribute of the HTMLTextAreaFigure object
 	 *
@@ -87,6 +83,4 @@ public class HTMLContentProducer extends AttributeFigureContentProducer
 		// not found?!?!?! return the "normal" font size
 		return 3;
 	}
-
-
 }

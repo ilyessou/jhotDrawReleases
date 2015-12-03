@@ -9,18 +9,18 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.samples.javadraw;
+package org.jhotdraw.samples.javadraw;
 
-import CH.ifa.draw.framework.*;
-import CH.ifa.draw.standard.*;
-import CH.ifa.draw.figures.*;
-import CH.ifa.draw.util.*;
-import CH.ifa.draw.application.*;
-import CH.ifa.draw.contrib.*;
-import CH.ifa.draw.contrib.html.HTMLTextAreaFigure;
-import CH.ifa.draw.contrib.html.HTMLTextAreaTool;
-import CH.ifa.draw.contrib.zoom.ZoomDrawingView;
-import CH.ifa.draw.contrib.zoom.ZoomTool;
+import org.jhotdraw.framework.*;
+import org.jhotdraw.standard.*;
+import org.jhotdraw.figures.*;
+import org.jhotdraw.util.*;
+import org.jhotdraw.application.*;
+import org.jhotdraw.contrib.*;
+import org.jhotdraw.contrib.html.HTMLTextAreaFigure;
+import org.jhotdraw.contrib.html.HTMLTextAreaTool;
+import org.jhotdraw.contrib.zoom.ZoomDrawingView;
+import org.jhotdraw.contrib.zoom.ZoomTool;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,7 +33,7 @@ import java.net.URL;
 public  class JavaDrawApp extends MDI_DrawApplication {
 
 	private Animator            fAnimator;
-	private static String       fgSampleImagesPath = "/CH/ifa/draw/samples/javadraw/sampleimages";
+	private static String       fgSampleImagesPath = "/org/jhotdraw/samples/javadraw/sampleimages";
 	private static String       fgSampleImagesResourcePath = fgSampleImagesPath + "/";
 
 	JavaDrawApp() {
@@ -42,7 +42,7 @@ public  class JavaDrawApp extends MDI_DrawApplication {
 
 	/**
 	 * Expose constructor for benefit of subclasses.
-	 * 
+	 *
 	 * @param title The window title for this application's frame.
 	 */
 	public JavaDrawApp(String title) {
@@ -59,8 +59,13 @@ public  class JavaDrawApp extends MDI_DrawApplication {
 		return new JavaDrawApp();
 	}
 
-	protected DrawingView createDrawingView() {
-		return new ZoomDrawingView(this);
+	protected DrawingView createDrawingView(Drawing newDrawing) {
+		Dimension d = getDrawingViewSize();
+		DrawingView newDrawingView = new ZoomDrawingView(this, d.width, d.height);
+		newDrawingView.setDrawing(newDrawing);
+		// notify listeners about created view when the view is added to the desktop
+		//fireViewCreatedEvent(newDrawingView);
+		return newDrawingView;
 	}
 
 	//-- application life cycle --------------------------------------------
@@ -197,6 +202,9 @@ public  class JavaDrawApp extends MDI_DrawApplication {
 	protected JMenu createImagesMenu() {
 		CommandMenu menu = new CommandMenu("Images");
 		URL url = getClass().getResource(fgSampleImagesPath);
+		if (url == null) {
+			throw new JHotDrawRuntimeException("Could not locate images: " + fgSampleImagesPath);
+		}
 		File imagesDirectory = new File(url.getFile());
 
 		try {

@@ -1,24 +1,21 @@
 /*
- *  @(#)TextAreaFigure.java
+ * @(#)TextHolderContentProducer.java
  *
- *  Project:		JHotdraw - a GUI framework for technical drawings
- *  http://www.jhotdraw.org
- *  http://jhotdraw.sourceforge.net
- *  Copyright:	© by the original author(s) and all contributors
- *  License:		Lesser GNU Public License (LGPL)
- *  http://www.opensource.org/licenses/lgpl-license.html
+ * Project:		JHotdraw - a GUI framework for technical drawings
+ *				http://www.jhotdraw.org
+ *				http://jhotdraw.sourceforge.net
+ * Copyright:	© by the original author(s) and all contributors
+ * License:		Lesser GNU Public License (LGPL)
+ *				http://www.opensource.org/licenses/lgpl-license.html
  */
 package CH.ifa.draw.contrib.html;
 
 import java.io.IOException;
 
 import java.io.Serializable;
-import CH.ifa.draw.contrib.TextAreaFigure;
-import CH.ifa.draw.util.Storable;
 import CH.ifa.draw.util.StorableInput;
 import CH.ifa.draw.util.StorableOutput;
 import CH.ifa.draw.standard.TextHolder;
-import CH.ifa.draw.framework.Figure;
 
 /**
  * TextAreaFigureContentProducer produces text contents from an existing
@@ -29,19 +26,19 @@ import CH.ifa.draw.framework.Figure;
  * figure into other figures so that updating the master figure automatically
  * changes all dependent figures as well. Kind of a hot text snippet if you like<br>
  *
- * @author    Eduardo Francos - InContext
- * @created   30 avril 2002
- * @version   1.0
+ * @author  Eduardo Francos - InContext
+ * @created 30 avril 2002
+ * @version <$CURRENT_VERSION$>
  */
-
 public class TextHolderContentProducer extends AbstractContentProducer
 		 implements Serializable {
-	TextHolder fFigure;
 
+	private TextHolder myTextHolder;
 
-	/**Constructor for the TextAreaFigureContentProducer object */
+	/**
+	 * Constructor for the TextAreaFigureContentProducer object
+	 */
 	public TextHolderContentProducer() { }
-
 
 	/**
 	 *Constructor for the TextAreaFigureContentProducer object
@@ -49,9 +46,8 @@ public class TextHolderContentProducer extends AbstractContentProducer
 	 * @param figure  Description of the Parameter
 	 */
 	public TextHolderContentProducer(TextHolder figure) {
-		fFigure = figure;
+		setTextHolder(figure);
 	}
-
 
 	/**
 	 * Gets the text from the text figure
@@ -64,11 +60,10 @@ public class TextHolderContentProducer extends AbstractContentProducer
 	public Object getContent(ContentProducerContext context, String ctxAttrName, Object ctxAttrValue) {
 		// if we have our own figure then use it
 		// otherwise use the one supplied
-		TextHolder figure = (fFigure != null) ? fFigure : (TextHolder)ctxAttrValue;
+		TextHolder figure = (getTextHolder() != null) ? getTextHolder() : (TextHolder)ctxAttrValue;
 		// return the areas text
 		return figure.getText();
 	}
-
 
 	/**
 	 * Writes the storable
@@ -77,9 +72,8 @@ public class TextHolderContentProducer extends AbstractContentProducer
 	 */
 	public void write(StorableOutput dw) {
 		super.write(dw);
-		dw.writeStorable((Figure)fFigure);
+		dw.writeStorable(getTextHolder().getRepresentingFigure());
 	}
-
 
 	/**
 	 * Writes the storable
@@ -87,9 +81,16 @@ public class TextHolderContentProducer extends AbstractContentProducer
 	 * @param dr               the storable input
 	 * @exception IOException  thrown by called methods
 	 */
-	public void read(StorableInput dr)
-		throws IOException {
+	public void read(StorableInput dr) throws IOException {
 		super.read(dr);
-		fFigure = (TextHolder)dr.readStorable();
+		setTextHolder((TextHolder)dr.readStorable());
+	}
+
+	protected TextHolder getTextHolder() {
+		return myTextHolder;
+	}
+
+	public void setTextHolder(TextHolder newFigure) {
+		myTextHolder = newFigure;
 	}
 }

@@ -9,11 +9,11 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.contrib.dnd;
+package org.jhotdraw.contrib.dnd;
 
-import CH.ifa.draw.framework.FigureEnumeration;
-import CH.ifa.draw.standard.FigureEnumerator;
-import CH.ifa.draw.util.CollectionsFactory;
+import org.jhotdraw.framework.FigureEnumeration;
+import org.jhotdraw.standard.FigureEnumerator;
+import org.jhotdraw.util.CollectionsFactory;
 
 import java.awt.Point;
 import java.util.List;
@@ -26,13 +26,14 @@ public class DNDFigures implements java.io.Serializable {
 	private List figures;
 	private Point origin;
 
-	public DNDFigures(FigureEnumeration fe, Point origin) {
+	public DNDFigures(FigureEnumeration fe, Point newOrigin) {
 		this.figures = CollectionsFactory.current().createList();
 		// copy figure enumeration because enumerations should not be fields
+		//the drop operation will serialize and deseralize which I believe is a form of copy!?
 		while (fe.hasNextFigure()) {
 			figures.add(fe.nextFigure());
 		}
-		this.origin = origin;
+		origin = newOrigin;
 	}
 
 	public FigureEnumeration getFigures() {

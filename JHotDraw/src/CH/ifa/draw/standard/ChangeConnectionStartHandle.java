@@ -13,7 +13,6 @@ package CH.ifa.draw.standard;
 
 import CH.ifa.draw.framework.*;
 import CH.ifa.draw.util.Undoable;
-import CH.ifa.draw.util.UndoableAdapter;
 import java.awt.Point;
 
 /**
@@ -27,7 +26,7 @@ public class ChangeConnectionStartHandle extends ChangeConnectionHandle {
 	/**
 	 * Constructs the connection handle for the given start figure.
 	 */
-	public ChangeConnectionStartHandle(Figure owner) {
+	public ChangeConnectionStartHandle(ConnectionFigure owner) {
 		super(owner);
 	}
 
@@ -84,4 +83,8 @@ public class ChangeConnectionStartHandle extends ChangeConnectionHandle {
 			return tempStartConnector;
 		}
 	}
+    
+    protected boolean canConnectTo(Figure figure) {
+        return getConnection().canConnect(figure, source().owner());
+}
 }

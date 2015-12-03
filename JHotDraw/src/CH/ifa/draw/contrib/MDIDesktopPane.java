@@ -12,6 +12,7 @@
 package CH.ifa.draw.contrib;
 
 import CH.ifa.draw.framework.DrawingView;
+import CH.ifa.draw.standard.NullDrawingView;
 import CH.ifa.draw.application.DrawApplication;
 
 import javax.swing.*;
@@ -37,15 +38,12 @@ public class MDIDesktopPane extends JDesktopPane implements Desktop {
 	private static int FRAME_OFFSET=20;
 	private MDIDesktopManager manager;
 	private DrawApplication myDrawApplication;
+	private DesktopEventService myDesktopEventService;
 
-	/**
-	 * You need this if you are not using a component that inherits from
-	 * JComponent
-	 */
-	//private final EventListenerList listenerList = new EventListenerList();
 	private DrawingView selectedView;
 
 	public MDIDesktopPane(DrawApplication newDrawApplication) {
+		setDesktopEventService(createDesktopEventService());
 		setDrawApplication(newDrawApplication);
 		manager=new MDIDesktopManager(this);
 		setDesktopManager(manager);
@@ -81,8 +79,9 @@ public class MDIDesktopPane extends JDesktopPane implements Desktop {
 		public void internalFrameClosed(InternalFrameEvent e) {
 			DrawingView dv = Helper.getDrawingView(e.getInternalFrame());
 			if (getComponentCount() == 0){
-				setActiveDrawingView(null);
-				fireDrawingViewSelectedEvent(selectedView);
+				DrawingView oldView = getActiveDrawingView();
+				setActiveDrawingView(NullDrawingView.getManagedDrawingView(oldView.editor()));
+				fireDrawingViewSelectedEvent(oldView, getActiveDrawingView());
 			}
 			fireDrawingViewRemovedEvent(dv);
 		}
@@ -110,8 +109,9 @@ public class MDIDesktopPane extends JDesktopPane implements Desktop {
 		 */
 		public void internalFrameActivated(InternalFrameEvent e) {
 			DrawingView dv = Helper.getDrawingView(e.getInternalFrame());
+			DrawingView oldView = getActiveDrawingView();
 			setActiveDrawingView(dv);
-			fireDrawingViewSelectedEvent(selectedView);
+			fireDrawingViewSelectedEvent(oldView, getActiveDrawingView());
 		}
 
 		//public void internalFrameDeactivated(InternalFrameEvent e) {
@@ -119,49 +119,16 @@ public class MDIDesktopPane extends JDesktopPane implements Desktop {
 	};
 
 
-	private void fireDrawingViewAddedEvent(final DrawingView dv) {
-		final Object[] listeners = listenerList.getListenerList();
-		DesktopListener dpl;
-		DesktopEvent dpe = null;
-		for (int i = listeners.length-2; i >= 0; i -= 2) {
-			if (listeners[i] == DesktopListener.class) {
-				if (dpe == null) {
-					dpe = new DesktopEvent(MDIDesktopPane.this, dv);
-				}
-				dpl = (DesktopListener)listeners[i+1];
-				dpl.drawingViewAdded(dpe);
-			}
-		}
+	protected void fireDrawingViewAddedEvent(final DrawingView dv) {
+		getDesktopEventService().fireDrawingViewAddedEvent(dv);
 	}
 
-	private void fireDrawingViewRemovedEvent(final DrawingView dv) {
-		final Object[] listeners = listenerList.getListenerList();
-		DesktopListener dpl;
-		DesktopEvent dpe= null;
-		for (int i = listeners.length-2; i >= 0; i -= 2) {
-			if (listeners[i] == DesktopListener.class) {
-				if (dpe == null) {
-					dpe = new DesktopEvent(MDIDesktopPane.this, dv);
-				}
-				dpl = (DesktopListener)listeners[i+1];
-				dpl.drawingViewRemoved(dpe);
-			}
-		}
+	protected void fireDrawingViewRemovedEvent(final DrawingView dv) {
+		getDesktopEventService().fireDrawingViewRemovedEvent(dv);
 	}
 
-	private void fireDrawingViewSelectedEvent(final DrawingView dv) {
-		final Object[] listeners = listenerList.getListenerList();
-		DesktopListener dpl;
-		DesktopEvent dpe = null;
-		for (int i = listeners.length-2; i >= 0; i -= 2) {
-			if (listeners[i] == DesktopListener.class) {
-				if (dpe == null) {
-					dpe = new DesktopEvent(MDIDesktopPane.this, dv);
-				}
-				dpl = (DesktopListener)listeners[i+1];
-				dpl.drawingViewSelected(dpe);
-			}
-		}
+	protected void fireDrawingViewSelectedEvent(final DrawingView oldView, final DrawingView newView) {
+		getDesktopEventService().fireDrawingViewSelectedEvent(oldView, newView);
 	}
 
 /*	public void setBounds(int x, int y, int w, int h) {
@@ -222,8 +189,9 @@ public class MDIDesktopPane extends JDesktopPane implements Desktop {
 		int w;
 		int h;
 
-		frame.addInternalFrameListener(internalFrameListener);//should be done before added to desktop
-		Component retval = super.add(frame);
+		//should be done before added to desktop
+		frame.addInternalFrameListener(internalFrameListener);
+		super.add(frame);
 
 		checkDesktopSize();
 		if (array.length > 0) {
@@ -305,12 +273,24 @@ public class MDIDesktopPane extends JDesktopPane implements Desktop {
 		}
 	}
 */
-	public void addDesktopListener(DesktopListener dpl){
-		listenerList.add(DesktopListener.class, dpl);
+	protected DesktopEventService getDesktopEventService() {
+		return myDesktopEventService;
 	}
 
-	public void removeDesktopListener(DesktopListener dpl){
-	    listenerList.remove(DesktopListener.class, dpl);
+	private void setDesktopEventService(DesktopEventService newDesktopEventService) {
+		myDesktopEventService = newDesktopEventService;
+	}
+
+	protected DesktopEventService createDesktopEventService() {
+		return new DesktopEventService(this, this);
+	}
+
+	public void addDesktopListener(DesktopListener dpl) {
+		getDesktopEventService().addDesktopListener(dpl);
+	}
+
+	public void removeDesktopListener(DesktopListener dpl) {
+		getDesktopEventService().removeDesktopListener(dpl);
 	}
 
 	/**
@@ -548,7 +528,9 @@ public class MDIDesktopPane extends JDesktopPane implements Desktop {
 	}
 
 	private void checkDesktopSize() {
-		if (getParent()!=null&&isVisible()) manager.resizeDesktop();
+		if ((getParent() != null) && isVisible()) {
+			manager.resizeDesktop();
+		}
 	}
 
 	private void setDrawApplication(DrawApplication newDrawApplication) {

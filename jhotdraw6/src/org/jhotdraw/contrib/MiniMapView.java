@@ -9,11 +9,11 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.contrib;
+package org.jhotdraw.contrib;
 
-import CH.ifa.draw.framework.DrawingView;
-import CH.ifa.draw.framework.DrawingChangeEvent;
-import CH.ifa.draw.framework.DrawingChangeListener;
+import org.jhotdraw.framework.DrawingView;
+import org.jhotdraw.framework.DrawingChangeEvent;
+import org.jhotdraw.framework.DrawingChangeListener;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -186,6 +186,19 @@ public class MiniMapView extends JComponent {
 		Rectangle oldRectangle = getViewRectangle();
 		upperLeft[0] = centerX - oldRectangle.width/2;
 		upperLeft[1] = centerY - oldRectangle.height/2;
+
+        /*
+         * JP, 25-May-03: Avoid positioning of the rectangle outside the
+         * available area. Resulted in very strange artifacts on the screen.
+         */
+        if (upperLeft[0] + oldRectangle.width > getX() + getWidth()) {
+            upperLeft[0] = getX() + getWidth() - oldRectangle.width;
+        }
+
+        if (upperLeft[1] + oldRectangle.height > getY() + getHeight()) {
+            upperLeft[1] = getY() + getHeight() - oldRectangle.height;
+        }
+        
 		return upperLeft;
 	}
 

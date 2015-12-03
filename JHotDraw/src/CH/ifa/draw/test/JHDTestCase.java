@@ -1,17 +1,36 @@
+/*
+ * @(#)Test.java
+ *
+ * Project:		JHotdraw - a GUI framework for technical drawings
+ *				http://www.jhotdraw.org
+ *				http://jhotdraw.sourceforge.net
+ * Copyright:	© by the original author(s) and all contributors
+ * License:		Lesser GNU Public License (LGPL)
+ *				http://www.opensource.org/licenses/lgpl-license.html
+ */
 package CH.ifa.draw.test;
 
-import CH.ifa.draw.samples.javadraw.JavaDrawApp;
-import CH.ifa.draw.framework.DrawingEditor;
 import junit.framework.TestCase;
+import CH.ifa.draw.application.DrawApplication;
+import CH.ifa.draw.samples.javadraw.JavaDrawApp;
 
 public class JHDTestCase extends TestCase {
-	public static DrawingEditor myDrawingEditor = new JavaDrawApp("TestApplication");
+	public JavaDrawApp myDrawingEditor;
 	
 	public JHDTestCase(String name) {
 		super(name);
 	}
 	
-	public DrawingEditor getDrawingEditor() {
+	protected void setUp() throws Exception {
+		myDrawingEditor = new JavaDrawApp("TestApplication");
+	}
+	
+	protected void tearDown() throws Exception {
+		myDrawingEditor.setVisible(false);
+		myDrawingEditor = null;
+	}
+	
+	public DrawApplication getDrawingEditor() {
 		return myDrawingEditor;
 	}
 	
@@ -19,7 +38,7 @@ public class JHDTestCase extends TestCase {
 	 * Some tests might want start from scratch with a new DrawingEditor
 	 * (to avoid side-effects from previous test)
 	 */
-	public DrawingEditor createNewDrawingEditor() {
+	public JavaDrawApp createNewDrawingEditor() {
 		return new JavaDrawApp("TestApplication");
 	}
 }

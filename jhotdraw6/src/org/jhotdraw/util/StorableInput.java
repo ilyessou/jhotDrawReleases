@@ -9,7 +9,7 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.util;
+package org.jhotdraw.util;
 
 import java.io.*;
 import java.awt.Color;
@@ -53,7 +53,7 @@ public class StorableInput {
 
 		if (s.equals("REF")) {
 			int ref = readInt();
-			return (Storable) retrieve(ref);
+			return retrieve(ref);
 		}
 
 		storable = (Storable) makeInstance(s);

@@ -11,10 +11,15 @@
 
 package CH.ifa.draw.standard;
 
-import CH.ifa.draw.framework.*;
-import CH.ifa.draw.util.Undoable;
-import java.awt.*;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.util.List;
+
+import CH.ifa.draw.framework.DrawingEditor;
+import CH.ifa.draw.framework.Figure;
+import CH.ifa.draw.framework.JHotDrawRuntimeException;
+import CH.ifa.draw.util.CollectionsFactory;
+import CH.ifa.draw.util.Undoable;
 
 /**
  * A tool to create new figures. The figure to be
@@ -32,9 +37,17 @@ import java.awt.event.MouseEvent;
  *
  * @version <$CURRENT_VERSION$>
  */
-
-
 public class CreationTool extends AbstractTool {
+
+	/**
+	 * the list of currently added figures
+	 * by: ricardo_padilha.
+	 * description: This has been added to provide support for creation tools that
+	 *              insert more than one figure to the drawing, for example, by
+	 *              maintaining SHIFT down and clicking. However, this class still
+	 *              maintains its normal behavior of creating only one figure. 
+	 */
+	private List    fAddedFigures;
 
 	/**
 	 * the currently created figure
@@ -75,8 +88,19 @@ public class CreationTool extends AbstractTool {
 	public void activate() {
 		super.activate();
 		if (isUsable()) {
-			getActiveView().setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+			getActiveView().setCursor(new AWTCursor(java.awt.Cursor.CROSSHAIR_CURSOR));
 		}
+		setAddedFigures(CollectionsFactory.current().createList());
+	}
+
+	/**
+	 * @see CH.ifa.draw.framework.Tool#deactivate()
+	 */
+	public void deactivate() {
+		setCreatedFigure(null);
+		setAddedFigure(null);
+		setAddedFigures(null);
+		super.deactivate();
 	}
 
 	/**
@@ -85,7 +109,7 @@ public class CreationTool extends AbstractTool {
 	public void mouseDown(MouseEvent e, int x, int y) {
 		super.mouseDown(e, x, y);
 		setCreatedFigure(createFigure());
-		setAddedFigure(view().add(getCreatedFigure()));
+		setAddedFigure(getActiveView().add(getCreatedFigure()));
 		getAddedFigure().displayBox(new Point(getAnchorX(), getAnchorY()), new Point(getAnchorX(), getAnchorY()));
 	}
 
@@ -114,22 +138,22 @@ public class CreationTool extends AbstractTool {
 	 * @see Figure#isEmpty
 	 */
 	public void mouseUp(MouseEvent e, int x, int y) {
-		if (getAddedFigure() != null) {
-			if (getCreatedFigure().isEmpty()) {
-				drawing().remove(getAddedFigure());
-				// nothing to undo
-				setUndoActivity(null);
-			}
-			else {
-				// use undo activity from paste command...
-				setUndoActivity(createUndoActivity());
-
-				// put created figure into a figure enumeration
-				getUndoActivity().setAffectedFigures(new SingleFigureEnumerator(getAddedFigure()));
-			}
-			setAddedFigure(null);
+		if (getAddedFigure() != null && !getCreatedFigure().isEmpty()) {
+			getAddedFigures().add(getAddedFigure());
 		}
-		setCreatedFigure(null);
+		else {
+			getActiveView().remove(getAddedFigure());
+		}
+
+		if (getAddedFigures().isEmpty()) {
+			setUndoActivity(null);
+		}
+		else {
+			// use undo activity from paste command...
+			setUndoActivity(createUndoActivity());
+			// put created figure into a figure enumeration
+			getUndoActivity().setAffectedFigures(new FigureEnumerator(getAddedFigures()));
+		}
 		editor().toolDone();
 	}
 
@@ -151,6 +175,20 @@ public class CreationTool extends AbstractTool {
 	 */
 	protected Figure getPrototypeFigure() {
 		return myPrototypeFigure;
+	}
+
+	/**
+	 * Gets the list of currently added figure
+	 */
+	protected List getAddedFigures() {
+		return fAddedFigures;
+	}
+
+	/**
+	 * Sets the addedFigures attribute of the CreationTool object
+	 */
+	protected void setAddedFigures(List newAddedFigures) {
+		fAddedFigures = newAddedFigures;
 	}
 
 	/**
@@ -186,6 +224,6 @@ public class CreationTool extends AbstractTool {
 	 * Factory method for undo activity
 	 */
 	protected Undoable createUndoActivity() {
-		return new PasteCommand.UndoActivity(view());
+		return new PasteCommand.UndoActivity(getActiveView());
 	}
 }

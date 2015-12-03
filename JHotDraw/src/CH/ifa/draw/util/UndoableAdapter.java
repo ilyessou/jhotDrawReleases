@@ -4,7 +4,7 @@
  * Project:		JHotdraw - a GUI framework for technical drawings
  *				http://www.jhotdraw.org
  *				http://jhotdraw.sourceforge.net
- * Copyright:	© by the original author(s) and all contributors
+ * Copyright:	? by the original author(s) and all contributors
  * License:		Lesser GNU Public License (LGPL)
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
@@ -13,8 +13,10 @@ package CH.ifa.draw.util;
 
 import CH.ifa.draw.framework.*;
 import CH.ifa.draw.standard.FigureEnumerator;
+import CH.ifa.draw.standard.ReverseFigureEnumerator;
 import CH.ifa.draw.standard.StandardFigureSelection;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,7 +36,7 @@ public class UndoableAdapter implements Undoable {
 	public UndoableAdapter(DrawingView newDrawingView) {
 		setDrawingView(newDrawingView);
 	}
-	
+
 	/**
 	 * Undo the activity
 	 * @return true if the activity could be undone, false otherwise
@@ -43,51 +45,63 @@ public class UndoableAdapter implements Undoable {
 		return isUndoable();
 	}
 
-	/*
+	/**
 	 * Redo the activity
 	 * @return true if the activity could be redone, false otherwise
 	 */
 	public boolean redo() {
 		return isRedoable();
 	}
-	
+
 	public boolean isUndoable() {
 		return myIsUndoable;
 	}
-	
+
 	public void setUndoable(boolean newIsUndoable) {
 		myIsUndoable = newIsUndoable;
 	}
-	
+
 	public boolean isRedoable() {
 		return myIsRedoable;
 	}
-	
+
 	public void setRedoable(boolean newIsRedoable) {
 		myIsRedoable = newIsRedoable;
 	}
-	
+
 	public void setAffectedFigures(FigureEnumeration newAffectedFigures) {
 		// the enumeration is not reusable therefore a copy is made
 		// to be able to undo-redo the command several time
+		if(newAffectedFigures == null) {
+			throw new IllegalArgumentException();
+		}
 		rememberFigures(newAffectedFigures);
 	}
 
 	public FigureEnumeration getAffectedFigures() {
-		return new FigureEnumerator(CollectionsFactory.current().createList(myAffectedFigures));
+		if(myAffectedFigures == null) {
+			return new FigureEnumerator(Collections.EMPTY_LIST);
+		}
+		else {
+			return new FigureEnumerator(CollectionsFactory.current().createList(myAffectedFigures));
+		}
 	}
-	
+
+	public FigureEnumeration getAffectedFiguresReversed() {
+		return new ReverseFigureEnumerator(CollectionsFactory.current().createList(myAffectedFigures));
+	}
+
 	public int getAffectedFiguresCount() {
 		return myAffectedFigures.size();
 	}
-	
+
 	protected void rememberFigures(FigureEnumeration toBeRemembered) {
 		myAffectedFigures = CollectionsFactory.current().createList();
 		while (toBeRemembered.hasNextFigure()) {
 			myAffectedFigures.add(toBeRemembered.nextFigure());
 		}
 	}
-	
+
 	/**
 	 * Releases all resources related to an undoable activity
 	 */
@@ -110,11 +124,11 @@ public class UndoableAdapter implements Undoable {
 		setAffectedFigures(StandardFigureSelection.duplicateFigures(
 			getAffectedFigures(), getAffectedFiguresCount()));
 	}
-	
+
 	public DrawingView getDrawingView() {
 		return myDrawingView;
 	}
-	
+
 	protected void setDrawingView(DrawingView newDrawingView) {
 		myDrawingView = newDrawingView;
 	}

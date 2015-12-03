@@ -9,12 +9,16 @@
  *				http://www.opensource.org/licenses/lgpl-license.html
  */
 
-package CH.ifa.draw.contrib;
+package org.jhotdraw.contrib;
 
-import javax.swing.*;
-import java.awt.*;
-import CH.ifa.draw.contrib.*;
-import CH.ifa.draw.framework.DrawingView;
+import java.awt.Component;
+import java.awt.Container;
+
+// JUnitDoclet begin import
+import javax.swing.JScrollPane;
+
+import org.jhotdraw.framework.DrawingView;
+// JUnitDoclet end import
 
 /**
  * @author  C.L.Gilbert <dnoyeb@users.sourceforge.net>
